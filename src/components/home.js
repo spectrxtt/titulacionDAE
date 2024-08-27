@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from './sidebar';
 import AlertasYNotificaciones from './AlertasYNotificaciones';
 import ResumenDeCitas from './ResumenDeCitas';
-import Citas from './Citas';
+import CargarCitas from './Citas';
 import Integracion from './Integracion';
 import Configuracion from './Configuracion';
 import Expedientes from './Expedientes';
@@ -27,7 +27,7 @@ const Home = () => {
         return activeComponents.map(component => {
             switch (component) {
                 case 'Citas':
-                    return <Citas key="Citas" />;
+                    return <CargarCitas key="Citas" />;
                 case 'Integracion':
                     return <Integracion key="Integracion" />;
                 case 'Configuracion':
