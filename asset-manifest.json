@@ -1,16 +1,24 @@
 {
   "files": {
-    "main.css": "/titulacionDAE/static/css/main.f855e6bc.css",
-    "main.js": "/titulacionDAE/static/js/main.1e90369e.js",
+    "main.css": "/titulacionDAE/static/css/main.7799de23.css",
+    "main.js": "/titulacionDAE/static/js/main.3efaef64.js",
     "static/js/453.8ab44547.chunk.js": "/titulacionDAE/static/js/453.8ab44547.chunk.js",
-    "static/media/logo.svg": "/titulacionDAE/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "static/media/fa-solid-900.ttf": "/titulacionDAE/static/media/fa-solid-900.07ed6d5fa32c1d54af0f.ttf",
+    "static/media/fa-brands-400.ttf": "/titulacionDAE/static/media/fa-brands-400.0ff70dcbf135d859ebf3.ttf",
+    "static/media/fa-solid-900.woff2": "/titulacionDAE/static/media/fa-solid-900.93f719f4d62bfa3e748c.woff2",
+    "static/media/fa-brands-400.woff2": "/titulacionDAE/static/media/fa-brands-400.bb8d5a145e22822103fb.woff2",
+    "static/media/fa-regular-400.ttf": "/titulacionDAE/static/media/fa-regular-400.17a6e1aebccdbaa39e78.ttf",
+    "static/media/garza (2).png": "/titulacionDAE/static/media/garza (2).628b2e9eb8dc830eb82c.png",
+    "static/media/fa-regular-400.woff2": "/titulacionDAE/static/media/fa-regular-400.bc3722686635b5f86132.woff2",
+    "static/media/fa-v4compatibility.ttf": "/titulacionDAE/static/media/fa-v4compatibility.0f6cb412603527bda691.ttf",
+    "static/media/fa-v4compatibility.woff2": "/titulacionDAE/static/media/fa-v4compatibility.6cfec8414be20e2c3426.woff2",
     "index.html": "/titulacionDAE/index.html",
-    "main.f855e6bc.css.map": "/titulacionDAE/static/css/main.f855e6bc.css.map",
-    "main.1e90369e.js.map": "/titulacionDAE/static/js/main.1e90369e.js.map",
+    "main.7799de23.css.map": "/titulacionDAE/static/css/main.7799de23.css.map",
+    "main.3efaef64.js.map": "/titulacionDAE/static/js/main.3efaef64.js.map",
     "453.8ab44547.chunk.js.map": "/titulacionDAE/static/js/453.8ab44547.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f855e6bc.css",
-    "static/js/main.1e90369e.js"
+    "static/css/main.7799de23.css",
+    "static/js/main.3efaef64.js"
   ]
 }
