@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+h3{
+    font-family: "Montserrat", sans-serif;
+    font-weight: bolder;
+}
+.containerNotify {
+    flex: 1;
+    max-width: 335px;
+    padding: 10px;
+    border: 1px solid var(--clr-rojo);
+    background-color: var(--clr-salmon);
+    border-radius: .5rem;
+}
+.list{
+    list-style-type: none;
+    padding: 0;
+}
+.listItem{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    margin-bottom: 5px;
+    background-color: var(--clr-salmon);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}

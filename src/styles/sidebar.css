@@ -1,0 +1,103 @@
+/* sidebar.css */
+.sidebar {
+    height: 100vh;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--clr-vino);
+    padding-top: 20px;
+    transition: width 0.3s;
+}
+
+.sidebar.closed {
+    width: 80px;
+}
+.sidebar.closed .fa-chevron-left{
+    font-size: 2.25rem;
+    padding-block: 3rem;
+}
+.sidebar.closed img{
+    width: 56px;
+    margin-left: -15px;
+}
+.sidebar.closed .dataPerfilInicio span {
+    display: none;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+
+}
+
+.sidebar ul li {
+    padding: 1rem .75rem;
+    text-align: left;
+    color: white;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+.sidebar ul li:hover{
+    background-color: var(--clr-naranja);
+    border-radius: .5rem;
+    margin-inline: 1rem;
+}
+.sidebar button{
+    padding: 0rem .15rem;
+    text-align: left;
+    color: white;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}
+.sidebar .fa-solid{
+    font-size: 1.5rem;
+}
+
+.sidebar ul li i {
+    margin-right: 1rem;
+}
+
+.sidebar ul li .hidden {
+    display: none;
+}
+
+.dataPerfilInicio ul li .hidden {
+    display: none;
+}
+
+button{
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    color: white;
+}
+.perfil img{
+    width: 48px;
+}
+.perfil{
+    display: flex;
+    flex-direction: row;
+    padding-left: -3rem;
+
+}
+.dataPerfilInicio{
+    display: flex;
+    flex-direction: column;
+    padding-left: .75rem;
+    padding-top: .65rem;
+    font-size: 1.25rem;
+}
+.openSide{
+    margin-top: 2rem;
+    margin-left: 1rem;
+    transition: 0.3s;
+}
+.openSide:hover {
+    background-color: var(--clr-naranja);
+    padding-inline: .5rem;
+    border-radius: .5rem;
+    width: 50px;
+}

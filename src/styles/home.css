@@ -1,0 +1,14 @@
+.appContainer {
+    display: flex;
+}
+
+.mainContent {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.contentRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}

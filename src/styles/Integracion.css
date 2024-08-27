@@ -1,0 +1,37 @@
+.containerIntegracion{
+    min-width: 500px;
+
+    padding: 10px;
+    border: 1px solid var(--clr-rojo);
+    border-radius: .5rem;
+    background-color: #FAF3EE;
+    text-align: center;
+    margin-left: 10rem;
+}
+.table{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+
+}
+.button{
+    color: #1b1b1b;
+    padding: 5px 10px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: underline;
+    border-radius: .5rem;
+    transition: .3s;
+}
+.button:hover{
+    background-color: var(--clr-naranja);
+    border-radius: .5rem;
+    color: white;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center; /* Esto centra el contenido de las celdas */
+
+}
+
