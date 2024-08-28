@@ -27,7 +27,7 @@ const Integracion = () => {
 
     return (
         <div className="containerIntegracion">
-            <h3>CITAS DEL DÍA</h3>
+            <h3>EXPEDIENTES</h3>
             <table className="table">
                 <thead>
                 <tr>

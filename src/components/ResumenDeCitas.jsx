@@ -1,24 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../styles/citas.css';
-import DatosPersonales from "./formulario_Integracion/datosPersonales";
 
-
-const ResumenDeCitas = () => {
-    const [citas, setCitas] = useState([
+const ResumenDeCitas = ({ onVerClick }) => {
+    const citas = [
         { id: 1, cuenta: '12345', nombre: 'Carlos Pérez López', fecha: '13/08/24', estado: 'Pendiente' },
         { id: 2, cuenta: '12345', nombre: 'Carlos Pérez López', fecha: '13/08/24', estado: 'Pendiente' },
         { id: 3, cuenta: '12345', nombre: 'Carlos Pérez López', fecha: '13/08/24', estado: 'Pendiente' },
-    ]);
-
-    const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
-
-    const handleVerClick = () => {
-        setMostrarDatosPersonales(true);
-    };
-
-    if (mostrarDatosPersonales) {
-        return <DatosPersonales />;
-    }
+    ];
 
     return (
         <div className="containerCitas">
@@ -41,7 +29,7 @@ const ResumenDeCitas = () => {
                         <td>{cita.fecha}</td>
                         <td>{cita.estado}</td>
                         <td>
-                            <button className="button" onClick={handleVerClick}>VER</button>
+                            <button className="button" onClick={onVerClick}>VER</button>
                         </td>
                     </tr>
                 ))}

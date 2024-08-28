@@ -1,14 +1,36 @@
-.appContainer {
+appContainer {
     display: flex;
+    min-height: 100vh;
 }
 
 .mainContent {
     flex-grow: 1;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .contentRow {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: flex-start;
     gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.componentWrapper {
+    flex: 1;
+    min-width: 0;
+    max-width: 600px;
+}
+
+
+@media (max-width: 960px) {
+    .contentRow {
+        flex-direction: column;
+        padding-left: 18rem;
+    }
 }

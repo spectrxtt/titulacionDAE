@@ -20,8 +20,8 @@ const Sidebar = ({ onComponentChange }) => {
                     <div className={"perfil"}>
                         <img src={logo} alt="logo_uaeh" className="logoG"/>
                         <div className={"dataPerfilInicio"}>
-                            <span>Usuario</span>
-                            <span>ROL</span>
+                            <span>Modesto</span>
+                            <span>Jefe</span>
                         </div>
                     </div>
                 </li>

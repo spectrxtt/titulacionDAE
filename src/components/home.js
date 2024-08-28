@@ -4,6 +4,7 @@ import AlertasYNotificaciones from './AlertasYNotificaciones';
 import ResumenDeCitas from './ResumenDeCitas';
 import CargarCitas from './Citas';
 import Integracion from './Integracion';
+import DatosPersonales from './formulario_Integracion/datosPersonales';
 import Configuracion from './Configuracion';
 import Expedientes from './Expedientes';
 import Reportes from './Reportes';
@@ -13,15 +14,20 @@ import '../styles/home.css';
 
 const Home = () => {
     const [activeComponents, setActiveComponents] = useState(['Inicio']);
+    const [showDatosPersonales, setShowDatosPersonales] = useState(false);
 
     const renderComponents = () => {
-        if (activeComponents.includes('Inicio')) {
+        if (activeComponents.includes('Inicio') && !showDatosPersonales) {
             return (
                 <div className="contentRow">
                     <AlertasYNotificaciones />
-                    <ResumenDeCitas />
+                    <ResumenDeCitas onVerClick={() => setShowDatosPersonales(true)} />
                 </div>
             );
+        }
+
+        if (showDatosPersonales) {
+            return <DatosPersonales />;
         }
 
         return activeComponents.map(component => {
@@ -46,10 +52,13 @@ const Home = () => {
 
     return (
         <div className="appContainer">
-            <Sidebar onComponentChange={setActiveComponents} />
-            <div className="mainContent">
+            <Sidebar onComponentChange={(components) => {
+                setActiveComponents(components);
+                setShowDatosPersonales(false);
+            }} />
+            <main className="mainContent">
                 {renderComponents()}
-            </div>
+            </main>
         </div>
     );
 };

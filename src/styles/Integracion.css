@@ -1,37 +1,105 @@
+.reportes-wrapper {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 .containerIntegracion{
     min-width: 500px;
-
     padding: 10px;
     border: 1px solid var(--clr-rojo);
     border-radius: .5rem;
     background-color: #FAF3EE;
     text-align: center;
-    margin-left: 10rem;
 }
-.table{
+.filtros-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filtros-container input,
+.filtros-container select,
+.filtros-container button {
+    padding: 8px;
+    border: 1px solid var(--clr-rojo);
+    border-radius: 4px;
+}
+
+.filtros-container button {
+    background-color: var(--clr-rojo);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.filtros-container button:hover {
+    background-color: var(--clr-vino);
+}
+
+.containerReportes {
+    min-width: 500px;
+    padding: 10px;
+    border: 1px solid var(--clr-rojo);
+    border-radius: .5rem;
+    background-color: #FAF3EE;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.table {
     width: 100%;
     border-collapse: collapse;
     margin: 0 auto;
+}
 
-}
-.button{
-    color: #1b1b1b;
-    padding: 5px 10px;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: underline;
-    border-radius: .5rem;
-    transition: .3s;
-}
-.button:hover{
+.imprimir-btn {
+    padding: 10px 20px;
     background-color: var(--clr-naranja);
-    border-radius: .5rem;
     color: white;
+    border: none;
+    border-radius: .5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.imprimir-btn:hover {
+    background-color: var(--clr-vino);
 }
 
 th, td {
     padding: 10px;
-    text-align: center; /* Esto centra el contenido de las celdas */
-
+    text-align: center;
 }
 
+@media (max-width: 960px) {
+    .reportes-wrapper {
+        margin-left: 220px; /* Ajusta este valor según el ancho de tu sidebar */
+    }
+    .containerIntegracion {
+        flex-direction: column;
+        font-size: .75rem;
+        margin-left: 12rem;
+
+    }
+    .containerReportes {
+        font-size: .75rem;
+        min-width: auto;
+        width: 100%;
+    }
+
+    .filtros-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .table {
+        font-size: 0.7rem;
+    }
+
+    th, td {
+        padding: 5px;
+    }
+}

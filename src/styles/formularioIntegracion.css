@@ -56,9 +56,9 @@ select {
 }
 
 .boton_integracionS button {
-    background-color: white;
-    color: black;
-    border: 1px solid var(--clr-rojo);
+    background-color: var(--clr-rojo);
+    color: white;
+    border: none;
     border-radius: .5rem;
     width: 10rem;
     min-height: 2.8rem;
@@ -73,7 +73,39 @@ select {
 h2{
     padding-bottom: 1rem;
 }
+
 .boton_integracionS button:hover{
-    background-color: var(--clr-rojo);
-    color: white;
+    background-color: var(--clr-vino);
+}
+
+@media (max-width: 960px) {
+    .personales {
+        padding-left: 220px; /* Ajusta este valor según el ancho de tu sidebar */
+    }
+
+    .form-container-personales {
+        max-width: 100%;
+    }
+
+    label, input, select {
+        font-size: 12px;
+    }
+
+    input, select {
+        padding: 8px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .boton_integracionS button {
+        width: 8rem;
+        min-height: 2.4rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
 }
