@@ -81,11 +81,12 @@ const Expedientes = () => {
                     onChange={handleBusquedaChange}
                     placeholder="Apellido Materno"
                 />
+
                 <button onClick={handleBuscar}>Buscar</button>
                 <button onClick={handleLimpiarBusqueda}>Limpiar</button>
             </div>
 
-            <div className="containerIntegracion">
+            <div className="containerExpedientes">
                 <h3>EXPEDIENTES</h3>
                 <table className="table">
                     <thead>
