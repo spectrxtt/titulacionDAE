@@ -16,6 +16,13 @@ const Sidebar = ({ onComponentChange }) => {
     return (
         <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
             <ul>
+
+                    <div className={"perfil"}>
+                        <div className={"dataDAE"}>
+                            <span>DIRECCIÓN DE ADMINISTRACIÓN ESCOLAR</span>
+                            <span>ÁREA DE TITULACIÓN</span>
+                        </div>
+                    </div>
                 <li>
                     <div className={"perfil"}>
                         <img src={logo} alt="logo_uaeh" className="logoG"/>

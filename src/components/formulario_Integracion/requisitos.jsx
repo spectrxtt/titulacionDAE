@@ -1,32 +1,32 @@
 import React, { useState } from 'react';
 import '../../styles/formularioIntegracion.css';
 import DatosEscolares from './datosEscolares';
-import DatosPersonales from './datosPersonales';
+import StudentDataPreview from './BorradorPre';
 
 const Requisitos = () => {
     const [mostrarDatosEscolares, setMostrarDatosEscolares] = useState(false);
-    const [mostrarDatosRequisitos, setMostrarDatosRequisitos] = useState(false);
+    const [mostrarDatosborrador, setMostrarDatosborrador] = useState(false);
 
     const handleVerClickEscolares = () => {
         setMostrarDatosEscolares(true);
     };
 
-    const handleVerClickRequisitos = () => {
-        setMostrarDatosRequisitos(true);
+    const handleVerClickBorrador = () => {
+        setMostrarDatosborrador(true);
     };
 
     if (mostrarDatosEscolares) {
         return <DatosEscolares />;
     }
 
-    if (mostrarDatosRequisitos) {
-        return <DatosPersonales />;
+    if (mostrarDatosborrador) {
+        return <StudentDataPreview />;
     }
 
 
     return (
         <div className="personales">
-            <h2>Datos Escolares</h2>
+            <h2>Requisitos</h2>
             <div className="form-container-personales">
                 <div className="form-row">
                     <div className="form-group">
@@ -115,7 +115,7 @@ const Requisitos = () => {
                 </div>
                 <div className="boton_integracionS">
                 <button onClick={handleVerClickEscolares}><i className="fa-solid fa-arrow-left"></i></button>
-                    <button onClick={handleVerClickRequisitos}><i className="fa-solid fa-arrow-right"></i></button>
+                    <button onClick={handleVerClickBorrador}><i className="fa-solid fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>

@@ -1,15 +1,27 @@
 import '../styles/App.css';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../img/garza (2).png';
+import usuarios from '../pruebas/dataUsuarios';
 
 function LoginComponent() {
+    const [usuario, setUsuario] = useState('');
+    const [contraseña, setContraseña] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        // Aquí puedes agregar la lógica de autenticación si es necesario
-        // Luego, navega a la nueva interfaz
-        navigate('home');
+    const handleLogin = (e) => {
+        e.preventDefault();
+
+        const usuarioEncontrado = usuarios.find(
+            u => u.usuario === usuario && u.contraseña === contraseña
+        );
+
+        if (usuarioEncontrado) {
+            navigate('home');
+        } else {
+            setError('Usuario o contraseña incorrectos');
+        }
     };
 
     return (
@@ -20,19 +32,32 @@ function LoginComponent() {
 
             <div className="login">
                 <div className="form-container">
-                    <form>
+                    <form onSubmit={handleLogin}>
                         <div className="form-group">
                             <label htmlFor="usuario">Usuario</label>
-                            <input type="text" id="usuario" name="Usuario"/>
+                            <input
+                                type="text"
+                                id="usuario"
+                                name="Usuario"
+                                value={usuario}
+                                onChange={(e) => setUsuario(e.target.value)}
+                            />
                         </div>
                         <div className="form-group">
                             <label htmlFor="contraseña">Contraseña</label>
-                            <input type="password" id="contraseña" name="Contraseña"/>
+                            <input
+                                type="password"
+                                id="contraseña"
+                                name="Contraseña"
+                                value={contraseña}
+                                onChange={(e) => setContraseña(e.target.value)}
+                            />
+                        </div>
+                        {error && <p className="error">{error}</p>}
+                        <div className="boton_inicioS">
+                            <button type="submit">Iniciar sesión</button>
                         </div>
                     </form>
-                    <div className="boton_inicioS">
-                        <button onClick={handleLogin}>Iniciar sesión</button>
-                    </div>
                 </div>
             </div>
         </div>

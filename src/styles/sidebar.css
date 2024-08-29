@@ -101,3 +101,11 @@ button{
     border-radius: .5rem;
     width: 50px;
 }
+.dataDAE{
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding-left: .5rem;
+    padding-top: .65rem;
+    font-size: .75rem;
+}

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import '../styles/Integracion.css';
 import DatosPersonales from './formulario_Integracion/datosPersonales';  // Asegúrate de que la ruta sea correcta
+import citas from '../pruebas/citas';  // Importa los datos desde citas.js
 
 const Integracion = () => {
-    const [citas, setCitas] = useState([
-        { id: 1, cuenta: '12345', nombre: 'a', fecha: '1', modalidad: 'Reglamento', estado: 'completo', observaciones: 'Ninguna', ver: 'ver' }
-    ]);
-
+    const [citasData, setCitasData] = useState(citas);
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
 
     const handleVerClick = () => {
@@ -14,7 +12,7 @@ const Integracion = () => {
     };
 
     const handleEstadoChange = (id, newEstado) => {
-        setCitas(prevCitas =>
+        setCitasData(prevCitas =>
             prevCitas.map(cita =>
                 cita.id === id ? { ...cita, estado: newEstado } : cita
             )
@@ -40,7 +38,7 @@ const Integracion = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {citas.map((cita) => (
+                {citasData.map((cita) => (
                     <tr key={cita.id}>
                         <td>{cita.cuenta}</td>
                         <td>{cita.nombre}</td>

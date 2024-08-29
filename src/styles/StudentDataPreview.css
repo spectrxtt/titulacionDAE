@@ -1,0 +1,69 @@
+.student-data-preview {
+    max-width: 600px; /* Reduce el tamaño máximo */
+    margin: 0 auto;
+    padding: 15px; /* Reduce el padding */
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.student-data-preview h2 {
+    font-size: 20px; /* Reduce el tamaño de la fuente */
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.student-data-preview h3 {
+    font-size: 16px; /* Reduce el tamaño de la fuente */
+    margin-bottom: 8px;
+    color: #444;
+}
+
+.section {
+    margin-bottom: 15px; /* Reduce el espacio entre secciones */
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Reduce el ancho mínimo */
+    gap: 8px; /* Reduce el espacio entre inputs */
+}
+
+.student-data-preview input {
+    padding: 6px; /* Reduce el padding interno de los inputs */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px; /* Reduce el tamaño de la fuente */
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px; /* Reduce el espacio superior */
+}
+
+.student-data-preview button {
+    padding: 8px 16px; /* Reduce el padding de los botones */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px; /* Reduce el tamaño de la fuente */
+}
+
+.edit-button {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.generate-button {
+    background-color: var(--clr-rojo);
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #e0e0e0;
+}
+
+.generate-button:hover {
+    background-color: var(--clr-vino);
+}

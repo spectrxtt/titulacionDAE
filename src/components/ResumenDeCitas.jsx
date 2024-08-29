@@ -1,12 +1,11 @@
 import React from 'react';
 import '../styles/citas.css';
+import citas from '../pruebas/citas';  // Asegúrate de ajustar la ruta según tu estructura de carpetas
 
 const ResumenDeCitas = ({ onVerClick }) => {
-    const citas = [
-        { id: 1, cuenta: '12345', nombre: 'Carlos Pérez López', fecha: '13/08/24', estado: 'Pendiente' },
-        { id: 2, cuenta: '12345', nombre: 'Carlos Pérez López', fecha: '13/08/24', estado: 'Pendiente' },
-        { id: 3, cuenta: '12345', nombre: 'Carlos Pérez López', fecha: '13/08/24', estado: 'Pendiente' },
-    ];
+    // Filtra las citas para mostrar solo las del día
+    const today = new Date().toISOString().split('T')[0]; // Obtiene la fecha actual en formato YYYY-MM-DD
+    const citasDelDia = citas.filter(cita => cita.fecha === today);
 
     return (
         <div className="containerCitas">
@@ -22,14 +21,14 @@ const ResumenDeCitas = ({ onVerClick }) => {
                 </tr>
                 </thead>
                 <tbody>
-                {citas.map((cita) => (
+                {citasDelDia.map((cita) => (
                     <tr key={cita.id}>
                         <td>{cita.cuenta}</td>
                         <td>{cita.nombre}</td>
                         <td>{cita.fecha}</td>
                         <td>{cita.estado}</td>
                         <td>
-                            <button className="button" onClick={onVerClick}>VER</button>
+                            <button className="button" onClick={() => onVerClick(cita)}>VER</button>
                         </td>
                     </tr>
                 ))}

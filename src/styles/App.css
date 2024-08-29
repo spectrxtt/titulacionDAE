@@ -103,4 +103,8 @@ body{
   margin-left: 0;
 }
 
+.error {
+  color: red;
+  margin-top: 10px;
+}
 
