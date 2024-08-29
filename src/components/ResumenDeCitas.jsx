@@ -1,6 +1,6 @@
 import React from 'react';
 import '../styles/citas.css';
-import citas from '../pruebas/citas';  // Asegúrate de ajustar la ruta según tu estructura de carpetas
+import citas from '../pruebas/citas';  // Ajusta la ruta según tu estructura de carpetas
 
 const ResumenDeCitas = ({ onVerClick }) => {
     // Filtra las citas para mostrar solo las del día
@@ -24,7 +24,7 @@ const ResumenDeCitas = ({ onVerClick }) => {
                 {citasDelDia.map((cita) => (
                     <tr key={cita.id}>
                         <td>{cita.cuenta}</td>
-                        <td>{cita.nombre}</td>
+                        <td>{`${cita.nombre} ${cita.apellidoPaterno} ${cita.apellidoMaterno}`}</td>
                         <td>{cita.fecha}</td>
                         <td>{cita.estado}</td>
                         <td>

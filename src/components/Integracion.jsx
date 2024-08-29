@@ -41,7 +41,7 @@ const Integracion = () => {
                 {citasData.map((cita) => (
                     <tr key={cita.id}>
                         <td>{cita.cuenta}</td>
-                        <td>{cita.nombre}</td>
+                        <td>{`${cita.nombre} ${cita.apellidoPaterno} ${cita.apellidoMaterno}`.trim()}</td>
                         <td>{cita.fecha}</td>
                         <td>{cita.modalidad}</td>
                         <td>
