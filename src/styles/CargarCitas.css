@@ -63,6 +63,20 @@
 .upload-button:hover {
     background-color: var(--clr-vino);
 }
+.generate-assignment-button{
+    background-color: var(--clr-rojo);
+    color: white;
+    margin-top: 1.5rem;
+    padding: .75rem 1rem;
+    border-radius: .5rem;
+    transition: 3ms;
+}
+.generate-assignment-button:hover{
+    background-color: var(--clr-vino);
+}
+.generate-assignment-button:active{
+    background-color: var(--clr-vino-strong);
+}
 
 @media (max-width: 960px) {
     .cargar-citas {

@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
 import '../styles/Integracion.css';
-import DatosPersonales from './formulario_Integracion/datosPersonales';  // Asegúrate de que la ruta sea correcta
-import citas from '../pruebas/citas';  // Importa los datos desde citas.js
+import DatosPersonales from './formulario_Integracion/datosPersonales';
+import { useCitas } from './manejarCitas';  // Importa el hook del contexto
 
 const Integracion = () => {
-    const [citasData, setCitasData] = useState(citas);
+    const { citas, actualizarCitas } = useCitas();  // Usa el contexto
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
 
     const handleVerClick = () => {
         setMostrarDatosPersonales(true);
     };
 
-    const handleEstadoChange = (id, newEstado) => {
-        setCitasData(prevCitas =>
-            prevCitas.map(cita =>
-                cita.id === id ? { ...cita, estado: newEstado } : cita
-            )
-        );
+    const handleEstadoChange = (index, newEstado) => {
+        const newCitas = [...citas];
+        newCitas[index] = { ...newCitas[index], Estado: newEstado };
+        actualizarCitas(newCitas);
     };
 
     if (mostrarDatosPersonales) {
@@ -38,27 +36,28 @@ const Integracion = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {citasData.map((cita) => (
-                    <tr key={cita.id}>
-                        <td>{cita.cuenta}</td>
-                        <td>{`${cita.nombre} ${cita.apellidoPaterno} ${cita.apellidoMaterno}`.trim()}</td>
-                        <td>{cita.fecha}</td>
-                        <td>{cita.modalidad}</td>
+                {citas.map((cita, index) => (
+                    <tr key={index}>
+                        <td>{cita['Numero de cuenta']}</td>
+                        <td>{`${cita['Nombre']} ${cita['Apellido Paterno']} ${cita['Apellido Materno']}`.trim()}</td>
+                        <td>{cita['Fecha']}</td>
+                        <td>{cita['Modalidad']}</td>
                         <td>
                             <select
-                                value={cita.estado}
-                                onChange={(e) => handleEstadoChange(cita.id, e.target.value)}
+                                value={cita['Estado'] || 'Pendiente'}
+                                onChange={(e) => handleEstadoChange(index, e.target.value)}
                                 className="dropdown"
                             >
-                                <option value="completo">Completo</option>
-                                <option value="incompleto">Incompleto</option>
-                                <option value="en proceso">En proceso</option>
-                                <option value="rechazado">Rechazado</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Completo">Completo</option>
+                                <option value="Incompleto">Incompleto</option>
+                                <option value="En proceso">En proceso</option>
+                                <option value="Rechazado">Rechazado</option>
                             </select>
                         </td>
-                        <td>{cita.observaciones}</td>
+                        <td>{cita['Observaciones']}</td>
                         <td>
-                            <button className="button" onClick={handleVerClick}>{cita.ver}</button>
+                            <button className="button" onClick={handleVerClick}>VER</button>
                         </td>
                     </tr>
                 ))}

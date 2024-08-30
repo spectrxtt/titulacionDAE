@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import '../styles/CargarCitas.css';
+import { useCitas } from './manejarCitas';
 
 const CargarCitas = () => {
     const [file, setFile] = useState(null);
-    const [data, setData] = useState([]);
+    const [datosTemporales, setDatosTemporales] = useState([]);
     const [fileLoaded, setFileLoaded] = useState(false);
+    const { actualizarCitas } = useCitas();
+    const [error, setError] = useState(null);
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
+        setError(null);
     };
 
     const handleDragOver = (event) => {
@@ -19,39 +23,61 @@ const CargarCitas = () => {
     const handleDrop = (event) => {
         event.preventDefault();
         setFile(event.dataTransfer.files[0]);
+        setError(null);
     };
 
     const handleUpload = () => {
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                const wb = XLSX.read(event.target.result, { type: 'array' });
-                const ws = wb.Sheets[wb.SheetNames[0]];
-                const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-                const headers = data[0];
-                const rows = data.slice(1);
+                try {
+                    const wb = XLSX.read(event.target.result, { type: 'array' });
+                    const wsname = wb.SheetNames[0];
+                    const ws = wb.Sheets[wsname];
+                    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-                // Transform rows to objects with header keys
-                const result = rows.map(row => {
-                    let obj = {};
-                    row.forEach((value, index) => {
-                        obj[headers[index]] = value;
+                    if (data.length < 2) {
+                        throw new Error("El archivo Excel está vacío o no contiene datos válidos.");
+                    }
+
+                    const headers = data[0];
+                    const rows = data.slice(1);
+
+                    const result = rows.map(row => {
+                        let obj = {};
+                        row.forEach((value, index) => {
+                            if (headers[index] === 'Fecha' && typeof value === 'number') {
+                                const date = XLSX.SSF.parse_date_code(value);
+                                obj[headers[index]] = `${date.y}-${date.m.toString().padStart(2, '0')}-${date.d.toString().padStart(2, '0')}`;
+                            } else {
+                                obj[headers[index]] = value;
+                            }
+                        });
+                        return obj;
                     });
-                    return obj;
-                });
 
-                setData(result);
-                setFileLoaded(true); // Ocultar el cuadro de carga de archivo
+                    console.log("Datos procesados:", result);
+                    setDatosTemporales(result);
+                    setFileLoaded(true);
+                    setError(null);
+                } catch (err) {
+                    console.error("Error al procesar el archivo:", err);
+                    setError("Error al procesar el archivo. Asegúrate de que sea un Excel válido con los datos correctos.");
+                }
+            };
+            reader.onerror = (err) => {
+                console.error("Error al leer el archivo:", err);
+                setError("Error al leer el archivo. Por favor, intenta de nuevo.");
             };
             reader.readAsArrayBuffer(file);
         } else {
-            alert("Por favor, seleccione un archivo primero.");
+            setError("Por favor, seleccione un archivo primero.");
         }
     };
 
-    const handleGenerateAssignment = () => {
-        // Aquí iría la lógica para generar la asignación
-        console.log("Generar asignación con los datos:", data);
+    const handleGenerarAsignacion = () => {
+        actualizarCitas(datosTemporales);
+        alert("Asignación generada con éxito. Los datos han sido cargados en los otros componentes.");
     };
 
     return (
@@ -65,10 +91,10 @@ const CargarCitas = () => {
                 >
                     <input
                         type="file"
-                        accept=".xlsx"
+                        accept=".xlsx, .xls"
                         onChange={handleFileChange}
                         id="file-upload"
-                        style={{ display: 'none' }} // Oculta el input file
+                        style={{ display: 'none' }}
                     />
                     <label htmlFor="file-upload">
                         <Upload />
@@ -93,19 +119,19 @@ const CargarCitas = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {data.map((row, index) => (
+                        {datosTemporales.map((cita, index) => (
                             <tr key={index}>
-                                <td>{row['Numero de cuenta']}</td>
-                                <td>{row['Nombre']}</td>
-                                <td>{row['Apellido Paterno']}</td>
-                                <td>{row['Apellido Materno']}</td>
-                                <td>{row['Fecha']}</td>
-                                <td>{row['Modalidad']}</td>
+                                <td>{cita['Numero de cuenta']}</td>
+                                <td>{cita['Nombre']}</td>
+                                <td>{cita['Apellido Paterno']}</td>
+                                <td>{cita['Apellido Materno']}</td>
+                                <td>{cita['Fecha']}</td>
+                                <td>{cita['Modalidad']}</td>
                             </tr>
                         ))}
                         </tbody>
                     </table>
-                    <button onClick={handleGenerateAssignment} className="generate-assignment-button">
+                    <button onClick={handleGenerarAsignacion} className="generate-assignment-button">
                         GENERAR ASIGNACIÓN
                     </button>
                 </div>
@@ -116,6 +142,8 @@ const CargarCitas = () => {
                     CARGAR ARCHIVO
                 </button>
             )}
+            {error && <p className="error-message">{error}</p>}
+            {datosTemporales.length > 0 && <p>Número de citas cargadas: {datosTemporales.length}</p>}
         </div>
     );
 };
