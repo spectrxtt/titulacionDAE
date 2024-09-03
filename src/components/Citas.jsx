@@ -106,7 +106,7 @@ const CargarCitas = () => {
                 </div>
             ) : (
                 <div>
-                    <h3>Datos Cargados</h3>
+                    <h3 className={"datosCargados"}>Datos Cargados</h3>
                     <table className="data-table">
                         <thead>
                         <tr>
@@ -143,7 +143,7 @@ const CargarCitas = () => {
                 </button>
             )}
             {error && <p className="error-message">{error}</p>}
-            {datosTemporales.length > 0 && <p>Número de citas cargadas: {datosTemporales.length}</p>}
+            {datosTemporales.length > 0 && <p className={'infoCitas'}>Número de citas cargadas: {datosTemporales.length}</p>}
         </div>
     );
 };

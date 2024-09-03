@@ -87,6 +87,8 @@
 
     .cargar-citas h2 {
         font-size: 1.2rem;
+        margin-left: 3rem;
+        margin-right: auto;
     }
 
     .drop-area {
@@ -101,5 +103,23 @@
     .upload-button {
         padding: 0.6rem;
         font-size: 0.9rem;
+    }
+
+    .data-table {
+        margin-left: auto;
+        margin-right: 20px;
+        width: 90%;
+    }
+    .generate-assignment-button{
+        margin-left: 3rem;
+        margin-right: auto;
+    }
+    .datosCargados{
+        margin-left: 3rem;
+        margin-right: auto;
+    }
+    .infoCitas{
+        margin-left: 3rem;
+        margin-right: auto;
     }
 }

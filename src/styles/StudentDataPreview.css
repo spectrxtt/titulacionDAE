@@ -1,53 +1,53 @@
 .student-data-preview {
-    max-width: 600px; /* Reduce el tamaño máximo */
+    max-width: 600px;
     margin: 0 auto;
-    padding: 15px; /* Reduce el padding */
+    padding: 15px;
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
 .student-data-preview h2 {
-    font-size: 20px; /* Reduce el tamaño de la fuente */
+    font-size: 20px;
     margin-bottom: 15px;
     color: #333;
 }
 
 .student-data-preview h3 {
-    font-size: 16px; /* Reduce el tamaño de la fuente */
+    font-size: 16px;
     margin-bottom: 8px;
     color: #444;
 }
 
 .section {
-    margin-bottom: 15px; /* Reduce el espacio entre secciones */
+    margin-bottom: 15px;
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Reduce el ancho mínimo */
-    gap: 8px; /* Reduce el espacio entre inputs */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
 }
 
 .student-data-preview input {
-    padding: 6px; /* Reduce el padding interno de los inputs */
+    padding: 6px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 13px; /* Reduce el tamaño de la fuente */
+    font-size: 13px;
 }
 
 .buttons {
     display: flex;
     justify-content: space-between;
-    margin-top: 15px; /* Reduce el espacio superior */
+    margin-top: 15px;
 }
 
 .student-data-preview button {
-    padding: 8px 16px; /* Reduce el padding de los botones */
+    padding: 8px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px; /* Reduce el tamaño de la fuente */
+    font-size: 14px;
 }
 
 .edit-button {
@@ -66,4 +66,10 @@
 
 .generate-button:hover {
     background-color: var(--clr-vino);
+}
+@media (max-width: 960px) {
+    .student-data-preview {
+        margin-left: 15rem;
+        margin-right: auto; /* Ajusta este valor según sea necesario */
+    }
 }
