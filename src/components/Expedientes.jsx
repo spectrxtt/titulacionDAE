@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import '../styles/Integracion.css';
-import DatosPersonales from './formulario_Integracion/datosPersonales';
+import StudentDataPreview from './formulario_Integracion/BorradorPre';
+import { useCitas } from './manejarCitas';
 
 const Expedientes = () => {
-    const [citas, setCitas] = useState([
-        { id: 1, cuenta: '12345', nombre: 'Juan', apellidoPaterno: 'Pérez', apellidoMaterno: 'García', fecha: '2024-03-01', modalidad: 'Reglamento', estado: 'completo', observaciones: 'Ninguna', ver: 'ver' }
-    ]);
-
-    const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
+    const { citas, actualizarCitas } = useCitas();
+    const [mostrarPreview, setMostrarPreview] = useState(false);
     const [busqueda, setBusqueda] = useState({
         cuenta: '',
         nombre: '',
@@ -16,15 +14,14 @@ const Expedientes = () => {
     });
 
     const handleVerClick = () => {
-        setMostrarDatosPersonales(true);
+        setMostrarPreview(true);
     };
 
     const handleEstadoChange = (id, newEstado) => {
-        setCitas(prevCitas =>
-            prevCitas.map(cita =>
-                cita.id === id ? { ...cita, estado: newEstado } : cita
-            )
+        const newCitas = citas.map(cita =>
+            cita.id === id ? { ...cita, estado: newEstado } : cita
         );
+        actualizarCitas(newCitas);
     };
 
     const handleBusquedaChange = (e) => {
@@ -32,7 +29,6 @@ const Expedientes = () => {
     };
 
     const handleBuscar = () => {
-        // Aquí iría la lógica para filtrar las citas según los criterios de búsqueda
         console.log("Realizando búsqueda con:", busqueda);
     };
 
@@ -42,13 +38,14 @@ const Expedientes = () => {
             nombre: '',
             apellidoPaterno: '',
             apellidoMaterno: ''
-
         });
     };
 
-    if (mostrarDatosPersonales) {
-        return <DatosPersonales />;
+    if (mostrarPreview) {
+        return <StudentDataPreview />;
     }
+
+    console.log('Datos de citas:', citas);
 
     return (
         <div className="integracion-wrapper">
@@ -102,13 +99,13 @@ const Expedientes = () => {
                     <tbody>
                     {citas.map((cita) => (
                         <tr key={cita.id}>
-                            <td>{cita.cuenta}</td>
-                            <td>{`${cita.nombre} ${cita.apellidoPaterno} ${cita.apellidoMaterno}`}</td>
-                            <td>{cita.fecha}</td>
-                            <td>{cita.modalidad}</td>
+                            <td>{cita.cuenta || 'No disponible'}</td>
+                            <td>{`${cita.nombre || ''} ${cita.apellidoPaterno || ''} ${cita.apellidoMaterno || ''}`}</td>
+                            <td>{cita.fecha || 'No disponible'}</td>
+                            <td>{cita.modalidad || 'No disponible'}</td>
                             <td>
                                 <select
-                                    value={cita.estado}
+                                    value={cita.estado || 'completo'}
                                     onChange={(e) => handleEstadoChange(cita.id, e.target.value)}
                                     className="dropdown"
                                 >
@@ -118,9 +115,9 @@ const Expedientes = () => {
                                     <option value="rechazado">Rechazado</option>
                                 </select>
                             </td>
-                            <td>{cita.observaciones}</td>
+                            <td>{cita.observaciones || 'No disponible'}</td>
                             <td>
-                                <button className="button" onClick={handleVerClick}>{cita.ver}</button>
+                                <button className="button" onClick={handleVerClick}>VER</button>
                             </td>
                         </tr>
                     ))}

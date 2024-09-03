@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import '../styles/Integracion.css';
 import DatosPersonales from './formulario_Integracion/datosPersonales';
-import { useCitas } from './manejarCitas';  // Importa el hook del contexto
+import { useCitas } from './manejarCitas';
 
 const Integracion = () => {
-    const { citas, actualizarCitas } = useCitas();  // Usa el contexto
+    const { citas, actualizarCitas } = useCitas();
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
 
     const handleVerClick = () => {

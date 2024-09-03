@@ -4,27 +4,30 @@ import DatosPersonales from './datosPersonales';
 import Requisitos from './requisitos';
 import { useCitas } from '../manejarCitas';
 import datosEscolares from '../../pruebas/datosEscolares';
+import { useFormData } from './integracionDatos';
 
 const DatosEscolares = () => {
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
     const [mostrarDatosRequisitos, setMostrarDatosRequisitos] = useState(false);
-    const [datosActuales, setDatosActuales] = useState({});
     const { citas } = useCitas();
+    const { formData, updateFormData } = useFormData();
 
     useEffect(() => {
         if (citas && citas.length > 0) {
-            const citaActual = citas[0]; // Asumimos que queremos mostrar la primera cita
+            const citaActual = citas[0];
             const numeroCuenta = citaActual['Numero de cuenta'];
-
-            // Buscar datos adicionales en datosEscolares
             const datoEscolar = datosEscolares.find(d => d.numCuenta === parseInt(numeroCuenta));
-
-            setDatosActuales({
+            updateFormData({
                 ...citaActual,
-                ...datoEscolar
+                ...datoEscolar,
             });
         }
-    }, [citas]);
+    }, [citas, updateFormData]);
+
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        updateFormData({ [name]: value });
+    };
 
     const handleVerClickPersonales = () => {
         setMostrarDatosPersonales(true);
@@ -48,16 +51,35 @@ const DatosEscolares = () => {
             <div className="form-container-personales">
                 <div className="form-group-personales">
                     <label htmlFor="bachillerato">Bachillerato procedencia</label>
-                    <input type="text" id="bachillerato" name="bachillerato" placeholder="Ej: 12345"/>
+                    <input
+                        type="text"
+                        id="bachillerato"
+                        name="bachillerato"
+                        placeholder="Ej: 12345"
+                        value={formData.bachillerato || ''}
+                        onChange={handleInputChange}
+                    />
                 </div>
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="fechaInBach">Fecha inicio</label>
-                        <input type="date" id="fechaInBach" name="fechaInBach"/>
+                        <input
+                            type="date"
+                            id="fechaInBach"
+                            name="fechaInBach"
+                            value={formData.fechaInBach || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                     <div className="form-group">
                         <label htmlFor="fechaFinBach">Fecha Finalizacion</label>
-                        <input type="date" id="fechaFinBach" name="fechaFinBach"/>
+                        <input
+                            type="date"
+                            id="fechaFinBach"
+                            name="fechaFinBach"
+                            value={formData.fechaFinBach || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                 </div>
                 <div className="form-row">
@@ -66,27 +88,42 @@ const DatosEscolares = () => {
                         <input
                             type="text"
                             id="programa"
-                            name="programa"
-                            value={datosActuales.programaEducativo || ''}
-                            onChange={(e) => setDatosActuales({ ...datosActuales, programaEducativo: e.target.value })}
+                            name="programaEducativo"
+                            value={formData.programaEducativo || ''}
+                            onChange={handleInputChange}
                         />
                     </div>
                     <div className="form-group">
-                        <div className="form-group">
-                            <label htmlFor="fechaInLic">Fecha inicio</label>
-                            <input type="date" id="fechaInLic" name="fechaInLic"/>
-                        </div>
+                        <label htmlFor="fechaInLic">Fecha inicio</label>
+                        <input
+                            type="date"
+                            id="fechaInLic"
+                            name="fechaInLic"
+                            value={formData.fechaInLic || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                     <div className="form-group">
-                        <div className="form-group">
-                            <label htmlFor="fechaFinLic">Fecha Finalizacion</label>
-                            <input type="date" id="fechaFinLic" name="fechaFinLic"/>
-                        </div>
+                        <label htmlFor="fechaFinLic">Fecha Finalizacion</label>
+                        <input
+                            type="date"
+                            id="fechaFinLic"
+                            name="fechaFinLic"
+                            value={formData.fechaFinLic || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                 </div>
                 <div className="form-group-personales">
                     <label htmlFor="pasantia">Estado Pasantia</label>
-                    <input type="text" id="pasantia" name="pasantia" placeholder="Ej: 12345"/>
+                    <input
+                        type="text"
+                        id="pasantia"
+                        name="pasantia"
+                        placeholder="Ej: 12345"
+                        value={formData.pasantia || ''}
+                        onChange={handleInputChange}
+                    />
                 </div>
                 <div className="form-group">
                     <label htmlFor="modalidad">Modalidad de titulacion</label>
@@ -94,8 +131,8 @@ const DatosEscolares = () => {
                         type="text"
                         id="modalidad"
                         name="modalidad"
-                        value={datosActuales.modalidad || ''}
-                        onChange={(e) => setDatosActuales({ ...datosActuales, modalidad: e.target.value })}
+                        value={formData.modalidad || ''}
+                        onChange={handleInputChange}
                     />
                 </div>
                 <div className="boton_integracionS">
@@ -105,6 +142,6 @@ const DatosEscolares = () => {
             </div>
         </div>
     );
-}
+};
 
 export default DatosEscolares;

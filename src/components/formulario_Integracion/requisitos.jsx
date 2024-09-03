@@ -1,12 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../styles/formularioIntegracion.css';
 import DatosEscolares from './datosEscolares';
 import StudentDataPreview from './BorradorPre';
+import { useCitas } from '../manejarCitas';
+import requisitos from '../../pruebas/requisitos';
+import { useFormData } from './integracionDatos';
 
 const Requisitos = () => {
     const [mostrarDatosEscolares, setMostrarDatosEscolares] = useState(false);
     const [mostrarDatosborrador, setMostrarDatosborrador] = useState(false);
+    const { citas } = useCitas();
+    const { formData, updateFormData } = useFormData();
 
+    useEffect(() => {
+        if (citas && citas.length > 0) {
+            const citaActual = citas[0];
+            const numeroCuenta = citaActual['Numero de cuenta'];
+            const datoRequisito = requisitos.find(d => d.numCuenta === parseInt(numeroCuenta));
+
+            updateFormData({
+                ...citaActual,
+                ...datoRequisito
+            });
+        }
+    }, [citas, updateFormData]);
+
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        updateFormData({ [name]: value });
+    };
     const handleVerClickEscolares = () => {
         setMostrarDatosEscolares(true);
     };
@@ -23,7 +45,6 @@ const Requisitos = () => {
         return <StudentDataPreview />;
     }
 
-
     return (
         <div className="personales">
             <h2>Requisitos</h2>
@@ -31,90 +52,103 @@ const Requisitos = () => {
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="egel">Resultado EGEL</label>
-                        <select id="egel" name="egel">
-                            <option value="">Seleccione el resultado</option>
-                            <option>Satisfactorio</option>
-                            <option>Sobresaliente</option>
-                        </select>
+                        <input
+                            type="text"
+                            id="egel"
+                            name="Egel"
+                            value={formData.Egel || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                     <div className="form-group">
-                        <div className="form-group">
-                            <label htmlFor="fechaEgel">Fecha de Aplicacion</label>
-                            <input type="date" id="fechaEgel" name="fechaEgel" placeholder="Ej: María"/>
-                        </div>
+                        <label htmlFor="fechaEgel">Fecha de Aplicacion</label>
+                        <input
+                            type="date"
+                            id="fechaEgel"
+                            name="fechaEgel"
+                            value={formData.fechaEgel || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                 </div>
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="servicioSocial">Servicio Social</label>
-                        <select id="servicioSocial" name="servicioSocial">
-                            <option value="">Servicio Social</option>
-                            <option>En certificado</option>
-                            <option>No completo</option>
-                            <option>No aplica</option>
-                        </select>
+                        <input
+                            type="text"
+                            id="servicioSocial"
+                            name="servicioSocial"
+                            value={formData.servicioSocial || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="practicasProfesionales">Practicas Profesionales</label>
-                        <select id="practicasProfesionales" name="practicasProfesionales">
-                            <option value="">Practicas Profecionales</option>
-                            <option>En certificado</option>
-                            <option>No completo</option>
-                            <option>No aplica</option>
-                        </select>
+                        <label htmlFor="practicasProfesionales">Prácticas Profesionales</label>
+                        <input
+                            type="text"
+                            id="practicasProfesionales"
+                            name="practicasProfesionales"
+                            value={formData.practicasProfesionales || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                 </div>
                 <div className="form-row">
                     <div className="form-group">
-                    <label htmlFor="programa">Examen de Ingles</label>
-                        <select id="programa" name="programa">
-                            <option value="">Seleccione el Resultado</option>
-                            <option>B1</option>
-                            <option>B2</option>
-                        </select>
+                        <label htmlFor="examenIngles">Examen de Inglés</label>
+                        <input
+                            type="text"
+                            id="examenIngles"
+                            name="examenIngles"
+                            value={formData.examenIngles || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                     <div className="form-group">
-                        <div className="form-group">
-                            <label htmlFor="fechaInLic">Fecha Aplicacion</label>
-                            <input type="date" id="fechaInLic" name="fechaInLic" placeholder="Ej: María"/>
-                        </div>
+                        <label htmlFor="fechaInLic">Fecha Aplicación</label>
+                        <input
+                            type="date"
+                            id="fechaInLic"
+                            name="fechaInLic"
+                            value={formData.fechaInLic || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                 </div>
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="biblioteca">Biblioteca</label>
-                        <select id="biblioteca" name="biblioteca">
-                            <option value="">Seleccione estado del requsito</option>
-                            <option>Completado</option>
-                            <option>No Completado</option>
-                            <option>No Aplica</option>
-                        </select>
+                        <input
+                            type="text"
+                            id="biblioteca"
+                            name="Biblioteca"
+                            value={formData.Biblioteca || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                     <div className="form-group">
-                        <div className="form-group">
-                            <label htmlFor="cedai">CEDAI</label>
-                            <select id="cedai" name="cedai">
-                                <option value="">Seleccione estado del requsito</option>
-                                <option>Completado</option>
-                                <option>No Completado</option>
-                                <option>No Aplica</option>
-                            </select>
-                        </div>
+                        <label htmlFor="cedai">CEDAI</label>
+                        <input
+                            type="text"
+                            id="cedai"
+                            name="cedai"
+                            value={formData.cedai || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                     <div className="form-group">
-                        <div className="form-group">
-                            <label htmlFor="laboratorio">Laboratorio</label>
-                            <select id="laboratorio" name="laboratorio">
-                                <option value="">Seleccione estado del requsito</option>
-                                <option>Completado</option>
-                                <option>No Completado</option>
-                                <option>No Aplica</option>
-                            </select>
-                        </div>
+                        <label htmlFor="laboratorio">Laboratorio</label>
+                        <input
+                            type="text"
+                            id="laboratorio"
+                            name="Laboratorio"
+                            value={formData.Laboratorio || ''}
+                            onChange={handleInputChange}
+                        />
                     </div>
                 </div>
                 <div className="boton_integracionS">
-                <button onClick={handleVerClickEscolares}><i className="fa-solid fa-arrow-left"></i></button>
+                    <button onClick={handleVerClickEscolares}><i className="fa-solid fa-arrow-left"></i></button>
                     <button onClick={handleVerClickBorrador}><i className="fa-solid fa-arrow-right"></i></button>
                 </div>
             </div>
