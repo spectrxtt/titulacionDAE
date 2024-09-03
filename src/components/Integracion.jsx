@@ -33,6 +33,7 @@ const Integracion = () => {
                     <th>Modalidad</th>
                     <th>Estado</th>
                     <th>Observaciones</th>
+                    <th>Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -42,19 +43,7 @@ const Integracion = () => {
                         <td>{`${cita['Nombre']} ${cita['Apellido Paterno']} ${cita['Apellido Materno']}`.trim()}</td>
                         <td>{cita['Fecha']}</td>
                         <td>{cita['Modalidad']}</td>
-                        <td>
-                            <select
-                                value={cita['Estado'] || 'Pendiente'}
-                                onChange={(e) => handleEstadoChange(index, e.target.value)}
-                                className="dropdown"
-                            >
-                                <option value="Pendiente">Pendiente</option>
-                                <option value="Completo">Completo</option>
-                                <option value="Incompleto">Incompleto</option>
-                                <option value="En proceso">En proceso</option>
-                                <option value="Rechazado">Rechazado</option>
-                            </select>
-                        </td>
+                        <td>{cita['Estado'] || 'Pendiente'}</td>
                         <td>{cita['Observaciones']}</td>
                         <td>
                             <button className="button" onClick={handleVerClick}>VER</button>

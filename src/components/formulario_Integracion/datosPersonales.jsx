@@ -4,9 +4,11 @@ import DatosEscolares from './datosEscolares';
 import { useCitas } from '../manejarCitas';
 import datosPersonales from '../../pruebas/datosPersonales';
 import { useFormData } from './integracionDatos';
+import GenerarReporte from "./GenerarReporte";
 
 const DatosPersonales = () => {
     const [mostrarDatosEscolares, setMostrarDatosEscolares] = useState(false);
+    const [mostrarGenerarReporte, setMostrarGenerarReporte] = useState(false);
     const { citas } = useCitas();
     const { formData, updateFormData } = useFormData();
 
@@ -35,45 +37,58 @@ const DatosPersonales = () => {
     const handleVerClick = () => {
         setMostrarDatosEscolares(true);
     };
+    const handleGenerarReporteClick = () => {
+        setMostrarGenerarReporte(true);
+    };
 
     if (mostrarDatosEscolares) {
         return <DatosEscolares />;
     }
-
+    if (mostrarGenerarReporte) {
+        return <GenerarReporte />;
+    }
     return (
         <div className="personales">
+            <div className="boton_generarReporte">
+                <button onClick={handleGenerarReporteClick}><i className="fa-solid fa-triangle-exclamation"></i>
+                </button>
+            </div>
             <h2>Datos Personales</h2>
             <div className="form-container-personales">
                 <div className="form-group-personales">
                     <label htmlFor="numCuenta">Numero de cuenta</label>
-                    <input type="text" id="numCuenta" name="numCuenta" value={formData['Numero de cuenta'] || ''} readOnly />
+                    <input type="text" id="numCuenta" name="numCuenta" value={formData['Numero de cuenta'] || ''}
+                           readOnly/>
                 </div>
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="nombre">Nombre</label>
-                        <input type="text" id="nombre" name="nombre" value={formData['Nombre'] || ''} readOnly />
+                        <input type="text" id="nombre" name="nombre" value={formData['Nombre'] || ''} readOnly/>
                     </div>
                     <div className="form-group">
                         <label htmlFor="apellidoPaterno">Apellido Paterno</label>
-                        <input type="text" id="apellidoPaterno" name="apellidoPaterno" value={formData['Apellido Paterno'] || ''} readOnly />
+                        <input type="text" id="apellidoPaterno" name="apellidoPaterno"
+                               value={formData['Apellido Paterno'] || ''} readOnly/>
                     </div>
                     <div className="form-group">
                         <label htmlFor="apellidoMaterno">Apellido Materno</label>
-                        <input type="text" id="apellidoMaterno" name="apellidoMaterno" value={formData['Apellido Materno'] || ''} readOnly />
+                        <input type="text" id="apellidoMaterno" name="apellidoMaterno"
+                               value={formData['Apellido Materno'] || ''} readOnly/>
                     </div>
                 </div>
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="curp">Curp</label>
-                        <input type="text" id="curp" name="curp" value={formData.curp || ''} readOnly />
+                        <input type="text" id="curp" name="curp" value={formData.curp || ''} readOnly/>
                     </div>
                     <div className="form-group">
                         <label htmlFor="Genero">Genero</label>
-                        <input type="text" id="Genero" name="Genero" value={formData.Genero || ''} readOnly />
+                        <input type="text" id="Genero" name="Genero" value={formData.Genero || ''} readOnly/>
                     </div>
                     <div className="form-group">
                         <label htmlFor="EntidadFederativa">Entidad Federativa</label>
-                        <input type="text" id="EntidadFederativa" name="EntidadFederativa" value={formData.EntidadFederativa || ''} readOnly />
+                        <input type="text" id="EntidadFederativa" name="EntidadFederativa"
+                               value={formData.EntidadFederativa || ''} readOnly/>
                     </div>
                 </div>
                 <div className="boton_integracionS">

@@ -5,10 +5,12 @@ import StudentDataPreview from './BorradorPre';
 import { useCitas } from '../manejarCitas';
 import requisitos from '../../pruebas/requisitos';
 import { useFormData } from './integracionDatos';
+import GenerarReporte from "./GenerarReporte";
 
 const Requisitos = () => {
     const [mostrarDatosEscolares, setMostrarDatosEscolares] = useState(false);
     const [mostrarDatosborrador, setMostrarDatosborrador] = useState(false);
+    const [mostrarGenerarReporte, setMostrarGenerarReporte] = useState(false);
     const { citas } = useCitas();
     const { formData, updateFormData } = useFormData();
 
@@ -36,6 +38,9 @@ const Requisitos = () => {
     const handleVerClickBorrador = () => {
         setMostrarDatosborrador(true);
     };
+    const handleGenerarReporteClick = () => {
+        setMostrarGenerarReporte(true);
+    };
 
     if (mostrarDatosEscolares) {
         return <DatosEscolares />;
@@ -44,9 +49,15 @@ const Requisitos = () => {
     if (mostrarDatosborrador) {
         return <StudentDataPreview />;
     }
-
+    if (mostrarGenerarReporte) {
+        return <GenerarReporte />;
+    }
     return (
         <div className="personales">
+            <div className="boton_generarReporte">
+                <button onClick={handleGenerarReporteClick}><i className="fa-solid fa-triangle-exclamation"></i>
+                </button>
+            </div>
             <h2>Requisitos</h2>
             <div className="form-container-personales">
                 <div className="form-row">
@@ -155,5 +166,6 @@ const Requisitos = () => {
         </div>
     );
 }
+
 
 export default Requisitos;

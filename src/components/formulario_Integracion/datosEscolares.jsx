@@ -5,10 +5,12 @@ import Requisitos from './requisitos';
 import { useCitas } from '../manejarCitas';
 import datosEscolares from '../../pruebas/datosEscolares';
 import { useFormData } from './integracionDatos';
+import GenerarReporte from "./GenerarReporte";
 
 const DatosEscolares = () => {
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
     const [mostrarDatosRequisitos, setMostrarDatosRequisitos] = useState(false);
+    const [mostrarGenerarReporte, setMostrarGenerarReporte] = useState(false);
     const { citas } = useCitas();
     const { formData, updateFormData } = useFormData();
 
@@ -36,6 +38,9 @@ const DatosEscolares = () => {
     const handleVerClickRequisitos = () => {
         setMostrarDatosRequisitos(true);
     };
+    const handleGenerarReporteClick = () => {
+        setMostrarGenerarReporte(true);
+    };
 
     if (mostrarDatosPersonales) {
         return <DatosPersonales />;
@@ -44,9 +49,16 @@ const DatosEscolares = () => {
     if (mostrarDatosRequisitos) {
         return <Requisitos />;
     }
+    if (mostrarGenerarReporte) {
+        return <GenerarReporte />;
+    }
 
     return (
         <div className="personales">
+            <div className="boton_generarReporte">
+                <button onClick={handleGenerarReporteClick}><i className="fa-solid fa-triangle-exclamation"></i>
+                </button>
+            </div>
             <h2>Datos Escolares</h2>
             <div className="form-container-personales">
                 <div className="form-group-personales">
@@ -142,6 +154,6 @@ const DatosEscolares = () => {
             </div>
         </div>
     );
-};
+}
 
 export default DatosEscolares;

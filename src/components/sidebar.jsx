@@ -27,8 +27,8 @@ const Sidebar = ({ onComponentChange }) => {
                     <div className={"perfil"}>
                         <img src={logo} alt="logo_uaeh" className="logoG"/>
                         <div className={"dataPerfilInicio"}>
-                            <span>Modesto</span>
-                            <span>Jefe</span>
+                            <span>Administrador</span>
+                            <span>Responsable de area</span>
                         </div>
                     </div>
                 </li>

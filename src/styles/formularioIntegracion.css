@@ -77,6 +77,47 @@ h2{
 .boton_integracionS button:hover{
     background-color: var(--clr-vino);
 }
+.boton_generarReporte{
+    display: flex;
+    justify-content: flex-end;
+    padding: .5rem;
+    flex-direction: row;
+}
+.boton_generarReporte button{
+    background-color: transparent;
+    color: var(--clr-rojo);
+    border: none;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 1.5rem;
+    transition: 0.5ms;
+}
+.boton_generarReporte button:hover{
+    font-size: 2.25rem;
+}
+.form-group textarea{
+    width: 40rem;
+}
+.boton_guardarReporte{
+    background-color: var(--clr-rojo);
+    color: white;
+    border: none;
+    border-radius: .5rem;
+    width: 10rem;
+    min-height: 2.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 1.5rem;
+    transition: 0.5ms;
+}
+.boton_guardarReporte:hover{
+    background-color: var(--clr-vino);
+}
 
 @media (max-width: 960px) {
     .personales {
@@ -108,4 +149,12 @@ h2{
     h2 {
         font-size: 1.5rem;
     }
+
+    .generar-reporte {
+        margin-left: 15rem;
+
+
+    }
+
+
 }
