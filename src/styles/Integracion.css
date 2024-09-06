@@ -87,7 +87,7 @@ th, td {
     color: white;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1000px) {
     .integracion-wrapper {
         margin-left: 220px; /* Ajusta este valor según el ancho de tu sidebar */
     }

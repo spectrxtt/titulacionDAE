@@ -78,7 +78,7 @@
     background-color: var(--clr-vino-strong);
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1000px) {
     .cargar-citas {
         max-width: 80%;
         margin-left: 220px; /* Ajusta este valor según el ancho de tu sidebar */

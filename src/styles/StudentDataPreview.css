@@ -67,7 +67,7 @@
 .generate-button:hover {
     background-color: var(--clr-vino);
 }
-@media (max-width: 960px) {
+@media (max-width: 1000px) {
     .student-data-preview {
         margin-left: 15rem;
         margin-right: auto; /* Ajusta este valor según sea necesario */

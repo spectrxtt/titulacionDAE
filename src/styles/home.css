@@ -28,7 +28,7 @@ appContainer {
 }
 
 
-@media (max-width: 960px) {
+@media (max-width: 1000px) {
     .contentRow {
         flex-direction: column;
         padding-left: 18rem;
