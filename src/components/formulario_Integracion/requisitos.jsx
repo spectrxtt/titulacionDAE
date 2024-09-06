@@ -6,6 +6,7 @@ import { useCitas } from '../manejarCitas';
 import requisitos from '../../pruebas/requisitos';
 import { useFormData } from './integracionDatos';
 import GenerarReporte from "./GenerarReporte";
+import RequisitosButton from './infoRequisitos';
 
 const Requisitos = () => {
     const [mostrarDatosEscolares, setMostrarDatosEscolares] = useState(false);
@@ -57,6 +58,7 @@ const Requisitos = () => {
             <div className="boton_generarReporte">
                 <button onClick={handleGenerarReporteClick}><i className="fa-solid fa-triangle-exclamation"></i>
                 </button>
+                <RequisitosButton requisitosContent="Requisitos para Datos Escolares" />
             </div>
             <h2>Requisitos</h2>
             <div className="form-container-personales">

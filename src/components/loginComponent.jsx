@@ -27,7 +27,7 @@ function LoginComponent() {
     return (
         <div className="container">
             <div className="logo">
-                <img src={logo} alt="logo_uaeh" className="logoG"/>
+                <img src={logo} alt="logo_uaeh" className="logoLogin"/>
             </div>
 
             <div className="login">

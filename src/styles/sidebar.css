@@ -11,15 +11,15 @@
 }
 
 .sidebar.closed {
-    width: 80px;
+    width: 70px;
 }
 .sidebar.closed .fa-chevron-left{
     font-size: 2.25rem;
     padding-block: 3rem;
 }
-.sidebar.closed img{
-    width: 56px;
-    margin-left: -15px;
+.sidebar.closed .logoG{
+    width: 48px;
+    height: 48px;
 }
 .sidebar.closed .dataPerfilInicio span {
     display: none;
@@ -30,9 +30,8 @@
     padding: 0;
 
 }
-
 .sidebar ul li {
-    padding: 1rem .75rem;
+    padding: 1rem 1rem;
     text-align: left;
     color: white;
     display: flex;
@@ -42,10 +41,9 @@
 .sidebar ul li:hover{
     background-color: var(--clr-naranja);
     border-radius: .5rem;
-    margin-inline: 1rem;
 }
 .sidebar button{
-    padding: 0rem .15rem;
+    padding: 0rem .25rem;
     text-align: left;
     color: white;
     font-size: 1rem;
@@ -74,21 +72,17 @@ button{
     border: none;
     color: white;
 }
-.perfil img{
-    width: 48px;
-}
-.perfil{
+.perfil {
     display: flex;
     flex-direction: row;
-    padding-left: -3rem;
-
+    padding-left: 0;
 }
 .dataPerfilInicio{
     display: flex;
     flex-direction: column;
     padding-left: .75rem;
-    padding-top: .65rem;
-    font-size: 1.25rem;
+    padding-top: .25rem;
+    font-size: .75rem;
 }
 .openSide{
     margin-top: 2rem;
@@ -105,7 +99,15 @@ button{
     color: white;
     display: flex;
     flex-direction: column;
-    padding-left: .5rem;
+    padding-left: 1.25rem;
     padding-top: .65rem;
     font-size: .75rem;
 }
+.logoG {
+    width: 48px; /* Asegúrate de que el ancho y el alto sean iguales */
+    height: 48px;
+    border-radius: 100%; /* Esto crea un círculo perfecto */
+    border: 2px solid white; /* Borde blanco */
+    object-fit: cover; /* Para que la imagen se ajuste dentro del contenedor circular */
+}
+

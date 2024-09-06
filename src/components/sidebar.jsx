@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../styles/sidebar.css';
 import logo from '../img/garza (2).png';
 
-const Sidebar = ({ onComponentChange }) => {
+const Sidebar = ({ onComponentChange, onProfileClick }) => {
     const [isOpen, setIsOpen] = useState(true);
 
     const toggleSidebar = () => {
@@ -16,19 +16,20 @@ const Sidebar = ({ onComponentChange }) => {
     return (
         <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
             <ul>
-
-                    <div className={"perfil"}>
+                <div className={"perfil"}>
+                    {isOpen && (
                         <div className={"dataDAE"}>
-                            <span>DIRECCIÓN DE ADMINISTRACIÓN ESCOLAR</span>
-                            <span>ÁREA DE TITULACIÓN</span>
+                            <span>Dirección de Administración Escolar</span>
+                            <span>Área de Titulación</span>
                         </div>
-                    </div>
+                    )}
+                </div>
                 <li>
-                    <div className={"perfil"}>
+                    <div className={"perfil"} onClick={onProfileClick}>
                         <img src={logo} alt="logo_uaeh" className="logoG"/>
                         <div className={"dataPerfilInicio"}>
                             <span>Administrador</span>
-                            <span>Responsable de area</span>
+                            <span>Responsable de área</span>
                         </div>
                     </div>
                 </li>
@@ -38,7 +39,7 @@ const Sidebar = ({ onComponentChange }) => {
                     </button>
                     <span className={isOpen ? '' : 'hidden'}>
                         <button onClick={() => handleClick(['Inicio'])}>Inicio</button>
-                     </span>
+                    </span>
                 </li>
                 <li>
                     <button onClick={() => handleClick(['Citas'])}>

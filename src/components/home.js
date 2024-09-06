@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './sidebar';
+import ProfileOptions from './profileOptions';
 import AlertasYNotificaciones from './AlertasYNotificaciones';
 import ResumenDeCitas from './ResumenDeCitas';
 import CargarCitas from './Citas';
@@ -8,15 +10,28 @@ import DatosPersonales from './formulario_Integracion/datosPersonales';
 import Configuracion from './Configuracion';
 import Expedientes from './Expedientes';
 import Reportes from './Reportes';
-import CerrarSesion from './CerrarSesion';
 
 import '../styles/home.css';
 
 const Home = () => {
     const [activeComponents, setActiveComponents] = useState(['Inicio']);
     const [showDatosPersonales, setShowDatosPersonales] = useState(false);
+    const [showProfileOptions, setShowProfileOptions] = useState(false);
+    const navigate = useNavigate();
+
+    const handleProfileClick = () => {
+        setShowProfileOptions(true);
+    };
+
+    const handleCloseProfileOptions = () => {
+        setShowProfileOptions(false);
+    };
 
     const renderComponents = () => {
+        if (showProfileOptions) {
+            return <ProfileOptions onClose={handleCloseProfileOptions} />;
+        }
+
         if (activeComponents.includes('Inicio') && !showDatosPersonales) {
             return (
                 <div className="contentRow">
@@ -43,7 +58,8 @@ const Home = () => {
                 case 'Reportes':
                     return <Reportes key="Reportes" />;
                 case 'CerrarSesion':
-                    return <CerrarSesion key="CerrarSesion" />;
+                    navigate('/');
+                    return null;
                 default:
                     return null;
             }
@@ -52,10 +68,16 @@ const Home = () => {
 
     return (
         <div className="appContainer">
-            <Sidebar onComponentChange={(components) => {
-                setActiveComponents(components);
-                setShowDatosPersonales(false);
-            }} />
+            {activeComponents.includes('CerrarSesion') ? null : (
+                <Sidebar
+                    onComponentChange={(components) => {
+                        setActiveComponents(components);
+                        setShowDatosPersonales(false);
+                        setShowProfileOptions(false);
+                    }}
+                    onProfileClick={handleProfileClick}
+                />
+            )}
             <main className="mainContent">
                 {renderComponents()}
             </main>

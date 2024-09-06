@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import '../styles/Integracion.css';
 import StudentDataPreview from './formulario_Integracion/BorradorPre';
 import { useCitas } from './manejarCitas';
+import Bitacora from './bitacora';
 
 const Expedientes = () => {
     const { citas, actualizarCitas } = useCitas();
     const [mostrarPreview, setMostrarPreview] = useState(false);
+    const [mostrarBitacora, setMostrarBitacora] = useState(false);
+    const [citaSeleccionada, setCitaSeleccionada] = useState(null);
     const [busqueda, setBusqueda] = useState({
         cuenta: '',
         nombre: '',
@@ -15,6 +18,11 @@ const Expedientes = () => {
 
     const handleVerClick = () => {
         setMostrarPreview(true);
+    };
+
+    const handleBitacoraClick = (cita) => {
+        setCitaSeleccionada(cita);
+        setMostrarBitacora(true);
     };
 
     const handleEstadoChange = (id, newEstado) => {
@@ -45,7 +53,9 @@ const Expedientes = () => {
         return <StudentDataPreview />;
     }
 
-    console.log('Datos de citas:', citas);
+    if (mostrarBitacora) {
+        return <Bitacora cita={citaSeleccionada} onClose={() => setMostrarBitacora(false)} />;
+    }
 
     return (
         <div className="integracion-wrapper">
@@ -92,36 +102,43 @@ const Expedientes = () => {
                         <th>Nombre</th>
                         <th>Fecha</th>
                         <th>Modalidad</th>
+                        <th>Tipo</th>
                         <th>Estado</th>
                         <th>Observaciones</th>
+                        <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
                     {citas.map((cita) => (
-                        <tr key={cita.id}>
-                            <td>{cita.cuenta || 'No disponible'}</td>
-                            <td>{`${cita.nombre || ''} ${cita.apellidoPaterno || ''} ${cita.apellidoMaterno || ''}`}</td>
-                            <td>{cita.fecha || 'No disponible'}</td>
-                            <td>{cita.modalidad || 'No disponible'}</td>
-                            <td>
-                                <select
-                                    value={cita.estado || 'completo'}
-                                    onChange={(e) => handleEstadoChange(cita.id, e.target.value)}
-                                    className="dropdown"
-                                >
-                                    <option value="completo">Completo</option>
-                                    <option value="incompleto">Incompleto</option>
-                                    <option value="en proceso">En proceso</option>
-                                    <option value="rechazado">Rechazado</option>
-                                </select>
-                            </td>
-                            <td>{cita.observaciones || 'No disponible'}</td>
-                            <td>
-                                <button className="button" onClick={handleVerClick}>VER</button>
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
+                            <tr key={cita.index}>
+                                <td>{cita['Numero de cuenta']}</td>
+
+                                <td>{cita['Fecha']}</td>
+                                <td>{cita['Modalidad']}</td>
+                                <td>{cita['Tipo']}</td>
+                                <td>{cita['Estado'] || 'Pendiente'}</td>
+                                <td>{cita['Observaciones']}</td>
+                                <td>
+                                    <select
+                                        value={cita.estado || 'completo'}
+                                        onChange={(e) => handleEstadoChange(cita.id, e.target.value)}
+                                        className="dropdown"
+                                    >
+                                        <option value="completo">Integrado</option>
+                                        <option value="incompleto">Incompleto</option>
+                                        <option value="en proceso">En proceso</option>
+                                        <option value="rechazado">Rechazado</option>
+                                    </select>
+                                </td>
+                                <td>{cita.observaciones || 'No disponible'}</td>
+                                <td>
+                                    <button className="button" onClick={handleVerClick}>Integrar</button>
+                                    <button className="button" onClick={() => handleBitacoraClick(cita)}>Bitácora
+                                    </button>
+                                </td>
+                            </tr>
+                            ))}
+                        </tbody>
                 </table>
             </div>
         </div>

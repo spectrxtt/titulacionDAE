@@ -31,6 +31,7 @@ const Integracion = () => {
                     <th>Nombre</th>
                     <th>Fecha</th>
                     <th>Modalidad</th>
+                    <th>Tipo</th>
                     <th>Estado</th>
                     <th>Observaciones</th>
                     <th>Acciones</th>
@@ -43,6 +44,7 @@ const Integracion = () => {
                         <td>{`${cita['Nombre']} ${cita['Apellido Paterno']} ${cita['Apellido Materno']}`.trim()}</td>
                         <td>{cita['Fecha']}</td>
                         <td>{cita['Modalidad']}</td>
+                        <td>{cita['Tipo']}</td>
                         <td>{cita['Estado'] || 'Pendiente'}</td>
                         <td>{cita['Observaciones']}</td>
                         <td>

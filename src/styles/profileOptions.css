@@ -1,0 +1,78 @@
+.profile-container {
+    display: flex;
+    min-height: 100vh;
+}
+.profile-sidebar {
+    width: 20%;
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+.profile-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+.profile-sidebar ul li {
+    margin: 15px 0;
+    cursor: pointer;
+    font-weight: bold;
+}
+.profile-content {
+    width: 80%;
+    padding: 40px;
+}
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+.profile-image-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+.profile-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+.profile-details-section label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+.profile-details-section input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+button.save-button {
+    display: block;
+    margin-top: 20px;
+    padding-block: 1rem;
+    background-color: var(--clr-rojo);
+    transition: .3s;
+    border-radius: .5rem;
+    width: 10rem;
+}
+button.save-button:hover{
+    background-color: var(--clr-vino);
+}
+.opcionesPerfil button{
+    background-color: var(--clr-rojo);
+    padding: 10px 15px;
+    color: white;
+    border: none;
+    border-radius: .5rem;
+    cursor: pointer;
+    width: 10rem;
+    margin-inline: .5rem;
+}
+.opcionesPerfil button:hover{
+    background-color: var(--clr-vino);
+}
+.opcionesPerfil{
+    display: flex;
+    flex-direction: row;
+}

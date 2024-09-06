@@ -35,7 +35,7 @@ const GenerarReporte = () => {
                         onChange={(e) => setEstadoCita(e.target.value)}
                     >
                         <option value="">Seleccione un estado</option>
-                        <option value="Completo">Completo</option>
+                        <option value="Completo">Integrado</option>
                         <option value="Rechazado">Rechazado</option>
                         <option value="Pendiente">Pendiente</option>
                         <option value="En revisión">En revisión</option>

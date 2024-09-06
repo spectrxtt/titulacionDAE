@@ -41,16 +41,17 @@ const CargarCitas = () => {
                     }
 
                     const headers = data[0];
-                    const rows = data.slice(1);
+                    const rows = data.slice(1).filter(row => row.some(cell => cell !== undefined && cell !== null && cell !== ''));
 
                     const result = rows.map(row => {
                         let obj = {};
-                        row.forEach((value, index) => {
-                            if (headers[index] === 'Fecha' && typeof value === 'number') {
+                        headers.forEach((header, index) => {
+                            const value = row[index];
+                            if (header === 'Fecha' && typeof value === 'number') {
                                 const date = XLSX.SSF.parse_date_code(value);
-                                obj[headers[index]] = `${date.y}-${date.m.toString().padStart(2, '0')}-${date.d.toString().padStart(2, '0')}`;
+                                obj[header] = `${date.y}-${date.m.toString().padStart(2, '0')}-${date.d.toString().padStart(2, '0')}`;
                             } else {
-                                obj[headers[index]] = value;
+                                obj[header] = value !== undefined ? value : '';
                             }
                         });
                         return obj;
@@ -116,6 +117,8 @@ const CargarCitas = () => {
                             <th>Apellido Materno</th>
                             <th>Fecha</th>
                             <th>Modalidad</th>
+                            <th>Tipo</th>
+
                         </tr>
                         </thead>
                         <tbody>
@@ -127,6 +130,7 @@ const CargarCitas = () => {
                                 <td>{cita['Apellido Materno']}</td>
                                 <td>{cita['Fecha']}</td>
                                 <td>{cita['Modalidad']}</td>
+                                <td>{cita['Tipo']}</td>
                             </tr>
                         ))}
                         </tbody>
