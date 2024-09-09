@@ -59,7 +59,7 @@ const DatosEscolares = () => {
             <div className="boton_generarReporte">
                 <button onClick={handleGenerarReporteClick}><i className="fa-solid fa-triangle-exclamation"></i>
                 </button>
-                <RequisitosButton requisitosContent="Requisitos para Datos Escolares" />
+                <RequisitosButton requisitosContent="Requisitos para licenciatura en derecho: " />
             </div>
 
             <h2>Datos Escolares</h2>

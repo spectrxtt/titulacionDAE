@@ -112,25 +112,12 @@ const Expedientes = () => {
                     {citas.map((cita) => (
                             <tr key={cita.index}>
                                 <td>{cita['Numero de cuenta']}</td>
-
+                                <td>{cita['Nombre']}</td>
                                 <td>{cita['Fecha']}</td>
                                 <td>{cita['Modalidad']}</td>
                                 <td>{cita['Tipo']}</td>
                                 <td>{cita['Estado'] || 'Pendiente'}</td>
                                 <td>{cita['Observaciones']}</td>
-                                <td>
-                                    <select
-                                        value={cita.estado || 'completo'}
-                                        onChange={(e) => handleEstadoChange(cita.id, e.target.value)}
-                                        className="dropdown"
-                                    >
-                                        <option value="completo">Integrado</option>
-                                        <option value="incompleto">Incompleto</option>
-                                        <option value="en proceso">En proceso</option>
-                                        <option value="rechazado">Rechazado</option>
-                                    </select>
-                                </td>
-                                <td>{cita.observaciones || 'No disponible'}</td>
                                 <td>
                                     <button className="button" onClick={handleVerClick}>Integrar</button>
                                     <button className="button" onClick={() => handleBitacoraClick(cita)}>Bitácora
