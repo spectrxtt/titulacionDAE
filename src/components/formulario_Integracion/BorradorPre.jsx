@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../styles/StudentDataPreview.css';
 import Requisitos from './requisitos';
 import jsPDF from 'jspdf';
@@ -8,25 +8,26 @@ const StudentDataPreview = () => {
     const [mostrarDatosRequisitos, setMostrarDatosRequisitos] = useState(false);
     const { formData } = useFormData();
 
-    const handleVerClickRequisitos = () => {
-        setMostrarDatosRequisitos(true);
-    };
+    useEffect(() => {
+        // Puede ser útil para depuración
+        console.log('FormData en StudentDataPreview:', formData);
+    }, [formData]);
+
+    const handleVerClickRequisitos = () => setMostrarDatosRequisitos(true);
 
     const generatePDF = () => {
         const doc = new jsPDF();
 
-        // Datos Personales
         doc.setFontSize(12);
         doc.text("DATOS ESTUDIANTES - DATOS INTEGRADOS", 10, 10);
-        doc.text(`Número de cuenta: ${formData['Numero de cuenta'] || ''}`, 10, 20);
-        doc.text(`Nombre: ${formData.Nombre || ''}`, 10, 30);
-        doc.text(`Apellido Paterno: ${formData['Apellido Paterno'] || ''}`, 10, 40);
-        doc.text(`Apellido Materno: ${formData['Apellido Materno'] || ''}`, 10, 50);
+        doc.text(`Número de cuenta: ${formData.NoCuenta || ''}`, 10, 20);
+        doc.text(`Nombre: ${formData.nombre || ''}`, 10, 30);
+        doc.text(`Apellido Paterno: ${formData.apellidoPaterno || ''}`, 10, 40);
+        doc.text(`Apellido Materno: ${formData.apellidoMaterno || ''}`, 10, 50);
         doc.text(`CURP: ${formData.curp || ''}`, 10, 60);
         doc.text(`Género: ${formData.Genero || ''}`, 10, 70);
         doc.text(`Entidad Federativa: ${formData.EntidadFederativa || ''}`, 10, 80);
 
-        // Datos Escolares
         doc.text("DATOS ESCOLARES", 10, 100);
         doc.text(`Bachillerato: ${formData.bachillerato || ''}`, 10, 110);
         doc.text(`Fecha Inicio Bachillerato: ${formData.fechaInBach || ''}`, 10, 120);
@@ -37,7 +38,6 @@ const StudentDataPreview = () => {
         doc.text(`Estado Pasantía: ${formData.pasantia || ''}`, 10, 170);
         doc.text(`Modalidad de Titulación: ${formData.modalidad || ''}`, 10, 180);
 
-        // Datos de Requisitos
         doc.text("REQUISITOS", 10, 200);
         doc.text(`Resultado EGEL: ${formData.Egel || ''}`, 10, 210);
         doc.text(`Fecha de Aplicación EGEL: ${formData.fechaEgel || ''}`, 10, 220);
@@ -52,9 +52,7 @@ const StudentDataPreview = () => {
         doc.save('student_data_preview.pdf');
     };
 
-    if (mostrarDatosRequisitos) {
-        return <Requisitos />;
-    }
+    if (mostrarDatosRequisitos) return <Requisitos />;
 
     return (
         <div className="student-data-preview">
@@ -62,10 +60,10 @@ const StudentDataPreview = () => {
             <div className="section">
                 <h3>DATOS PERSONALES</h3>
                 <div className="grid">
-                    <input placeholder="Número de cuenta" value={formData['Numero de cuenta'] || ''} readOnly />
-                    <input placeholder="Nombre" value={formData.Nombre || ''} readOnly />
-                    <input placeholder="Apellido Paterno" value={formData['Apellido Paterno'] || ''} readOnly />
-                    <input placeholder="Apellido Materno" value={formData['Apellido Materno'] || ''} readOnly />
+                    <input placeholder="Número de cuenta" value={formData.NoCuenta || ''} readOnly />
+                    <input placeholder="Nombre" value={formData.nombre || ''} readOnly />
+                    <input placeholder="Apellido Paterno" value={formData.apellidoPaterno || ''} readOnly />
+                    <input placeholder="Apellido Materno" value={formData.apellidoMaterno || ''} readOnly />
                     <input placeholder="CURP" value={formData.curp || ''} readOnly />
                     <input placeholder="Género" value={formData.Genero || ''} readOnly />
                     <input placeholder="Entidad Federativa" value={formData.EntidadFederativa || ''} readOnly />

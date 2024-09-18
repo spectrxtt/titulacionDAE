@@ -8,24 +8,22 @@ import { useFormData } from './integracionDatos';
 import GenerarReporte from "./GenerarReporte";
 import RequisitosButton from './infoRequisitos';
 
-const DatosEscolares = () => {
+const DatosEscolares = ({ citaSeleccionada }) => {
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
     const [mostrarDatosRequisitos, setMostrarDatosRequisitos] = useState(false);
     const [mostrarGenerarReporte, setMostrarGenerarReporte] = useState(false);
-    const { citas } = useCitas();
     const { formData, updateFormData } = useFormData();
 
     useEffect(() => {
-        if (citas && citas.length > 0) {
-            const citaActual = citas[0];
-            const numeroCuenta = citaActual['Numero de cuenta'];
+        if (citaSeleccionada) {
+            const numeroCuenta = citaSeleccionada['No.Cuenta'];
             const datoEscolar = datosEscolares.find(d => d.numCuenta === parseInt(numeroCuenta));
             updateFormData({
-                ...citaActual,
+                ...citaSeleccionada,
                 ...datoEscolar,
             });
         }
-    }, [citas, updateFormData]);
+    }, [citaSeleccionada, updateFormData]);
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -39,25 +37,28 @@ const DatosEscolares = () => {
     const handleVerClickRequisitos = () => {
         setMostrarDatosRequisitos(true);
     };
+
     const handleGenerarReporteClick = () => {
         setMostrarGenerarReporte(true);
     };
 
     if (mostrarDatosPersonales) {
-        return <DatosPersonales />;
+        return <DatosPersonales citaSeleccionada={citaSeleccionada} />;
     }
 
     if (mostrarDatosRequisitos) {
-        return <Requisitos />;
+        return <Requisitos citaSeleccionada={citaSeleccionada} />;
     }
+
     if (mostrarGenerarReporte) {
-        return <GenerarReporte />;
+        return <GenerarReporte citaSeleccionada={citaSeleccionada} />;
     }
 
     return (
         <div className="personales">
             <div className="boton_generarReporte">
-                <button onClick={handleGenerarReporteClick}><i className="fa-solid fa-triangle-exclamation"></i>
+                <button onClick={handleGenerarReporteClick}>
+                    <i className="fa-solid fa-triangle-exclamation"></i>
                 </button>
                 <RequisitosButton requisitosContent="Requisitos para licenciatura en derecho: " />
             </div>
@@ -151,9 +152,12 @@ const DatosEscolares = () => {
                     />
                 </div>
                 <div className="boton_integracionS">
-                    <button onClick={handleVerClickPersonales}><i className="fa-solid fa-arrow-left"></i></button>
-                    <button onClick={handleVerClickRequisitos}><i className="fa-solid fa-arrow-right"></i></button>
-
+                    <button onClick={handleVerClickPersonales}>
+                        <i className="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button onClick={handleVerClickRequisitos}>
+                        <i className="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
         </div>

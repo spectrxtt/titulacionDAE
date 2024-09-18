@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import '../styles/Integracion.css';
 import DatosPersonales from './formulario_Integracion/datosPersonales';
+import DatosEscolares from './formulario_Integracion/datosEscolares';
 import { useCitas } from './manejarCitas';
 
 const Integracion = () => {
     const { citas, actualizarCitas } = useCitas();
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
+    const [citaSeleccionada, setCitaSeleccionada] = useState(null);
 
-    const handleVerClick = () => {
+    const handleVerClick = (cita) => {
+        setCitaSeleccionada(cita);
         setMostrarDatosPersonales(true);
     };
 
@@ -18,7 +21,7 @@ const Integracion = () => {
     };
 
     if (mostrarDatosPersonales) {
-        return <DatosPersonales />;
+        return <DatosPersonales citaSeleccionada={citaSeleccionada} />;
     }
 
     return (
@@ -30,8 +33,6 @@ const Integracion = () => {
                     <th># Cuenta</th>
                     <th>Nombre</th>
                     <th>Fecha</th>
-                    <th>Modalidad</th>
-                    <th>Tipo</th>
                     <th>Estado</th>
                     <th>Observaciones</th>
                     <th>Acciones</th>
@@ -40,15 +41,18 @@ const Integracion = () => {
                 <tbody>
                 {citas.map((cita, index) => (
                     <tr key={index}>
-                        <td>{cita['Numero de cuenta']}</td>
-                        <td>{`${cita['Nombre']} ${cita['Apellido Paterno']} ${cita['Apellido Materno']}`.trim()}</td>
+                        <td>{cita['No.Cuenta']}</td>
+                        <td>{cita['Alumno']}</td>
                         <td>{cita['Fecha']}</td>
-                        <td>{cita['Modalidad']}</td>
-                        <td>{cita['Tipo']}</td>
                         <td>{cita['Estado'] || 'Pendiente'}</td>
                         <td>{cita['Observaciones']}</td>
                         <td>
-                            <button className="button" onClick={handleVerClick}>VER</button>
+                            <button
+                                className="button"
+                                onClick={() => handleVerClick(cita)}
+                            >
+                                VER
+                            </button>
                         </td>
                     </tr>
                 ))}

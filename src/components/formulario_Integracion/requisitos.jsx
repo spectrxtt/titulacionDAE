@@ -1,3 +1,4 @@
+// requisitos.jsx
 import React, { useState, useEffect } from 'react';
 import '../../styles/formularioIntegracion.css';
 import DatosEscolares from './datosEscolares';
@@ -17,10 +18,12 @@ const Requisitos = () => {
 
     useEffect(() => {
         if (citas && citas.length > 0) {
-            const citaActual = citas[0];
-            const numeroCuenta = citaActual['Numero de cuenta'];
-            const datoRequisito = requisitos.find(d => d.numCuenta === parseInt(numeroCuenta));
+            // Asegúrate de usar el índice correcto para obtener la cita actual
+            const citaActual = citas[0]; // Aquí asumes que siempre es la primera cita, ajústalo según tu lógica
+            const numeroCuenta = citaActual['No.Cuenta'];
+            const datoRequisito = requisitos.find(d => d.numCuenta === parseInt(numeroCuenta, 10));
 
+            // Actualiza formData con los datos de la cita actual
             updateFormData({
                 ...citaActual,
                 ...datoRequisito
@@ -32,32 +35,19 @@ const Requisitos = () => {
         const { name, value } = event.target;
         updateFormData({ [name]: value });
     };
-    const handleVerClickEscolares = () => {
-        setMostrarDatosEscolares(true);
-    };
 
-    const handleVerClickBorrador = () => {
-        setMostrarDatosborrador(true);
-    };
-    const handleGenerarReporteClick = () => {
-        setMostrarGenerarReporte(true);
-    };
+    const handleVerClickEscolares = () => setMostrarDatosEscolares(true);
+    const handleVerClickBorrador = () => setMostrarDatosborrador(true);
+    const handleGenerarReporteClick = () => setMostrarGenerarReporte(true);
 
-    if (mostrarDatosEscolares) {
-        return <DatosEscolares />;
-    }
+    if (mostrarDatosEscolares) return <DatosEscolares />;
+    if (mostrarDatosborrador) return <StudentDataPreview />;
+    if (mostrarGenerarReporte) return <GenerarReporte />;
 
-    if (mostrarDatosborrador) {
-        return <StudentDataPreview />;
-    }
-    if (mostrarGenerarReporte) {
-        return <GenerarReporte />;
-    }
     return (
         <div className="personales">
             <div className="boton_generarReporte">
-                <button onClick={handleGenerarReporteClick}><i className="fa-solid fa-triangle-exclamation"></i>
-                </button>
+                <button onClick={handleGenerarReporteClick}><i className="fa-solid fa-triangle-exclamation"></i></button>
                 <RequisitosButton requisitosContent="Requisitos para Datos Escolares" />
             </div>
             <h2>Requisitos</h2>
@@ -168,6 +158,5 @@ const Requisitos = () => {
         </div>
     );
 }
-
 
 export default Requisitos;

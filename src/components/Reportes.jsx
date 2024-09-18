@@ -3,7 +3,7 @@ import '../styles/Integracion.css';
 
 const Reportes = () => {
     const [citas] = useState([
-        { id: 1, fecha: '2024-03-01', citasTotales: '10', citasCompletas: '8', citasPendientes: '1', citasCanceladas: '1', observaciones: 'Ninguna' }
+        { id: 1, fecha: '2024-03-01', citasTotales: '5', citasCompletas: '3', citasPendientes: '1', citasCanceladas: '1', observaciones: 'Ninguna' }
     ]);
     const [filtroFechaInicio, setFiltroFechaInicio] = useState('');
     const [filtroFechaFin, setFiltroFechaFin] = useState('');

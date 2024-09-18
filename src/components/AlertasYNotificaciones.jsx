@@ -4,7 +4,7 @@ import '../styles/notificaciones.css';
 
 const AlertasYNotificaciones = () => {
     const alertas = [
-        { id: 1, texto: 'a', completada: false },
+        { id: 1, texto: ' ', completada: false },
 
     ];
 

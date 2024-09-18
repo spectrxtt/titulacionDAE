@@ -10,6 +10,7 @@ const CargarCitas = () => {
     const [fileLoaded, setFileLoaded] = useState(false);
     const { actualizarCitas } = useCitas();
     const [error, setError] = useState(null);
+    const [fechaCitas, setFechaCitas] = useState('');
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -34,28 +35,45 @@ const CargarCitas = () => {
                     const wb = XLSX.read(event.target.result, { type: 'array' });
                     const wsname = wb.SheetNames[0];
                     const ws = wb.Sheets[wsname];
+
+                    // Extraemos el contenido del archivo como JSON con las cabeceras
                     const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-                    if (data.length < 2) {
-                        throw new Error("El archivo Excel está vacío o no contiene datos válidos.");
+                    // Aquí podríamos mostrar la estructura para depuración
+                    console.log("Datos crudos desde el archivo:", data);
+
+                    // Verificar si el archivo tiene suficiente información
+                    if (data.length < 3) {
+                        throw new Error("El archivo no contiene suficientes datos.");
                     }
 
-                    const headers = data[0];
-                    const rows = data.slice(1).filter(row => row.some(cell => cell !== undefined && cell !== null && cell !== ''));
+                    // Ajustamos el índice para comenzar a leer los datos desde donde inicia realmente
+                    // Suponemos que la fecha se encuentra en la segunda fila, primera columna
+                    let fechaCitasCell = data[1][0].trim();
 
-                    const result = rows.map(row => {
-                        let obj = {};
-                        headers.forEach((header, index) => {
-                            const value = row[index];
-                            if (header === 'Fecha' && typeof value === 'number') {
-                                const date = XLSX.SSF.parse_date_code(value);
-                                obj[header] = `${date.y}-${date.m.toString().padStart(2, '0')}-${date.d.toString().padStart(2, '0')}`;
-                            } else {
-                                obj[header] = value !== undefined ? value : '';
-                            }
-                        });
-                        return obj;
-                    });
+                    // Usamos una expresión regular para extraer solo la fecha
+                    const regexFecha = /(\d{1,2} de [a-zA-Z]+ de \d{4})/;
+                    const matchFecha = fechaCitasCell.match(regexFecha);
+
+                    // Si encontramos la fecha, la extraemos, de lo contrario asignamos un valor por defecto
+                    if (matchFecha) {
+                        fechaCitasCell = matchFecha[0]; // Extraemos solo la fecha del texto
+                    } else {
+                        fechaCitasCell = 'Fecha no encontrada'; // Mensaje en caso de que no haya coincidencia
+                    }
+
+                    setFechaCitas(fechaCitasCell);
+
+                    // Filtramos las filas que no están vacías y mapeamos las columnas correctas
+                    const rows = data.slice(4).filter(row => row.some(cell => cell !== undefined && cell !== null && cell !== ''));
+
+                    // Extraemos columnas específicas según su posición
+                    const result = rows.map(row => ({
+                        'No.Cuenta': row[1] ? row[1] : 'No data',  // Asegurarnos de extraer correctamente No.Cuenta (columna 2)
+                        'Alumno': row[2] ? row[2] : 'No data',     // Columna 3: Alumno
+                        'Carrera': row[3] ? row[3] : 'No data',    // Columna 4: Carrera
+                        'Fecha': fechaCitasCell
+                    }));
 
                     console.log("Datos procesados:", result);
                     setDatosTemporales(result);
@@ -63,7 +81,7 @@ const CargarCitas = () => {
                     setError(null);
                 } catch (err) {
                     console.error("Error al procesar el archivo:", err);
-                    setError("Error al procesar el archivo. Asegúrate de que sea un Excel válido con los datos correctos.");
+                    setError("Error al procesar el archivo. Asegúrate de que sea un Excel válido.");
                 }
             };
             reader.onerror = (err) => {
@@ -75,6 +93,9 @@ const CargarCitas = () => {
             setError("Por favor, seleccione un archivo primero.");
         }
     };
+
+
+
 
     const handleGenerarAsignacion = () => {
         actualizarCitas(datosTemporales);
@@ -107,30 +128,24 @@ const CargarCitas = () => {
                 </div>
             ) : (
                 <div>
-                    <h3 className={"datosCargados"}>Datos Cargados</h3>
+                    <h3 className="datosCargados">Datos Cargados</h3>
+                    <p>Fecha de Citas: {fechaCitas}</p>
                     <table className="data-table">
                         <thead>
                         <tr>
-                            <th># Cuenta</th>
-                            <th>Nombre</th>
-                            <th>Apellido Paterno</th>
-                            <th>Apellido Materno</th>
                             <th>Fecha</th>
-                            <th>Modalidad</th>
-                            <th>Tipo</th>
-
+                            <th>No.Cuenta</th>
+                            <th>Alumno</th>
+                            <th>Carrera</th>
                         </tr>
                         </thead>
                         <tbody>
                         {datosTemporales.map((cita, index) => (
                             <tr key={index}>
-                                <td>{cita['Numero de cuenta']}</td>
-                                <td>{cita['Nombre']}</td>
-                                <td>{cita['Apellido Paterno']}</td>
-                                <td>{cita['Apellido Materno']}</td>
                                 <td>{cita['Fecha']}</td>
-                                <td>{cita['Modalidad']}</td>
-                                <td>{cita['Tipo']}</td>
+                                <td>{cita['No.Cuenta']}</td>
+                                <td>{cita['Alumno']}</td>
+                                <td>{cita['Carrera']}</td>
                             </tr>
                         ))}
                         </tbody>
@@ -147,7 +162,7 @@ const CargarCitas = () => {
                 </button>
             )}
             {error && <p className="error-message">{error}</p>}
-            {datosTemporales.length > 0 && <p className={'infoCitas'}>Número de citas cargadas: {datosTemporales.length}</p>}
+            {datosTemporales.length > 0 && <p className='infoCitas'>Número de citas cargadas: {datosTemporales.length}</p>}
         </div>
     );
 };

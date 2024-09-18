@@ -98,11 +98,9 @@ const Expedientes = () => {
                 <table className="table">
                     <thead>
                     <tr>
-                        <th># Cuenta</th>
-                        <th>Nombre</th>
                         <th>Fecha</th>
-                        <th>Modalidad</th>
-                        <th>Tipo</th>
+                        <th>Nombre</th>
+                        <th># Cuenta</th>
                         <th>Estado</th>
                         <th>Observaciones</th>
                         <th>Acciones</th>
@@ -110,22 +108,19 @@ const Expedientes = () => {
                     </thead>
                     <tbody>
                     {citas.map((cita) => (
-                            <tr key={cita.index}>
-                                <td>{cita['Numero de cuenta']}</td>
-                                <td>{cita['Nombre']}</td>
-                                <td>{cita['Fecha']}</td>
-                                <td>{cita['Modalidad']}</td>
-                                <td>{cita['Tipo']}</td>
-                                <td>{cita['Estado'] || 'Pendiente'}</td>
-                                <td>{cita['Observaciones']}</td>
-                                <td>
-                                    <button className="button" onClick={handleVerClick}>Integrar</button>
-                                    <button className="button" onClick={() => handleBitacoraClick(cita)}>Bitácora
-                                    </button>
-                                </td>
-                            </tr>
-                            ))}
-                        </tbody>
+                        <tr key={cita.index}>
+                            <td>{cita['Fecha']}</td>
+                            <td>{cita['No.Cuenta']}</td>
+                            <td>{cita['Alumno']}</td>
+                            <td>{cita['Estado'] || 'Pendiente'}</td>
+                            <td>{cita['Observaciones']}</td>
+                            <td>
+                                <button className="button" onClick={handleVerClick}>Integrar</button>
+                                <button className="button" onClick={() => handleBitacoraClick(cita)}>Bitácora</button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
                 </table>
             </div>
         </div>
