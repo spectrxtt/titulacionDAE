@@ -3,15 +3,22 @@ import '../../styles/StudentDataPreview.css';
 import Requisitos from './requisitos';
 import jsPDF from 'jspdf';
 import { useFormData } from './integracionDatos';
+import datosPersonales from "../../pruebas/datosPersonales";
 
-const StudentDataPreview = () => {
+const StudentDataPreview = ({ citaSeleccionada }) => {
     const [mostrarDatosRequisitos, setMostrarDatosRequisitos] = useState(false);
-    const { formData } = useFormData();
+    const { formData, updateFormData } = useFormData();
 
     useEffect(() => {
-        // Puede ser útil para depuración
-        console.log('FormData en StudentDataPreview:', formData);
-    }, [formData]);
+        if (citaSeleccionada) {
+            const numeroCuenta = citaSeleccionada['No.Cuenta'];
+            const datoAdicional = datosPersonales.find(d => d.numCuenta === numeroCuenta);
+            updateFormData({
+                ...citaSeleccionada,
+                ...datoAdicional,
+            });
+        }
+    }, [citaSeleccionada, updateFormData]);
 
     const handleVerClickRequisitos = () => setMostrarDatosRequisitos(true);
 

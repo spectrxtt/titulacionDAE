@@ -16,12 +16,12 @@ const Expedientes = () => {
         apellidoMaterno: ''
     });
 
-    const handleVerClick = () => {
+    const handleVerClick = (cita) => {
+        setCitaSeleccionada(cita);
         setMostrarPreview(true);
     };
 
-    const handleBitacoraClick = (cita) => {
-        setCitaSeleccionada(cita);
+    const handleBitacoraClick = () => {
         setMostrarBitacora(true);
     };
 
@@ -49,12 +49,12 @@ const Expedientes = () => {
         });
     };
 
-    if (mostrarPreview) {
-        return <StudentDataPreview />;
+    if (mostrarPreview && citaSeleccionada) {
+        return <StudentDataPreview citaSeleccionada={citaSeleccionada} onClose={() => setMostrarPreview(false)} />;
     }
 
     if (mostrarBitacora) {
-        return <Bitacora cita={citaSeleccionada} onClose={() => setMostrarBitacora(false)} />;
+        return <Bitacora onClose={() => setMostrarBitacora(false)} />;
     }
 
     return (
@@ -107,16 +107,16 @@ const Expedientes = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {citas.map((cita) => (
-                        <tr key={cita.index}>
+                    {citas.map((cita, index) => (
+                        <tr key={index}>
                             <td>{cita['Fecha']}</td>
-                            <td>{cita['No.Cuenta']}</td>
                             <td>{cita['Alumno']}</td>
+                            <td>{cita['No.Cuenta']}</td>
                             <td>{cita['Estado'] || 'Pendiente'}</td>
                             <td>{cita['Observaciones']}</td>
                             <td>
-                                <button className="button" onClick={handleVerClick}>Integrar</button>
-                                <button className="button" onClick={() => handleBitacoraClick(cita)}>Bitácora</button>
+                                <button className="button" onClick={() => handleVerClick(cita)}>Integrar</button>
+                                <button className="button" onClick={handleBitacoraClick}>Bitácora</button>
                             </td>
                         </tr>
                     ))}

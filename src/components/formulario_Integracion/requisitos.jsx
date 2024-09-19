@@ -9,7 +9,7 @@ import { useFormData } from './integracionDatos';
 import GenerarReporte from "./GenerarReporte";
 import RequisitosButton from './infoRequisitos';
 
-const Requisitos = () => {
+const Requisitos = ({ citaSeleccionada }) => {
     const [mostrarDatosEscolares, setMostrarDatosEscolares] = useState(false);
     const [mostrarDatosborrador, setMostrarDatosborrador] = useState(false);
     const [mostrarGenerarReporte, setMostrarGenerarReporte] = useState(false);
@@ -17,19 +17,15 @@ const Requisitos = () => {
     const { formData, updateFormData } = useFormData();
 
     useEffect(() => {
-        if (citas && citas.length > 0) {
-            // Asegúrate de usar el índice correcto para obtener la cita actual
-            const citaActual = citas[0]; // Aquí asumes que siempre es la primera cita, ajústalo según tu lógica
-            const numeroCuenta = citaActual['No.Cuenta'];
-            const datoRequisito = requisitos.find(d => d.numCuenta === parseInt(numeroCuenta, 10));
-
-            // Actualiza formData con los datos de la cita actual
+        if (citaSeleccionada) {
+            const numeroCuenta = citaSeleccionada['No.Cuenta'];
+            const datoRequisito = requisitos.find(d => d.numCuenta === parseInt(numeroCuenta));
             updateFormData({
-                ...citaActual,
-                ...datoRequisito
+                ...citaSeleccionada,
+                ...datoRequisito,
             });
         }
-    }, [citas, updateFormData]);
+    }, [citaSeleccionada, updateFormData]);
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;

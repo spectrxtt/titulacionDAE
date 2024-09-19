@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import '../styles/Integracion.css';
 import DatosPersonales from './formulario_Integracion/datosPersonales';
-import DatosEscolares from './formulario_Integracion/datosEscolares';
 import { useCitas } from './manejarCitas';
 
 const Integracion = () => {
-    const { citas, actualizarCitas } = useCitas();
+    const {citas, actualizarCitas } = useCitas();
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
     const [citaSeleccionada, setCitaSeleccionada] = useState(null);
 
