@@ -27,6 +27,22 @@ const CargarCitas = () => {
         setError(null);
     };
 
+    const formatDate = (dateString) => {
+        const months = {
+            'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06',
+            'julio': '07', 'agosto': '08', 'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
+        };
+
+        const parts = dateString.split(' de ');
+        if (parts.length !== 3) return 'Fecha inválida';
+
+        const day = parts[0].padStart(2, '0');
+        const month = months[parts[1].toLowerCase()];
+        const year = parts[2];
+
+        return `${day}/${month}/${year}`;
+    };
+
     const handleUpload = () => {
         if (file) {
             const reader = new FileReader();
@@ -36,42 +52,34 @@ const CargarCitas = () => {
                     const wsname = wb.SheetNames[0];
                     const ws = wb.Sheets[wsname];
 
-                    // Extraemos el contenido del archivo como JSON con las cabeceras
                     const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-                    // Aquí podríamos mostrar la estructura para depuración
                     console.log("Datos crudos desde el archivo:", data);
 
-                    // Verificar si el archivo tiene suficiente información
                     if (data.length < 3) {
                         throw new Error("El archivo no contiene suficientes datos.");
                     }
 
-                    // Ajustamos el índice para comenzar a leer los datos desde donde inicia realmente
-                    // Suponemos que la fecha se encuentra en la segunda fila, primera columna
                     let fechaCitasCell = data[1][0].trim();
 
-                    // Usamos una expresión regular para extraer solo la fecha
                     const regexFecha = /(\d{1,2} de [a-zA-Z]+ de \d{4})/;
                     const matchFecha = fechaCitasCell.match(regexFecha);
 
-                    // Si encontramos la fecha, la extraemos, de lo contrario asignamos un valor por defecto
                     if (matchFecha) {
-                        fechaCitasCell = matchFecha[0]; // Extraemos solo la fecha del texto
+                        fechaCitasCell = matchFecha[0];
+                        fechaCitasCell = formatDate(fechaCitasCell);
                     } else {
-                        fechaCitasCell = 'Fecha no encontrada'; // Mensaje en caso de que no haya coincidencia
+                        fechaCitasCell = 'Fecha no encontrada';
                     }
 
                     setFechaCitas(fechaCitasCell);
 
-                    // Filtramos las filas que no están vacías y mapeamos las columnas correctas
                     const rows = data.slice(4).filter(row => row.some(cell => cell !== undefined && cell !== null && cell !== ''));
 
-                    // Extraemos columnas específicas según su posición
                     const result = rows.map(row => ({
-                        'No.Cuenta': row[1] ? row[1] : 'No data',  // Asegurarnos de extraer correctamente No.Cuenta (columna 2)
-                        'Alumno': row[2] ? row[2] : 'No data',     // Columna 3: Alumno
-                        'Carrera': row[3] ? row[3] : 'No data',    // Columna 4: Carrera
+                        'No.Cuenta': row[1] ? row[1] : 'No data',
+                        'Alumno': row[2] ? row[2] : 'No data',
+                        'Carrera': row[3] ? row[3] : 'No data',
                         'Fecha': fechaCitasCell
                     }));
 
@@ -93,9 +101,6 @@ const CargarCitas = () => {
             setError("Por favor, seleccione un archivo primero.");
         }
     };
-
-
-
 
     const handleGenerarAsignacion = () => {
         actualizarCitas(datosTemporales);

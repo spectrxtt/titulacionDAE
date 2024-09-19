@@ -5,9 +5,22 @@ import { useCitas } from './manejarCitas';
 const ResumenDeCitas = ({ onVerClick }) => {
     const { citas } = useCitas();
 
+    // Función para obtener la fecha de hoy en formato "dd/mm/yyyy"
+    const getTodayFormatted = () => {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
     // Filtra las citas para mostrar solo las del día
-    const today = new Date().toISOString().split('T')[0];
-    const citasDelDia = citas.filter(cita => cita['Fecha'] === today);
+    const todayFormatted = getTodayFormatted();
+    const citasDelDia = citas.filter(cita => cita['Fecha'] === todayFormatted);
+
+    console.log("Fecha de hoy:", todayFormatted);
+    console.log("Citas del día:", citasDelDia);
+    console.log("Todas las citas:", citas);
 
     if (citasDelDia.length === 0) {
         return (
@@ -34,8 +47,8 @@ const ResumenDeCitas = ({ onVerClick }) => {
                 <tbody>
                 {citasDelDia.map((cita, index) => (
                     <tr key={index}>
-                        <td>{cita['Numero de cuenta']}</td>
-                        <td>{`${cita['Nombre']} ${cita['Apellido Paterno']} ${cita['Apellido Materno']}`.trim()}</td>
+                        <td>{cita['No.Cuenta']}</td>
+                        <td>{cita['Alumno']}</td>
                         <td>{cita['Fecha']}</td>
                         <td>{cita['Estado'] || 'Pendiente'}</td>
                         <td>
