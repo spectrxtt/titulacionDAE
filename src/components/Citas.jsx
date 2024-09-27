@@ -3,6 +3,7 @@ import { Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import '../styles/CargarCitas.css';
 import { useCitas } from './manejarCitas';
+import UsuariosActivosChecklist from './usuariosActivos';
 
 const CargarCitas = () => {
     const [file, setFile] = useState(null);
@@ -11,6 +12,11 @@ const CargarCitas = () => {
     const { actualizarCitas } = useCitas();
     const [error, setError] = useState(null);
     const [fechaCitas, setFechaCitas] = useState('');
+    const [showChecklist, setShowChecklist] = useState(false);  // Estado para mostrar el checklist
+    const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
+
+    const usuariosActivos = ['Usuario 1', 'Usuario 2', 'Usuario 3', 'Usuario 4']; // Lista de usuarios activos
+
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -103,71 +109,87 @@ const CargarCitas = () => {
     };
 
     const handleGenerarAsignacion = () => {
+        setShowChecklist(true);  // Mostrar el checklist al hacer clic en el botón
+    };
+
+    const handleConfirmarAsignacion = (seleccionados) => {
+        setUsuariosSeleccionados(seleccionados);
+        setShowChecklist(false); // Ocultar el checklist después de la confirmación
+        alert(`Usuarios seleccionados: ${seleccionados.join(', ')}`);
         actualizarCitas(datosTemporales);
-        alert("Asignación generada con éxito. Los datos han sido cargados en los otros componentes.");
     };
 
     return (
-        <div className="cargar-citas">
-            <h2>CARGAR CITAS</h2>
-            {!fileLoaded ? (
-                <div
-                    className="drop-area"
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                >
-                    <input
-                        type="file"
-                        accept=".xlsx, .xls"
-                        onChange={handleFileChange}
-                        id="file-upload"
-                        style={{ display: 'none' }}
-                    />
-                    <label htmlFor="file-upload">
-                        <Upload />
-                        <p>
-                            Seleccione o arrastre el archivo .xlsx para cargar las citas
-                        </p>
-                    </label>
-                    {file && <p className="file-selected">Archivo seleccionado: {file.name}</p>}
-                </div>
-            ) : (
-                <div>
-                    <h3 className="datosCargados">Datos Cargados</h3>
-                    <p>Fecha de Citas: {fechaCitas}</p>
-                    <table className="data-table">
-                        <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>No.Cuenta</th>
-                            <th>Alumno</th>
-                            <th>Carrera</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {datosTemporales.map((cita, index) => (
-                            <tr key={index}>
-                                <td>{cita['Fecha']}</td>
-                                <td>{cita['No.Cuenta']}</td>
-                                <td>{cita['Alumno']}</td>
-                                <td>{cita['Carrera']}</td>
+        <div className="cargar-citas-con-usuarios">
+            <div className="cargar-citas">
+                <h2>CARGAR CITAS</h2>
+                {!fileLoaded ? (
+                    <div
+                        className="drop-area"
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                    >
+                        <input
+                            type="file"
+                            accept=".xlsx, .xls"
+                            onChange={handleFileChange}
+                            id="file-upload"
+                            style={{ display: 'none' }}
+                        />
+                        <label htmlFor="file-upload">
+                            <Upload />
+                            <p>
+                                Seleccione o arrastre el archivo .xlsx para cargar las citas
+                            </p>
+                        </label>
+                        {file && <p className="file-selected">Archivo seleccionado: {file.name}</p>}
+                    </div>
+                ) : (
+                    <div>
+                        <h3 className="datosCargados">Datos Cargados</h3>
+                        <p>Fecha de Citas: {fechaCitas}</p>
+                        <table className="data-table">
+                            <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>No.Cuenta</th>
+                                <th>Alumno</th>
+                                <th>Carrera</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                    <button onClick={handleGenerarAsignacion} className="generate-assignment-button">
-                        GENERAR ASIGNACIÓN
+                            </thead>
+                            <tbody>
+                            {datosTemporales.map((cita, index) => (
+                                <tr key={index}>
+                                    <td>{cita['Fecha']}</td>
+                                    <td>{cita['No.Cuenta']}</td>
+                                    <td>{cita['Alumno']}</td>
+                                    <td>{cita['Carrera']}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                        <button onClick={handleGenerarAsignacion} className="generate-assignment-button">
+                            GENERAR ASIGNACIÓN
+                        </button>
+                    </div>
+                )}
+                {!fileLoaded && (
+                    <button onClick={handleUpload} className="upload-button">
+                        <Upload />
+                        CARGAR ARCHIVO
                     </button>
-                </div>
+                )}
+                {error && <p className="error-message">{error}</p>}
+                {datosTemporales.length > 0 && <p className='infoCitas'>Número de citas cargadas: {datosTemporales.length}</p>}
+            </div>
+
+            {/* Mostrar el checklist si el estado showChecklist es verdadero */}
+            {showChecklist && (
+                <UsuariosActivosChecklist
+                    usuarios={usuariosActivos}
+                    onConfirmar={handleConfirmarAsignacion}
+                />
             )}
-            {!fileLoaded && (
-                <button onClick={handleUpload} className="upload-button">
-                    <Upload />
-                    CARGAR ARCHIVO
-                </button>
-            )}
-            {error && <p className="error-message">{error}</p>}
-            {datosTemporales.length > 0 && <p className='infoCitas'>Número de citas cargadas: {datosTemporales.length}</p>}
         </div>
     );
 };

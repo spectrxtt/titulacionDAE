@@ -46,20 +46,60 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         doc.text(`Modalidad de Titulación: ${formData.modalidad || ''}`, 10, 180);
 
         doc.text("REQUISITOS", 10, 200);
-        doc.text(`Resultado EGEL: ${formData.Egel || ''}`, 10, 210);
-        doc.text(`Fecha de Aplicación EGEL: ${formData.fechaEgel || ''}`, 10, 220);
-        doc.text(`Servicio Social: ${formData.servicioSocial || ''}`, 10, 230);
-        doc.text(`Prácticas Profesionales: ${formData.practicasProfesionales || ''}`, 10, 240);
-        doc.text(`Examen de Inglés: ${formData.examenIngles || ''}`, 10, 250);
-        doc.text(`Fecha Aplicación Inglés: ${formData.fechaInLic || ''}`, 10, 260);
-        doc.text(`Biblioteca: ${formData.Biblioteca || ''}`, 10, 270);
-        doc.text(`CEDAI: ${formData.cedai || ''}`, 10, 280);
-        doc.text(`Laboratorio: ${formData.Laboratorio || ''}`, 10, 290);
+        let yPosition = 210;
+
+        // Requisitos originales
+        const requisitosOriginales = [
+            { label: "Resultado EGEL", value: formData.Egel },
+            { label: "Fecha de Aplicación EGEL", value: formData.fechaEgel },
+            { label: "Servicio Social", value: formData.servicioSocial },
+            { label: "Prácticas Profesionales", value: formData.practicasProfesionales },
+            { label: "Examen de Inglés", value: formData.examenIngles },
+            { label: "Fecha Aplicación Inglés", value: formData.fechaInLic },
+            { label: "Biblioteca", value: formData.Biblioteca },
+            { label: "CEDAI", value: formData.cedai },
+            { label: "Laboratorio", value: formData.Laboratorio }
+        ];
+
+        requisitosOriginales.forEach(({ label, value }) => {
+            if (value) {
+                doc.text(`${label}: ${value}`, 10, yPosition);
+                yPosition += 10;
+            }
+        });
+
+        // Nuevos campos de requisitos personalizados
+        for (let i = 1; i <= 6; i++) {
+            const requisitoValue = formData[`requisito${i}`];
+            const requisitoStatus = formData[`requisito${i}Status`];
+            if (requisitoValue) {
+                doc.text(`${requisitoValue}: ${requisitoStatus || 'No especificado'}`, 10, yPosition);
+                yPosition += 10;
+            }
+        }
 
         doc.save('student_data_preview.pdf');
     };
 
     if (mostrarDatosRequisitos) return <Requisitos />;
+    const renderRequisitos = () => {
+        const requisitoInputs = [];
+        for (let i = 1; i <= 6; i++) {
+            const requisitoValue = formData[`requisito${i}`];
+            const requisitoStatus = formData[`requisito${i}Status`];
+            if (requisitoValue) {
+                requisitoInputs.push(
+                    <input
+                        key={`requisito${i}`}
+                        placeholder={`Requisito ${i}`}
+                        value={`${requisitoValue}: ${requisitoStatus || 'No especificado'}`}
+                        readOnly
+                    />
+                );
+            }
+        }
+        return requisitoInputs;
+    };
 
     return (
         <div className="student-data-preview">
@@ -101,6 +141,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
                     <input placeholder="Biblioteca" value={formData.Biblioteca || ''} readOnly />
                     <input placeholder="CEDAI" value={formData.cedai || ''} readOnly />
                     <input placeholder="Laboratorio" value={formData.Laboratorio || ''} readOnly />
+                    {renderRequisitos()}
                 </div>
             </div>
             <div className="buttons">

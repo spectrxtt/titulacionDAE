@@ -14,7 +14,6 @@ const Reportes = () => {
     };
 
     const aplicarFiltros = () => {
-        // Aquí iría la lógica para filtrar las citas según los criterios seleccionados
         console.log("Aplicando filtros:", filtroFechaInicio, filtroFechaFin, filtroTipo);
     };
 

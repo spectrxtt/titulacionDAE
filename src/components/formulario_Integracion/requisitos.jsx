@@ -9,6 +9,33 @@ import { useFormData } from './integracionDatos';
 import GenerarReporte from "./GenerarReporte";
 import RequisitosButton from './infoRequisitos';
 
+// Nuevo componente RequisitoField
+const RequisitoField = ({ id, label, value, onChange, status, onStatusChange }) => (
+    <div className="form-group">
+        <label htmlFor={id}>{label}</label>
+        <div className="input-group">
+            <input
+                type="text"
+                id={id}
+                name={id}
+                value={value || ''}
+                onChange={onChange}
+                className="form-control"
+            />
+            <select
+                value={status || ''}
+                onChange={onStatusChange}
+                className="form-control"
+            >
+                <option value="">Seleccionar estado</option>
+                <option value="completo">Completo</option>
+                <option value="incompleto">Incompleto</option>
+                <option value="no_aplica">No aplica</option>
+            </select>
+        </div>
+    </div>
+);
+
 const Requisitos = ({ citaSeleccionada }) => {
     const [mostrarDatosEscolares, setMostrarDatosEscolares] = useState(false);
     const [mostrarDatosborrador, setMostrarDatosborrador] = useState(false);
@@ -32,6 +59,11 @@ const Requisitos = ({ citaSeleccionada }) => {
         updateFormData({ [name]: value });
     };
 
+    // Nueva función handleStatusChange
+    const handleStatusChange = (name, value) => {
+        updateFormData({ [name]: value });
+    };
+
     const handleVerClickEscolares = () => setMostrarDatosEscolares(true);
     const handleVerClickBorrador = () => setMostrarDatosborrador(true);
     const handleGenerarReporteClick = () => setMostrarGenerarReporte(true);
@@ -39,7 +71,6 @@ const Requisitos = ({ citaSeleccionada }) => {
     if (mostrarDatosEscolares) return <DatosEscolares />;
     if (mostrarDatosborrador) return <StudentDataPreview />;
     if (mostrarGenerarReporte) return <GenerarReporte />;
-
     return (
         <div className="personales">
             <div className="boton_generarReporte">
@@ -118,7 +149,7 @@ const Requisitos = ({ citaSeleccionada }) => {
                     <div className="form-group">
                         <label htmlFor="biblioteca">Biblioteca</label>
                         <input
-                            type="text"
+                            type="date"
                             id="biblioteca"
                             name="Biblioteca"
                             value={formData.Biblioteca || ''}
@@ -145,6 +176,44 @@ const Requisitos = ({ citaSeleccionada }) => {
                             onChange={handleInputChange}
                         />
                     </div>
+                </div>
+                <div className="form-row">
+                    <RequisitoField
+                        id="requisito1"
+                        label="Requisito 1"
+                        value={formData.requisito1}
+                        onChange={handleInputChange}
+                        status={formData.requisito1Status}
+                        onStatusChange={(e) => handleStatusChange('requisito1Status', e.target.value)}
+                    />
+                    <RequisitoField
+                        id="requisito2"
+                        label="Requisito 2"
+                        value={formData.requisito2}
+                        onChange={handleInputChange}
+                        status={formData.requisito2Status}
+                        onStatusChange={(e) => handleStatusChange('requisito2Status', e.target.value)}
+                    />
+
+                </div>
+                <div className="form-row">
+                    <RequisitoField
+                        id="requisito3"
+                        label="Requisito 3"
+                        value={formData.requisito3}
+                        onChange={handleInputChange}
+                        status={formData.requisito3Status}
+                        onStatusChange={(e) => handleStatusChange('requisito3Status', e.target.value)}
+                    />
+                    <RequisitoField
+                        id="requisito4"
+                        label="Requisito 4"
+                        value={formData.requisito4}
+                        onChange={handleInputChange}
+                        status={formData.requisito4Status}
+                        onStatusChange={(e) => handleStatusChange('requisito4Status', e.target.value)}
+                    />
+
                 </div>
                 <div className="boton_integracionS">
                     <button onClick={handleVerClickEscolares}><i className="fa-solid fa-arrow-left"></i></button>
