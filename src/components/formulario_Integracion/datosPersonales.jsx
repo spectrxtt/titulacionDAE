@@ -25,7 +25,8 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                     apellidoMaterno: datoAdicional.apellidoMaterno,
                     curp: datoAdicional.curp,
                     Genero: datoAdicional.Genero,
-                    EntidadFederativa: datoAdicional.EntidadFederativa
+                    EntidadFederativa: datoAdicional.EntidadFederativa,
+                    Pais: datoAdicional.Pais,
                 });
             } else {
                 updateFormData(citaSeleccionada);
@@ -113,6 +114,9 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                             value={formData.Genero || ''}
                         />
                     </div>
+                </div>
+                <div className="form-row">
+
                     <div className="form-group">
                         <label htmlFor="EntidadFederativa">Entidad Federativa</label>
                         <input
@@ -120,6 +124,15 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                             id="EntidadFederativa"
                             name="EntidadFederativa"
                             value={formData.EntidadFederativa || ''}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="EntidadFederativa">Pais</label>
+                        <input
+                            type="text"
+                            id="EntidadFederativa"
+                            name="EntidadFederativa"
+                            value={formData.Pais || ''}
                         />
                     </div>
                 </div>

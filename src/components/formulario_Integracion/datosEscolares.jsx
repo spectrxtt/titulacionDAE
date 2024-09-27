@@ -131,12 +131,12 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                     </div>
                 </div>
                 <div className="form-group-personales">
-                    <label htmlFor="pasantia">Estado Pasantia</label>
+                    <label htmlFor="pasantia">Periodo de pasantía</label>
                     <input
                         type="text"
                         id="pasantia"
                         name="pasantia"
-                        placeholder="Ej: 12345"
+                        placeholder="01/01/2026"
                         value={formData.pasantia || ''}
                         onChange={handleInputChange}
                     />
