@@ -1,29 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, Palette, ExternalLink } from 'lucide-react';
 import '../styles/configuracion.css';
 
-// Componente para el formulario de crear nuevo usuario
-const CrearUsuarioFormulario = ({ onClose }) => {
-    const [nombre_usuario, setNombre] = useState('');
-    const [usuario, setUsuario] = useState(''); // Este es el campo para el nombre de usuario
+// Componente para el formulario de crear o modificar usuario
+const CrearUsuarioFormulario = ({ onClose, usuarioExistente }) => {
+    const [nombre_usuario, setNombre] = useState(usuarioExistente ? usuarioExistente.nombre_usuario : '');
+    const [usuario, setUsuario] = useState(usuarioExistente ? usuarioExistente.usuario : ''); // Este es el campo para el nombre de usuario
     const [contrasena, setContrasena] = useState('');
-    const [rol, setRol] = useState('');
-    const [mensaje, setMensaje] = useState(''); // Estado para manejar el mensaje
+    const [rol, setRol] = useState(usuarioExistente ? usuarioExistente.rol : '');
+    const [mensaje, setMensaje] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const data = {
-            nombre_usuario: usuario, // Mapeando correctamente el campo para la base de datos
+            nombre_usuario,
+            usuario,
             contrasena,
             rol,
         };
 
         try {
-            console.log(JSON.stringify(data)); // Verifica los datos antes de enviarlos
+            const url = usuarioExistente
+                ? `http://127.0.0.1:8000/api/usuarios/${usuarioExistente.id_usuario}` // Cambia a id_usuario
+                : 'http://127.0.0.1:8000/api/usuarios';
 
-            const response = await fetch('http://127.0.0.1:8000/api/usuarios', {
-                method: 'POST',
+            const response = await fetch(url, {
+                method: usuarioExistente ? 'PUT' : 'POST', // Usar PUT si es modificación
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -31,28 +34,21 @@ const CrearUsuarioFormulario = ({ onClose }) => {
             });
 
             if (response.ok) {
-                setMensaje('Usuario creado exitosamente'); // Mensaje de éxito
-                setNombre('');
-                setUsuario('');
-                setContrasena('');
-                setRol('');
-
-                // Cierra el formulario después de enviar
+                setMensaje(usuarioExistente ? 'Usuario modificado exitosamente' : 'Usuario creado exitosamente');
                 onClose();
             } else {
-                const errorData = await response.text(); // Si no es JSON, obtenemos texto
-                throw new Error(errorData || 'Error al crear el usuario');
+                const errorData = await response.text();
+                throw new Error(errorData || 'Error al crear/modificar el usuario');
             }
         } catch (error) {
-            console.error('Error:', error);
-            setMensaje(`Error: ${error.message}`); // Mensaje de error
+            setMensaje(`Error: ${error.message}`);
         }
     };
 
     return (
         <div className="formulario-usuario">
-            <h4>Crear Nuevo Usuario</h4>
-            {mensaje && <p>{mensaje}</p>} {/* Mostrar mensaje si existe */}
+            <h4>{usuarioExistente ? 'Modificar Usuario' : 'Crear Nuevo Usuario'}</h4>
+            {mensaje && <p>{mensaje}</p>}
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label>Nombre:</label>
@@ -75,7 +71,7 @@ const CrearUsuarioFormulario = ({ onClose }) => {
                         <option value="editor">Integrador</option>
                     </select>
                 </div>
-                <button type="submit" className="btn">Crear Usuario</button>
+                <button type="submit" className="btn">{usuarioExistente ? 'Modificar Usuario' : 'Crear Usuario'}</button>
                 <button type="button" className="btn" onClick={onClose}>Cancelar</button>
             </form>
         </div>
@@ -84,20 +80,84 @@ const CrearUsuarioFormulario = ({ onClose }) => {
 
 const GestionUsuarios = () => {
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
+    const [usuarios, setUsuarios] = useState([]);
+    const [mostrarUsuarios, setMostrarUsuarios] = useState(false);
+    const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+
+    const obtenerUsuarios = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/usuarios');
+            if (!response.ok) {
+                throw new Error('Error al obtener usuarios');
+            }
+            const data = await response.json();
+            setUsuarios(data);
+        } catch (error) {
+            console.error('Error al obtener los usuarios:', error);
+        }
+    };
+
+    const handleModificarUsuario = () => {
+        setMostrarUsuarios(true);
+        obtenerUsuarios(); // Solo obtener usuarios al hacer clic en "Modificar usuario"
+    };
+
+    const handleSeleccionarUsuario = (usuario) => {
+        setUsuarioSeleccionado(usuario);
+        setMostrarFormulario(true);
+    };
+
+    const handleEliminarUsuario = async (id_usuario) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/usuarios/${id_usuario}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                alert('Usuario eliminado exitosamente');
+                obtenerUsuarios(); // Volver a cargar la lista de usuarios
+            } else {
+                throw new Error('Error al eliminar el usuario');
+            }
+        } catch (error) {
+            console.error('Error al eliminar el usuario:', error);
+        }
+    };
 
     return (
         <div>
             <h3>Gestión de Usuarios</h3>
             <button className="btn" onClick={() => setMostrarFormulario(true)}>Crear nuevo usuario</button>
-            <button className="btn">Modificar usuario existente</button>
-            <button className="btn">Eliminar usuario</button>
+            <button className="btn" onClick={handleModificarUsuario}>Modificar usuario existente</button>
+
+            {mostrarUsuarios && usuarios.length > 0 && (
+                <div>
+                    <h4>Usuarios Existentes:</h4>
+                    <ul>
+                        {usuarios.map((usuario) => (
+                            <li key={usuario.id_usuario}>
+                                {usuario.nombre_usuario} - {usuario.rol}
+                                <button onClick={() => handleSeleccionarUsuario(usuario)}>Modificar</button>
+                                <button onClick={() => handleEliminarUsuario(usuario.id_usuario)}>Eliminar</button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             {mostrarFormulario && (
-                <CrearUsuarioFormulario onClose={() => setMostrarFormulario(false)} />
+                <CrearUsuarioFormulario
+                    onClose={() => {
+                        setMostrarFormulario(false);
+                        setUsuarioSeleccionado(null);
+                    }}
+                    usuarioExistente={usuarioSeleccionado}
+                />
             )}
         </div>
     );
 };
 
+// Los otros componentes para apariencia y configuraciones externas siguen igual
 const ConfiguracionApariencia = () => (
     <div>
         <h3>Configuración de Apariencia</h3>
