@@ -1,77 +1,109 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../../styles/formularioIntegracion.css';
 import DatosPersonales from './datosPersonales';
 import Requisitos from './requisitos';
 import { useFormData } from './integracionDatos';
 import GenerarReporte from "./GenerarReporte";
 import RequisitosButton from './infoRequisitos';
+import ClipLoader from "react-spinners/ClipLoader";
 
 const DatosEscolares = ({ citaSeleccionada }) => {
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
     const [mostrarDatosRequisitos, setMostrarDatosRequisitos] = useState(false);
     const [mostrarGenerarReporte, setMostrarGenerarReporte] = useState(false);
     const { formData, updateFormData } = useFormData();
-    const [estudianteBachData, setEstudianteBachData] = useState(null);
-    const [estudianteUniData, setEstudianteUniData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const formUpdated = useRef(false);
 
     useEffect(() => {
         const fetchDatosEscolares = async () => {
             if (!citaSeleccionada || !citaSeleccionada.num_Cuenta) {
                 console.log('No hay número de cuenta disponible');
+                setLoading(false);
                 return;
             }
 
-            const token = localStorage.getItem('token');
-
-            // Obtener datos de Bachillerato
             try {
-                const bachResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
+                const token = localStorage.getItem('token');
+                const [bachResponse, uniResponse] = await Promise.all([
+                    fetch(`http://127.0.0.1:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    }),
+                    fetch(`http://127.0.0.1:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    })
+                ]);
 
-                if (bachResponse.ok) {
-                    const bachData = await bachResponse.json();
-                    setEstudianteBachData(bachData);
-                    updateFormData({ ...formData, ...bachData });
-                } else {
-                    throw new Error('Error al obtener datos de Bachillerato');
+                if (!bachResponse.ok || !uniResponse.ok) {
+                    throw new Error('Error al obtener datos escolares');
                 }
-            } catch (error) {
-                console.error('Error en Bachillerato:', error);
-            }
 
-            // Obtener datos de Universidad
-            try {
-                const uniResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
+                const [bachData, uniData] = await Promise.all([
+                    bachResponse.json(),
+                    uniResponse.json()
+                ]);
 
-                if (uniResponse.ok) {
-                    const uniData = await uniResponse.json();
-                    setEstudianteUniData(uniData);
-                    updateFormData({ ...formData, ...uniData });
-                } else {
-                    throw new Error('Error al obtener datos de Universidad');
-                }
+                const combinedData = { ...bachData, ...uniData };
+                updateFormData(combinedData);
+                formUpdated.current = true;
             } catch (error) {
-                console.error('Error en Universidad:', error);
+                console.error('Error:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchDatosEscolares();
     }, [citaSeleccionada, updateFormData]);
 
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        updateFormData({ ...formData, [name]: value });
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        updateFormData({ [name]: value });
+    };
+
+    const actualizarDatosEscolares = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const bachResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    id_bach: formData.id_bach,
+                    fecha_inicio_bach: formData.fecha_inicio_bach,
+                    fecha_fin_bach: formData.fecha_fin_bach
+                })
+            });
+
+            const uniResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    id_programa_educativo: formData.id_programa_educativo,
+                    fecha_inicio_uni: formData.fecha_inicio_uni,
+                    fecha_fin_uni: formData.fecha_fin_uni,
+                    periodo_pasantia: formData.periodo_pasantia,
+                    id_modalidad: formData.id_modalidad
+                })
+            });
+
+            if (!bachResponse.ok || !uniResponse.ok) {
+                throw new Error('Error al actualizar datos escolares');
+            }
+
+            console.log('Datos escolares actualizados correctamente');
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     const handleVerClickPersonales = (e) => {
@@ -79,8 +111,9 @@ const DatosEscolares = ({ citaSeleccionada }) => {
         setMostrarDatosPersonales(true);
     };
 
-    const handleVerClickRequisitos = (e) => {
+    const handleVerClickRequisitos = async (e) => {
         e.preventDefault();
+        await actualizarDatosEscolares();
         setMostrarDatosRequisitos(true);
     };
 
@@ -101,6 +134,14 @@ const DatosEscolares = ({ citaSeleccionada }) => {
         return <GenerarReporte citaSeleccionada={citaSeleccionada} />;
     }
 
+    if (loading) {
+        return (
+            <div className="spinner-container">
+                <ClipLoader color={"#841816"} loading={loading} size={50} />
+            </div>
+        );
+    }
+
     return (
         <div className="personales">
             <div className="boton_generarReporte">
@@ -117,9 +158,9 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                     <input
                         type="text"
                         id="bachillerato"
-                        name="bachillerato"
+                        name="id_bach"
                         value={formData.id_bach || ''}
-                        onChange={handleInputChange}
+                        onChange={handleChange}
                     />
                 </div>
                 <div className="form-row">
@@ -128,9 +169,9 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                         <input
                             type="date"
                             id="fechaInBach"
-                            name="fechaInBach"
+                            name="fecha_inicio_bach"
                             value={formData.fecha_inicio_bach || ''}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="form-group">
@@ -138,23 +179,22 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                         <input
                             type="date"
                             id="fechaFinBach"
-                            name="fechaFinBach"
+                            name="fecha_fin_bach"
                             value={formData.fecha_fin_bach || ''}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
 
-                {/* Datos de Universidad */}
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="programa">Programa Educativo</label>
                         <input
                             type="text"
                             id="programa"
-                            name="programaEducativo"
+                            name="id_programa_educativo"
                             value={formData.id_programa_educativo || ''}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="form-group">
@@ -162,9 +202,9 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                         <input
                             type="date"
                             id="fechaInLic"
-                            name="fechaInLic"
+                            name="fecha_inicio_uni"
                             value={formData.fecha_inicio_uni || ''}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="form-group">
@@ -172,9 +212,9 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                         <input
                             type="date"
                             id="fechaFinLic"
-                            name="fechaFinLic"
+                            name="fecha_fin_uni"
                             value={formData.fecha_fin_uni || ''}
-                            onChange={handleInputChange}
+                            onChange={handleChange}
                         />
                     </div>
                 </div>
@@ -184,9 +224,9 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                     <input
                         type="text"
                         id="pasantia"
-                        name="pasantia"
-                        value={formData.periodo_pasantia|| ''}
-                        onChange={handleInputChange}
+                        name="periodo_pasantia"
+                        value={formData.periodo_pasantia || ''}
+                        onChange={handleChange}
                     />
                 </div>
                 <div className="form-group">
@@ -194,9 +234,9 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                     <input
                         type="text"
                         id="modalidad"
-                        name="modalidad"
+                        name="id_modalidad"
                         value={formData.id_modalidad || ''}
-                        onChange={handleInputChange}
+                        onChange={handleChange}
                     />
                 </div>
 
