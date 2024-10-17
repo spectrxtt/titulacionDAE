@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Integracion.css';
 import DatosPersonales from './formulario_Integracion/datosPersonales';
-import { useCitas } from './manejarCitas';
 
 const Integracion = () => {
-    const {citas, actualizarCitas } = useCitas();
+    const [citas, setCitas] = useState([]); // Estado para almacenar las citas
     const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
     const [citaSeleccionada, setCitaSeleccionada] = useState(null);
+    const [loading, setLoading] = useState(true); // Estado para cargar citas
+    const [error, setError] = useState(null); // Estado para manejar errores
 
     const handleVerClick = (cita) => {
         setCitaSeleccionada(cita);
@@ -16,8 +17,45 @@ const Integracion = () => {
     const handleEstadoChange = (index, newEstado) => {
         const newCitas = [...citas];
         newCitas[index] = { ...newCitas[index], Estado: newEstado };
-        actualizarCitas(newCitas);
+        setCitas(newCitas);
     };
+
+    useEffect(() => {
+        const fetchCitas = async () => {
+            try {
+                const token = localStorage.getItem('token'); // Asume que guardas el token en localStorage
+                const response = await fetch('http://127.0.0.1:8000/api/citas', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`, // Incluye el token en el encabezado
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar citas');
+                }
+
+                const data = await response.json();
+                setCitas(data);
+            } catch (error) {
+                console.error('Error al cargar citas:', error);
+                setError(error.message); // Establecer el error en el estado
+            } finally {
+                setLoading(false); // Cambiar estado de carga
+            }
+        };
+
+        fetchCitas();
+    }, []);
+
+    if (loading) {
+        return <div>Cargando citas...</div>; // Mensaje de carga
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>; // Mensaje de error
+    }
 
     if (mostrarDatosPersonales) {
         return <DatosPersonales citaSeleccionada={citaSeleccionada} />;
@@ -40,16 +78,13 @@ const Integracion = () => {
                 <tbody>
                 {citas.map((cita, index) => (
                     <tr key={index}>
-                        <td>{cita['No.Cuenta']}</td>
-                        <td>{cita['Alumno']}</td>
-                        <td>{cita['Fecha']}</td>
-                        <td>{cita['Estado'] || 'Pendiente'}</td>
-                        <td>{cita['Observaciones']}</td>
+                        <td>{cita.num_Cuenta || 'N/A'}</td>
+                        <td>{cita.nombre || 'N/A'}</td>
+                        <td>{cita.fecha || 'N/A'}</td>
+                        <td>{cita.estado || 'Pendiente'}</td>
+                        <td>{cita.observaciones || 'N/A'}</td>
                         <td>
-                            <button
-                                className="button"
-                                onClick={() => handleVerClick(cita)}
-                            >
+                            <button className="button" onClick={() => handleVerClick(cita)}>
                                 VER
                             </button>
                         </td>

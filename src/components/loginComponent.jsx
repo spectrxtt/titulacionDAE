@@ -2,25 +2,32 @@ import '../styles/App.css';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../img/garza (2).png';
-import usuarios from '../pruebas/dataUsuarios';
+import axios from 'axios'; // Asegúrate de tener axios instalado
 
-function LoginComponent() {
+function LoginComponent({ onLogin }) {
     const [usuario, setUsuario] = useState('');
-    const [contraseña, setContraseña] = useState('');
+    const [password, setpassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
+        setError('');
 
-        const usuarioEncontrado = usuarios.find(
-            u => u.usuario === usuario && u.contraseña === contraseña
-        );
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/login', { usuario, password });
 
-        if (usuarioEncontrado) {
-            navigate('home');
-        } else {
-            setError('Usuario o contraseña incorrectos');
+            // Login exitoso
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user)); // Asegúrate que 'user' contiene el rol
+            onLogin(response.data.user); // Pasa el objeto usuario completo, que debería incluir el rol
+            navigate('/home');
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                setError('Usuario o contraseña incorrectos');
+            } else {
+                setError('Error al iniciar sesión. Por favor, intente de nuevo.');
+            }
         }
     };
 
@@ -44,13 +51,13 @@ function LoginComponent() {
                             />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="contraseña">Contraseña</label>
+                            <label htmlFor="password">Contraseña</label>
                             <input
                                 type="password"
-                                id="contraseña"
+                                id="password"
                                 name="Contraseña"
-                                value={contraseña}
-                                onChange={(e) => setContraseña(e.target.value)}
+                                value={password}
+                                onChange={(e) => setpassword(e.target.value)}
                             />
                         </div>
                         {error && <p className="error">{error}</p>}

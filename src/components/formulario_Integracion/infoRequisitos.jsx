@@ -10,7 +10,9 @@ const RequisitosButton = ({ requisitosContent = "Requisitos" }) => {
 
     return (
         <div className="requisitos-button-container">
-            <button onClick={handleMostrarCuadroRequisitos}><i class="fa-solid fa-circle-question"></i></button>
+            <button onClick={handleMostrarCuadroRequisitos}>
+                <i className="fa-solid fa-circle-question"></i> {/* Cambia class a className */}
+            </button>
             {mostrarCuadroRequisitos && (
                 <div className="cuadro-requisitos">
                     <p>{requisitosContent}</p>

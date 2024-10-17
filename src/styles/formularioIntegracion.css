@@ -1,3 +1,39 @@
+.form-group {
+    position: relative;
+}
+
+.suggestions-list {
+    position: absolute;
+    bottom: 100%; /* Cambiado de top a bottom para que aparezca encima */
+    left: 0;
+    width: 100%; /* Asegura que tenga el mismo ancho que el campo de entrada */
+    background-color: white;
+    border: 1px solid #ccc;
+    border-bottom: none; /* Quitamos el borde inferior */
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 -4px 8px rgba(0,0,0,0.1); /* Sombra arriba para mejor visibilidad */
+}
+
+.suggestions-list li {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.suggestions-list li:hover {
+    background-color: #f0f0f0;
+}
+
+/* Estilo adicional para el campo de entrada */
+#EntidadFederativa {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .personales {
     font-family: Arial, sans-serif;
     padding: 20px;

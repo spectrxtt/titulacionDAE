@@ -1,38 +1,31 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Sidebar from './sidebar';
 import ProfileOptions from './profileOptions';
 import AlertasYNotificaciones from './AlertasYNotificaciones';
 import ResumenDeCitas from './ResumenDeCitas';
-import CargarCitas from './Citas';
-import Integracion from './Integracion';
 import DatosPersonales from './formulario_Integracion/datosPersonales';
-import Configuracion from './Configuracion';
-import Expedientes from './Expedientes';
-import Reportes from './Reportes';
 
 import '../styles/home.css';
 
 const Home = () => {
-    const [activeComponents, setActiveComponents] = useState(['Inicio']);
     const [showDatosPersonales, setShowDatosPersonales] = useState(false);
     const [showProfileOptions, setShowProfileOptions] = useState(false);
-    const navigate = useNavigate();
 
-    const handleProfileClick = () => {
-        setShowProfileOptions(true);
-    };
 
+
+
+    // Cierra las opciones del perfil
     const handleCloseProfileOptions = () => {
         setShowProfileOptions(false);
     };
 
+    // Renderiza los componentes dependiendo del estado
     const renderComponents = () => {
         if (showProfileOptions) {
             return <ProfileOptions onClose={handleCloseProfileOptions} />;
         }
 
-        if (activeComponents.includes('Inicio') && !showDatosPersonales) {
+        // Si está en la página principal y no muestra los datos personales
+        if (!showDatosPersonales) {
             return (
                 <div className="contentRow">
                     <AlertasYNotificaciones />
@@ -41,43 +34,13 @@ const Home = () => {
             );
         }
 
-        if (showDatosPersonales) {
-            return <DatosPersonales />;
-        }
-
-        return activeComponents.map(component => {
-            switch (component) {
-                case 'Citas':
-                    return <CargarCitas key="Citas" />;
-                case 'Integracion':
-                    return <Integracion key="Integracion" />;
-                case 'Configuracion':
-                    return <Configuracion key="Configuracion" />;
-                case 'Expedientes':
-                    return <Expedientes key="Expedientes" />;
-                case 'Reportes':
-                    return <Reportes key="Reportes" />;
-                case 'CerrarSesion':
-                    navigate('/');
-                    return null;
-                default:
-                    return null;
-            }
-        });
+        // Muestra los datos personales si se hace clic en Ver
+        return <DatosPersonales />;
     };
 
     return (
         <div className="appContainer">
-            {activeComponents.includes('CerrarSesion') ? null : (
-                <Sidebar
-                    onComponentChange={(components) => {
-                        setActiveComponents(components);
-                        setShowDatosPersonales(false);
-                        setShowProfileOptions(false);
-                    }}
-                    onProfileClick={handleProfileClick}
-                />
-            )}
+            {/* Renderiza el contenido principal basado en el estado */}
             <main className="mainContent">
                 {renderComponents()}
             </main>

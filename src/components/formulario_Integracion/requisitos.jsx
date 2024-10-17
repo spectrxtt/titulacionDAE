@@ -1,10 +1,7 @@
-// requisitos.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../../styles/formularioIntegracion.css';
 import DatosEscolares from './datosEscolares';
 import StudentDataPreview from './BorradorPre';
-import { useCitas } from '../manejarCitas';
-import requisitos from '../../pruebas/requisitos';
 import { useFormData } from './integracionDatos';
 import GenerarReporte from "./GenerarReporte";
 import RequisitosButton from './infoRequisitos';
@@ -40,19 +37,7 @@ const Requisitos = ({ citaSeleccionada }) => {
     const [mostrarDatosEscolares, setMostrarDatosEscolares] = useState(false);
     const [mostrarDatosborrador, setMostrarDatosborrador] = useState(false);
     const [mostrarGenerarReporte, setMostrarGenerarReporte] = useState(false);
-    const { citas } = useCitas();
     const { formData, updateFormData } = useFormData();
-
-    useEffect(() => {
-        if (citaSeleccionada) {
-            const numeroCuenta = citaSeleccionada['No.Cuenta'];
-            const datoRequisito = requisitos.find(d => d.numCuenta === parseInt(numeroCuenta));
-            updateFormData({
-                ...citaSeleccionada,
-                ...datoRequisito,
-            });
-        }
-    }, [citaSeleccionada, updateFormData]);
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
@@ -71,10 +56,13 @@ const Requisitos = ({ citaSeleccionada }) => {
     if (mostrarDatosEscolares) return <DatosEscolares />;
     if (mostrarDatosborrador) return <StudentDataPreview />;
     if (mostrarGenerarReporte) return <GenerarReporte />;
+
     return (
         <div className="personales">
             <div className="boton_generarReporte">
-                <button onClick={handleGenerarReporteClick}><i className="fa-solid fa-triangle-exclamation"></i></button>
+                <button onClick={handleGenerarReporteClick}>
+                    <i className="fa-solid fa-triangle-exclamation"></i>
+                </button>
                 <RequisitosButton requisitosContent="Requisitos para Datos Escolares" />
             </div>
             <h2>Requisitos</h2>
@@ -91,7 +79,7 @@ const Requisitos = ({ citaSeleccionada }) => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="fechaEgel">Fecha de Aplicacion</label>
+                        <label htmlFor="fechaEgel">Fecha de Aplicación</label>
                         <input
                             type="date"
                             id="fechaEgel"
@@ -194,7 +182,6 @@ const Requisitos = ({ citaSeleccionada }) => {
                         status={formData.requisito2Status}
                         onStatusChange={(e) => handleStatusChange('requisito2Status', e.target.value)}
                     />
-
                 </div>
                 <div className="form-row">
                     <RequisitoField
@@ -213,11 +200,14 @@ const Requisitos = ({ citaSeleccionada }) => {
                         status={formData.requisito4Status}
                         onStatusChange={(e) => handleStatusChange('requisito4Status', e.target.value)}
                     />
-
                 </div>
                 <div className="boton_integracionS">
-                    <button onClick={handleVerClickEscolares}><i className="fa-solid fa-arrow-left"></i></button>
-                    <button onClick={handleVerClickBorrador}><i className="fa-solid fa-arrow-right"></i></button>
+                    <button onClick={handleVerClickEscolares}>
+                        <i className="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button onClick={handleVerClickBorrador}>
+                        <i className="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
         </div>

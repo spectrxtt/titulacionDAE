@@ -1,26 +1,40 @@
 import React, { useState } from 'react';
 import { Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import '../styles/CargarCitas.css';
-import { useCitas } from './manejarCitas';
 import UsuariosActivosChecklist from './usuariosActivos';
+import '../styles/CargarCitas.css';
+
+const formatDate = (fechaTexto) => {
+    const meses = {
+        'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
+        'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
+        'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
+    };
+
+    const regex = /(\d{1,2}) de ([a-zA-Z]+) de (\d{4})/;
+    const match = fechaTexto.match(regex);
+
+    if (match) {
+        const dia = match[1].padStart(2, '0');
+        const mes = meses[match[2].toLowerCase()];
+        const año = match[3];
+        return `${año}/${mes}/${dia}`;
+    }
+
+    return null;
+};
 
 const CargarCitas = () => {
     const [file, setFile] = useState(null);
     const [datosTemporales, setDatosTemporales] = useState([]);
     const [fileLoaded, setFileLoaded] = useState(false);
-    const { actualizarCitas } = useCitas();
-    const [error, setError] = useState(null);
     const [fechaCitas, setFechaCitas] = useState('');
-    const [showChecklist, setShowChecklist] = useState(false);  // Estado para mostrar el checklist
-    const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
-
-    const usuariosActivos = ['Usuario 1', 'Usuario 2', 'Usuario 3', 'Usuario 4']; // Lista de usuarios activos
-
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
-        setError(null);
+        setError('');
     };
 
     const handleDragOver = (event) => {
@@ -29,94 +43,124 @@ const CargarCitas = () => {
 
     const handleDrop = (event) => {
         event.preventDefault();
-        setFile(event.dataTransfer.files[0]);
-        setError(null);
-    };
-
-    const formatDate = (dateString) => {
-        const months = {
-            'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06',
-            'julio': '07', 'agosto': '08', 'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
-        };
-
-        const parts = dateString.split(' de ');
-        if (parts.length !== 3) return 'Fecha inválida';
-
-        const day = parts[0].padStart(2, '0');
-        const month = months[parts[1].toLowerCase()];
-        const year = parts[2];
-
-        return `${day}/${month}/${year}`;
+        const droppedFile = event.dataTransfer.files[0];
+        setFile(droppedFile);
     };
 
     const handleUpload = () => {
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                try {
-                    const wb = XLSX.read(event.target.result, { type: 'array' });
-                    const wsname = wb.SheetNames[0];
-                    const ws = wb.Sheets[wsname];
+                const wb = XLSX.read(event.target.result, { type: 'array' });
+                const wsname = wb.SheetNames[0];
+                const ws = wb.Sheets[wsname];
+                const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-                    const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                let fechaCitasCell = data[1][0].trim();
+                const regexFecha = /(\d{1,2} de [a-zA-Z]+) de (\d{4})/;
+                const matchFecha = fechaCitasCell.match(regexFecha);
+                const fechaFormateada = matchFecha ? formatDate(matchFecha[0]) : 'Fecha no encontrada';
+                setFechaCitas(fechaFormateada);
 
-                    console.log("Datos crudos desde el archivo:", data);
+                const rows = data.slice(4).filter(row => row.some(cell => cell !== undefined && cell !== null && cell !== ''));
+                const result = rows.map(row => {
+                    const nombreCompleto = row[2] || 'No data';
+                    const [ap_paterno, ap_materno] = nombreCompleto.split(' ');
 
-                    if (data.length < 3) {
-                        throw new Error("El archivo no contiene suficientes datos.");
-                    }
+                    return {
+                        fecha: fechaFormateada,
+                        num_Cuenta: row[1] ? row[1].toString() : 'No data',
+                        nombre: nombreCompleto,
+                        ap_paterno: ap_paterno || '',
+                        ap_materno: ap_materno || '',
+                        carrera: row[3] || 'No data',
+                        observaciones: 'Ninguna',
+                        estado_cita: 'pendiente'
+                    };
+                });
 
-                    let fechaCitasCell = data[1][0].trim();
-
-                    const regexFecha = /(\d{1,2} de [a-zA-Z]+ de \d{4})/;
-                    const matchFecha = fechaCitasCell.match(regexFecha);
-
-                    if (matchFecha) {
-                        fechaCitasCell = matchFecha[0];
-                        fechaCitasCell = formatDate(fechaCitasCell);
-                    } else {
-                        fechaCitasCell = 'Fecha no encontrada';
-                    }
-
-                    setFechaCitas(fechaCitasCell);
-
-                    const rows = data.slice(4).filter(row => row.some(cell => cell !== undefined && cell !== null && cell !== ''));
-
-                    const result = rows.map(row => ({
-                        'No.Cuenta': row[1] ? row[1] : 'No data',
-                        'Alumno': row[2] ? row[2] : 'No data',
-                        'Carrera': row[3] ? row[3] : 'No data',
-                        'Fecha': fechaCitasCell
-                    }));
-
-                    console.log("Datos procesados:", result);
-                    setDatosTemporales(result);
-                    setFileLoaded(true);
-                    setError(null);
-                } catch (err) {
-                    console.error("Error al procesar el archivo:", err);
-                    setError("Error al procesar el archivo. Asegúrate de que sea un Excel válido.");
-                }
-            };
-            reader.onerror = (err) => {
-                console.error("Error al leer el archivo:", err);
-                setError("Error al leer el archivo. Por favor, intenta de nuevo.");
+                setDatosTemporales(result);
+                setFileLoaded(true);
             };
             reader.readAsArrayBuffer(file);
         } else {
-            setError("Por favor, seleccione un archivo primero.");
+            setError('Por favor, selecciona un archivo válido.');
         }
     };
 
-    const handleGenerarAsignacion = () => {
-        setShowChecklist(true);  // Mostrar el checklist al hacer clic en el botón
+    const capitalizeFirstLetter = (string) => {
+        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
     };
 
-    const handleConfirmarAsignacion = (seleccionados) => {
-        setUsuariosSeleccionados(seleccionados);
-        setShowChecklist(false); // Ocultar el checklist después de la confirmación
-        alert(`Usuarios seleccionados: ${seleccionados.join(', ')}`);
-        actualizarCitas(datosTemporales);
+    const handleConfirmarAsignacion = async (usuarios) => {
+        try {
+            const dataToSend = {
+                citas: datosTemporales.map(cita => {
+                    const usuarioAleatorio = usuarios[Math.floor(Math.random() * usuarios.length)];
+
+                    return {
+                        fecha: cita.fecha,
+                        num_Cuenta: cita.num_Cuenta,
+                        nombre: cita.nombre.toUpperCase(),
+                        carrera: cita.carrera,
+                        observaciones: cita.observaciones,
+                        estado_cita: cita.estado_cita,
+                        id_usuario: usuarioAleatorio.id_usuario
+                    };
+                }),
+                estudiantes: datosTemporales.map(cita => {
+                    const nombreCompleto = cita.nombre.trim();
+                    const nombreParts = nombreCompleto.split(' ');
+
+                    const ap_paterno = nombreParts.length > 0 ? capitalizeFirstLetter(nombreParts[0]) : '';
+                    const ap_materno = nombreParts.length > 1 ? capitalizeFirstLetter(nombreParts[1]) : '';
+                    const nombre_estudiante = nombreParts.slice(2).map(capitalizeFirstLetter).join(' ');
+
+                    return {
+                        num_Cuenta: cita.num_Cuenta,
+                        nombre_estudiante: nombre_estudiante.trim(),
+                        ap_paterno: ap_paterno.trim(),
+                        ap_materno: ap_materno.trim()
+                    };
+                }),
+
+                estudiantesBach: datosTemporales.map(cita => {
+                    return {
+                        num_Cuenta: cita.num_Cuenta,
+                    };
+                }),
+
+                estudiantesUni: datosTemporales.map(cita => {
+                    return {
+                        num_Cuenta: cita.num_Cuenta,
+                    };
+                })
+            };
+
+            console.log('Datos a enviar:', JSON.stringify(dataToSend, null, 2));
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://127.0.0.1:8000/api/cargar-citas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,},
+                body: JSON.stringify(dataToSend)
+            });
+
+            const responseData = await response.json();
+            console.log('Respuesta del servidor:', responseData);
+
+            if (!response.ok) {
+                throw new Error(responseData.message || 'Error al cargar citas');
+            }
+
+            setSuccess('Citas cargadas con éxito');
+            setDatosTemporales([]);
+            setFileLoaded(false);
+            setError('');
+        } catch (error) {
+            console.error('Error detallado:', error);
+            setError(`Error al cargar citas: ${error.message}`);
+        }
     };
 
     return (
@@ -160,17 +204,17 @@ const CargarCitas = () => {
                             <tbody>
                             {datosTemporales.map((cita, index) => (
                                 <tr key={index}>
-                                    <td>{cita['Fecha']}</td>
-                                    <td>{cita['No.Cuenta']}</td>
-                                    <td>{cita['Alumno']}</td>
-                                    <td>{cita['Carrera']}</td>
+                                    <td>{cita.fecha}</td>
+                                    <td>{cita.num_Cuenta}</td>
+                                    <td>{cita.nombre}</td>
+                                    <td>{cita.carrera}</td>
                                 </tr>
                             ))}
                             </tbody>
                         </table>
-                        <button onClick={handleGenerarAsignacion} className="generate-assignment-button">
-                            GENERAR ASIGNACIÓN
-                        </button>
+                        <UsuariosActivosChecklist onConfirmar={handleConfirmarAsignacion} />
+                        {error && <p className="error-message">{error}</p>}
+                        {success && <p className="success-message">{success}</p>}
                     </div>
                 )}
                 {!fileLoaded && (
@@ -179,17 +223,8 @@ const CargarCitas = () => {
                         CARGAR ARCHIVO
                     </button>
                 )}
-                {error && <p className="error-message">{error}</p>}
                 {datosTemporales.length > 0 && <p className='infoCitas'>Número de citas cargadas: {datosTemporales.length}</p>}
             </div>
-
-            {/* Mostrar el checklist si el estado showChecklist es verdadero */}
-            {showChecklist && (
-                <UsuariosActivosChecklist
-                    usuarios={usuariosActivos}
-                    onConfirmar={handleConfirmarAsignacion}
-                />
-            )}
         </div>
     );
 };
