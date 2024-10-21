@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Estudiante;
 use App\Models\estudianteBachillerato; // Importa el modelo estudianteBachillerato
 use App\Models\estudianteUni; // Importa el modelo estudianteUni
+use App\Models\DatosEstudiantesRequisitosModalidad; // Importa el modelo estudianteUni
+use App\Models\DatosEstudiantesRequisitosPrograma; // Importa el modelo estudianteUni
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DatosEstudiantesController extends Controller
 {
@@ -60,29 +63,6 @@ class DatosEstudiantesController extends Controller
         return response()->json($estudianteBach);
     }
 
-    public function updateBachillerato(Request $request, $num_Cuenta)
-    {
-        // Buscar el estudianteBachillerato por número de cuenta
-        $estudianteBach = estudianteBachillerato::find($num_Cuenta);
-
-        // Verificar si el estudianteBach existe
-        if (!$estudianteBach) {
-            return response()->json(['message' => 'Estudiante de Bachillerato no encontrado'], 404);
-        }
-
-        // Validar los datos recibidos
-        $validatedData = $request->validate([
-            'fecha_inicio_bach' => 'nullable|date',
-            'fecha_fin_bach' => 'nullable|date',
-            'id_bach' => 'nullable|integer'
-        ]);
-
-        // Actualizar los datos del estudianteBach con los datos validados
-        $estudianteBach->update($validatedData);
-
-        // Retornar la respuesta con el estudianteBach actualizado
-        return response()->json(['message' => 'Datos de Bachillerato actualizados correctamente', 'estudianteBach' => $estudianteBach]);
-    }
 
     // Método para obtener y actualizar estudianteUni por número de cuenta
     public function obtenerUniPorNumeroCuenta($num_Cuenta)
@@ -96,29 +76,58 @@ class DatosEstudiantesController extends Controller
         return response()->json($estudianteUni);
     }
 
-    public function updateUni(Request $request, $num_Cuenta)
+    public function updateDatosEscolares(Request $request, $num_Cuenta)
     {
-        // Buscar el estudianteUni por número de cuenta
-        $estudianteUni = estudianteUni::find($num_Cuenta);
+        DB::beginTransaction();
 
-        // Verificar si el estudianteUni existe
-        if (!$estudianteUni) {
-            return response()->json(['message' => 'Estudiante de Universidad no encontrado'], 404);
+        try {
+            // Actualizar estudianteBachillerato
+            $estudianteBach = estudianteBachillerato::findOrFail($num_Cuenta);
+            $estudianteBach->update($request->only([
+                'id_bach',
+                'fecha_inicio_bach',
+                'fecha_fin_bach'
+            ]));
+
+            // Actualizar estudianteUni
+            $estudianteUni = estudianteUni::findOrFail($num_Cuenta);
+            $estudianteUni->update($request->only([
+                'id_programa_educativo',
+                'fecha_inicio_uni',
+                'fecha_fin_uni',
+                'periodo_pasantia',
+                'id_modalidad'
+            ]));
+
+            // Actualizar o crear DatosEstudiantesRequisitosPrograma
+           DatosEstudiantesRequisitosPrograma::updateOrCreate(
+                ['num_Cuenta' => $num_Cuenta],
+                [
+                    'id_programa_educativo' => $request->id_programa_educativo,
+                    // Aquí puedes agregar más campos si es necesario
+                ]
+            );
+
+            // Actualizar o crear DatosEstudiantesRequisitosModalidad
+           DatosEstudiantesRequisitosModalidad::updateOrCreate(
+                ['num_Cuenta' => $num_Cuenta],
+                [
+                    'id_modalidad' => $request->id_modalidad,
+                    'id_programa_educativo' => $request->id_programa_educativo,
+                ]
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Datos escolares actualizados correctamente',
+                'estudianteBach' => $estudianteBach,
+                'estudianteUni' => $estudianteUni
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['message' => 'Error al actualizar datos escolares: ' . $e->getMessage()], 500);
         }
-
-        // Validar los datos recibidos
-        $validatedData = $request->validate([
-            'fecha_inicio_uni' => 'nullable|date',
-            'fecha_fin_uni' => 'nullable|date',
-            'periodo_pasantia' => 'nullable|string|max:20',
-            'id_modalidad' => 'nullable|integer',
-            'id_programa_educativo' => 'nullable|integer',
-        ]);
-
-        // Actualizar los datos del estudianteUni con los datos validados
-        $estudianteUni->update($validatedData);
-
-        // Retornar la respuesta con el estudianteUni actualizado
-        return response()->json(['message' => 'Datos de Universidad actualizados correctamente', 'estudianteUni' => $estudianteUni]);
     }
 }
+

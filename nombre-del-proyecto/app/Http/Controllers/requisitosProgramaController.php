@@ -40,4 +40,10 @@ class requisitosProgramaController extends Controller
             return response()->json(['error' => 'No se pudo crear el programaEductaivo.'], 500);
         }
     }
+
+    public function index()
+    {
+        $programaR = programaRequisitos::all('id_requisito_programa', 'id_programa_educativo','descripcion');  // Obtener todos los programas educativos
+        return response()->json($programaR , 200);
+    }
 }

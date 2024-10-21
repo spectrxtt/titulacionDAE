@@ -11,6 +11,7 @@ use App\Http\Controllers\modalidadController;
 use App\Http\Controllers\requisitosModalidadController;
 use App\Http\Controllers\requisitosProgramaController;
 use App\Http\Controllers\DatosEstudiantesController;
+use App\Http\Controllers\DatosRequisitosController;
 
 
 Route::middleware(['api'])->group(function () {
@@ -29,25 +30,48 @@ Route::middleware(['api'])->group(function () {
 
     // Rutas para bachillerato
     Route::post('/bachillerato', [BachilleratoController::class, 'store'])->name('bachillerato.store');
+    Route::get('/bachilleratos', [BachilleratoController::class, 'index']);
 
     Route::post('/programa-educativo', [programaEduController::class, 'store'])->name('programa_educativo.store');
+    Route::get('/programas-educativos', [programaEduController::class, 'index']);
 
     Route::post('/titulo-otorgado', [tituloOtorgadoController::class, 'store'])->name('titulo_otorgado.store');
 
     Route::post('/modalidad-titulacion', [modalidadController::class, 'store'])->name('modalidad_titulacion.store');
+    Route::get('/modalidades-titulacion', [modalidadController::class, 'index']);
+
 
     Route::post('/requisitos-modalidad', [requisitosModalidadController::class, 'store'])->name('requisitos_modalidad.store');
+    Route::get('/requisitos-modalidad', [RequisitosModalidadController::class, 'index']);
 
     Route::post('/requisitos-programa', [requisitosProgramaController::class, 'store'])->name('requisitos_programa.store');
+    Route::get('/requisitos-programa', [requisitosProgramaController::class, 'index']);
 
     Route::get('/estudiantes/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerPorNumeroCuenta']);
     Route::put('/estudiantes/{num_Cuenta}', [DatosEstudiantesController::class, 'update']);
 
     Route::get('/estudiantes/bachillerato/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerBachilleratoPorNumeroCuenta']);
-    Route::put('/estudiantes/bachillerato/{num_Cuenta}', [DatosEstudiantesController::class, 'updateBachillerato']);
 
     Route::get('/estudiantes/uni/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerUniPorNumeroCuenta']);
-    Route::put('/estudiantes/uni/{num_Cuenta}', [DatosEstudiantesController::class, 'updateUni']);
+
+    Route::put('/estudiantes/datos-escolares/{num_Cuenta}', [DatosEstudiantesController::class, 'updateDatosEscolares']);
+
+    Route::get('/estudiantes/requisitos-obligatorios/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerObligatoriosPorNumeroCuenta']);
+    Route::put('/estudiantes/requisitos-obligatorios/{num_Cuenta}', [DatosRequisitosController::class, 'actualizarRequisitos']);
+
+    Route::get('/estudiantes/requisitos-programaEs/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosProgramaPorNumeroCuenta']);
+    Route::put('/estudiantes/requisitos-programaEs/{num_Cuenta}', [DatosRequisitosController::class, 'actualizarRequisitosPrograma']);
+
+    Route::get('/estudiantes/requisitos-modalidadEs/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosModalidadPorNumeroCuenta']);
+    Route::put('/estudiantes/requisitos-modalidadEs/{num_Cuenta}', [DatosRequisitosController::class, 'actualizarRequisitosModalidad']);
+
+
+    Route::get('/estudiantes/requisitos-programa/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosPrograma']);
+
+    // Ruta para obtener el id_modalidad y el id_programa_educativo
+    Route::get('/estudiantes/requisitos-modalidad/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosModalidad']);
+
+
 
 });
 

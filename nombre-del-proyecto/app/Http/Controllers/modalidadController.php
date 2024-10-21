@@ -37,4 +37,11 @@ class modalidadController extends Controller
             return response()->json(['error' => 'No se pudo crear la modalidad.'], 500);
         }
     }
+
+    public function index()
+    {
+
+        $modalidad = modalidad::all('id_modalidad', 'modalidad_titulacion');  // Obtener todos los programas educativos
+        return response()->json($modalidad, 200);
+    }
 }

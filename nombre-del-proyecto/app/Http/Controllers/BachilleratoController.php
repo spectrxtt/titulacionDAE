@@ -40,5 +40,11 @@ class BachilleratoController extends Controller
         }
     }
 
+    public function index()
+    {
+        $bachilleratos = Bachillerato::all(['id_bach', 'nombre_bach']);
+        return response()->json($bachilleratos);
+    }
+
 
 }

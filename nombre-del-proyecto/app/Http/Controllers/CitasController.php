@@ -3,22 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
-use App\Models\Estudiante; // Importa el modelo Estudiante
+use App\Models\Estudiante;
 use App\Models\estudianteBachillerato;
 use App\Models\estudianteUni;
+use App\Models\DatosEstudiantesRequisitosObligatorios;
+use App\Models\DatosEstudiantesRequisitosPrograma;
+use App\Models\DatosEstudiantesRequisitosModalidad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+
 
 class CitasController extends Controller
 {
     public function cargarCitas(Request $request)
     {
+        set_time_limit(120);
         $validator = Validator::make($request->all(), [
             'citas' => 'required|array',
             'estudiantes' => 'required|array',
             'estudiantesBach' => 'required|array',
             'estudiantesUni' => 'required|array',
+            'requisitosObligatorios' => 'required|array',
+            'requisitosPrograma' => 'required|array',
+            'requisitosModalidad' => 'required|array',
         ]);
 
         if ($validator->fails()) {
@@ -71,6 +79,34 @@ class CitasController extends Controller
                 estudianteUni::updateOrCreate(
                     [
                         'num_Cuenta' => $estudianteUniData['num_Cuenta'], // Aquí se establece el num_Cuenta
+                    ]
+                );
+            }
+
+
+            foreach ($request->input('requisitosObligatorios') as $requisitosObligatoriosData) {
+                // Asegúrate de que el modelo esté bien definido
+                DatosEstudiantesRequisitosObligatorios::updateOrCreate(
+                    [
+                        'num_Cuenta' => $requisitosObligatoriosData['num_Cuenta'],
+                    ]
+                );
+            }
+
+            foreach ($request->input('requisitosPrograma') as $requisitosProgramaData) {
+                // Asegúrate de que el modelo esté bien definido
+                DatosEstudiantesRequisitosPrograma::updateOrCreate(
+                    [
+                        'num_Cuenta' => $requisitosProgramaData['num_Cuenta'],
+                    ]
+                );
+            }
+
+            foreach ($request->input('requisitosModalidad') as $requisitosModalidadData) {
+                // Asegúrate de que el modelo esté bien definido
+                DatosEstudiantesRequisitosModalidad::updateOrCreate(
+                    [
+                        'num_Cuenta' => $requisitosModalidadData['num_Cuenta'],
                     ]
                 );
             }
