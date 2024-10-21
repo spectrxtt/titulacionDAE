@@ -267,7 +267,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                     </div>
                 </div>
                 <div className="form-row">
-                    <div className="form-group" ref={entidadInputRef}>
+                    <div className="form-groupB form-group" ref={entidadInputRef}>
                         <label htmlFor="EntidadFederativa">Entidad Federativa</label>
                         <input
                             type="text"
@@ -290,7 +290,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                             </ul>
                         )}
                     </div>
-                    <div className="form-group" ref={paisInputRef}>
+                    <div className="form-groupB form-group" ref={paisInputRef}>
                         <label htmlFor="Pais">País</label>
                         <input
                             type="text"

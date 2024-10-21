@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import '../../styles/formularioIntegracion.css';
 import DatosPersonales from './datosPersonales';
 import Requisitos from './requisitos';
@@ -13,52 +13,86 @@ const DatosEscolares = ({ citaSeleccionada }) => {
     const [mostrarGenerarReporte, setMostrarGenerarReporte] = useState(false);
     const { formData, updateFormData } = useFormData();
     const [loading, setLoading] = useState(true);
-    const formUpdated = useRef(false);
+    const [bachilleratos, setBachilleratos] = useState([]);
+    const [programasEducativos, setProgramasEducativos] = useState([]);
+    const [modalidadesTitulacion, setModalidadesTitulacion] = useState([]);
+    const dataFetchedRef = useRef(false);
+
+    const today = new Date();
+
+    const fetchData = useCallback(async () => {
+        if (dataFetchedRef.current || !citaSeleccionada || !citaSeleccionada.num_Cuenta) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const [bachResponse, uniResponse, bachilleratosResponse, programasResponse, modalidadesResponse] = await Promise.all([
+                fetch(`http://127.0.0.1:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                }),
+                fetch(`http://127.0.0.1:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                }),
+                fetch('http://127.0.0.1:8000/api/bachilleratos', {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                }),
+                fetch('http://127.0.0.1:8000/api/programas-educativos', {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                }),
+                fetch('http://127.0.0.1:8000/api/modalidades-titulacion', {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                })
+            ]);
+
+            if (!bachResponse.ok || !uniResponse.ok || !bachilleratosResponse.ok || !programasResponse.ok || !modalidadesResponse.ok) {
+                throw new Error('Error fetching data');
+            }
+
+            const [bachData, uniData, bachilleratosData, programasData, modalidadesData] = await Promise.all([
+                bachResponse.json(),
+                uniResponse.json(),
+                bachilleratosResponse.json(),
+                programasResponse.json(),
+                modalidadesResponse.json()
+            ]);
+
+            const newEstudianteData = { ...bachData, ...uniData };
+            updateFormData(newEstudianteData);
+            setBachilleratos(bachilleratosData);
+            setProgramasEducativos(programasData);
+            setModalidadesTitulacion(modalidadesData);
+            dataFetchedRef.current = true;
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, [citaSeleccionada, updateFormData]);
 
     useEffect(() => {
-        const fetchDatosEscolares = async () => {
-            if (!citaSeleccionada || !citaSeleccionada.num_Cuenta) {
-                console.log('No hay número de cuenta disponible');
-                setLoading(false);
-                return;
-            }
+        fetchData();
+    }, [fetchData]);
 
-            try {
-                const token = localStorage.getItem('token');
-                const [bachResponse, uniResponse] = await Promise.all([
-                    fetch(`http://127.0.0.1:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        },
-                    }),
-                    fetch(`http://127.0.0.1:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        },
-                    })
-                ]);
+    useEffect(() => {
+        if (formData.fecha_fin_uni) {
+            const [year, month, day] = formData.fecha_fin_uni.split('-');
+            const fechaFinUni = new Date(year, month - 1, day);
 
-                if (!bachResponse.ok || !uniResponse.ok) {
-                    throw new Error('Error al obtener datos escolares');
+            if (!isNaN(fechaFinUni.getTime())) {
+                const fechaPasantia = new Date(fechaFinUni.getFullYear() + 2, fechaFinUni.getMonth(), fechaFinUni.getDate());
+                const dia = String(fechaPasantia.getDate()).padStart(2, '0');
+                const mes = String(fechaPasantia.getMonth() + 1).padStart(2, '0');
+                const anio = fechaPasantia.getFullYear();
+                const fechaCompletaPasantia = `${dia}/${mes}/${anio}`;
+
+                if (formData.periodo_pasantia !== fechaCompletaPasantia) {
+                    updateFormData({ periodo_pasantia: fechaCompletaPasantia });
                 }
-
-                const [bachData, uniData] = await Promise.all([
-                    bachResponse.json(),
-                    uniResponse.json()
-                ]);
-
-                const combinedData = { ...bachData, ...uniData };
-                updateFormData(combinedData);
-                formUpdated.current = true;
-            } catch (error) {
-                console.error('Error:', error);
-            } finally {
-                setLoading(false);
             }
-        };
-
-        fetchDatosEscolares();
-    }, [citaSeleccionada, updateFormData]);
+        }
+    }, [formData.fecha_fin_uni, formData.periodo_pasantia, updateFormData]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -68,7 +102,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
     const actualizarDatosEscolares = async () => {
         try {
             const token = localStorage.getItem('token');
-            const bachResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://127.0.0.1:8000/api/estudiantes/datos-escolares/${citaSeleccionada.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -77,17 +111,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                 body: JSON.stringify({
                     id_bach: formData.id_bach,
                     fecha_inicio_bach: formData.fecha_inicio_bach,
-                    fecha_fin_bach: formData.fecha_fin_bach
-                })
-            });
-
-            const uniResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({
+                    fecha_fin_bach: formData.fecha_fin_bach,
                     id_programa_educativo: formData.id_programa_educativo,
                     fecha_inicio_uni: formData.fecha_inicio_uni,
                     fecha_fin_uni: formData.fecha_fin_uni,
@@ -96,11 +120,12 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                 })
             });
 
-            if (!bachResponse.ok || !uniResponse.ok) {
+            if (!response.ok) {
                 throw new Error('Error al actualizar datos escolares');
             }
 
-            console.log('Datos escolares actualizados correctamente');
+            const data = await response.json();
+            console.log('Datos escolares actualizados correctamente:', data);
         } catch (error) {
             console.error('Error:', error);
         }
@@ -155,13 +180,20 @@ const DatosEscolares = ({ citaSeleccionada }) => {
             <div className="form-container-personales">
                 <div className="form-group-personales">
                     <label htmlFor="bachillerato">Bachillerato procedencia</label>
-                    <input
-                        type="text"
+                    <select
                         id="bachillerato"
                         name="id_bach"
                         value={formData.id_bach || ''}
                         onChange={handleChange}
-                    />
+                    >
+                        <option value="">Seleccione un bachillerato</option>
+                        {bachilleratos.map((bach, index) => (
+                            <option key={bach.id_bach ? bach.id_bach : index} value={bach.id_bach}>
+                                {bach.nombre_bach}
+                            </option>
+                        ))}
+                    </select>
+
                 </div>
                 <div className="form-row">
                     <div className="form-group">
@@ -189,55 +221,73 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="programa">Programa Educativo</label>
-                        <input
-                            type="text"
+                        <select
                             id="programa"
                             name="id_programa_educativo"
                             value={formData.id_programa_educativo || ''}
                             onChange={handleChange}
-                        />
+                        >
+                            <option value="">Seleccione un programa educativo</option>
+                            {programasEducativos.map(programa => (
+                                <option key={programa.id_programa_educativo} value={programa.id_programa_educativo}>
+                                    {programa.programa_educativo}
+                                </option>
+                            ))}
+                        </select>
+
+
                     </div>
                     <div className="form-group">
-                        <label htmlFor="fechaInLic">Fecha inicio</label>
+                        <label htmlFor="fecha_inicio_uni">Fecha Inicio Universidad</label>
                         <input
+                            id="fecha_inicio_uni"
                             type="date"
-                            id="fechaInLic"
                             name="fecha_inicio_uni"
-                            value={formData.fecha_inicio_uni || ''}
+                            value={formData.fecha_inicio_uni}
                             onChange={handleChange}
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="fechaFinLic">Fecha Finalización</label>
+                        <label htmlFor="fecha_fin_uni">Fecha Fin Universidad</label>
                         <input
+                            id="fecha_fin_uni"
                             type="date"
-                            id="fechaFinLic"
                             name="fecha_fin_uni"
                             value={formData.fecha_fin_uni || ''}
                             onChange={handleChange}
                         />
                     </div>
                 </div>
-
                 <div className="form-group-personales">
-                    <label htmlFor="pasantia">Periodo de pasantía</label>
+                    <label htmlFor="periodo_pasantia">Periodo de Pasantía</label>
                     <input
+                        id="periodo_pasantia"
                         type="text"
-                        id="pasantia"
                         name="periodo_pasantia"
                         value={formData.periodo_pasantia || ''}
-                        onChange={handleChange}
+                        readOnly
+                        className={
+                            formData.periodo_pasantia && new Date(formData.periodo_pasantia.split('/').reverse().join('-')) < today
+                                ? 'fecha-pasantia-rojo'
+                                : 'fecha-pasantia-verde'
+                        }
                     />
                 </div>
                 <div className="form-group">
                     <label htmlFor="modalidad">Modalidad de titulación</label>
-                    <input
-                        type="text"
+                    <select
                         id="modalidad"
                         name="id_modalidad"
                         value={formData.id_modalidad || ''}
                         onChange={handleChange}
-                    />
+                    >
+                        <option value="">Seleccione la modalidad de titulacion</option>
+                        {modalidadesTitulacion.map(modalidad => (
+                            <option key={modalidad.id_modalidad} value={modalidad.id_modalidad}>
+                                {modalidad.modalidad_titulacion}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className="boton_integracionS">

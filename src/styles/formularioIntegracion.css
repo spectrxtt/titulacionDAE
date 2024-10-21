@@ -1,4 +1,4 @@
-.form-group {
+.form-groupB {
     position: relative;
 }
 
@@ -154,6 +154,17 @@ h2{
 .boton_guardarReporte:hover{
     background-color: var(--clr-vino);
 }
+
+.fecha-pasantia-rojo {
+    background-color: #ffcccc; /* Color de fondo rojo claro */
+    color: #b30000; /* Color del texto rojo */
+}
+
+.fecha-pasantia-verde {
+    background-color: #ccffcc; /* Color de fondo verde claro */
+    color: #006600; /* Color del texto verde */
+}
+
 
 @media (max-width: 1000px) {
     .personales {

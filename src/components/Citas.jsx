@@ -134,6 +134,24 @@ const CargarCitas = () => {
                     return {
                         num_Cuenta: cita.num_Cuenta,
                     };
+                }),
+
+                requisitosObligatorios: datosTemporales.map(cita => {
+                    return {
+                        num_Cuenta: cita.num_Cuenta,
+                    };
+                }),
+
+                requisitosPrograma: datosTemporales.map(cita => {
+                    return {
+                        num_Cuenta: cita.num_Cuenta,
+                    };
+                }),
+
+                requisitosModalidad: datosTemporales.map(cita => {
+                    return {
+                        num_Cuenta: cita.num_Cuenta,
+                    };
                 })
             };
 
