@@ -114,8 +114,8 @@ const DatosPersonales = ({ citaSeleccionada }) => {
 
     const handleEntidadInputChange = (e) => {
         const value = e.target.value;
-        setEntidadInputValue(value);
-        updateFormData({ estado: value });
+        setEntidadInputValue(value);  // Mantenemos el valor local para el buscador
+        updateFormData({ estado: value });  // También actualizamos formData
 
         const filtered = entidadesFederativas.filter(entidad =>
             entidad.toLowerCase().includes(value.toLowerCase())
@@ -126,8 +126,8 @@ const DatosPersonales = ({ citaSeleccionada }) => {
 
     const handlePaisInputChange = (e) => {
         const value = e.target.value;
-        setPaisInputValue(value);
-        updateFormData({ pais: value });
+        setPaisInputValue(value);  // Mantenemos el valor local para el buscador
+        updateFormData({ pais: value });  // También actualizamos formData
 
         const filtered = paises.filter(pais =>
             pais.toLowerCase().includes(value.toLowerCase())
@@ -137,15 +137,15 @@ const DatosPersonales = ({ citaSeleccionada }) => {
     };
 
     const handleEntidadSelect = (entidad) => {
-        setEntidadInputValue(entidad);
-        updateFormData({ estado: entidad });
-        setShowEntidadSuggestions(false);
+        setEntidadInputValue(entidad);  // Actualizamos el valor local
+        updateFormData({ estado: entidad });  // Sincronizamos con formData
+        setShowEntidadSuggestions(false);  // Ocultamos las sugerencias
     };
 
     const handlePaisSelect = (pais) => {
-        setPaisInputValue(pais);
-        updateFormData({ pais: pais });
-        setShowPaisSuggestions(false);
+        setPaisInputValue(pais);  // Actualizamos el valor local
+        updateFormData({ pais: pais });  // Sincronizamos con formData
+        setShowPaisSuggestions(false);  // Ocultamos las sugerencias
     };
 
     const handleChange = (e) => {
@@ -256,14 +256,17 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="Genero">Genero</label>
-                        <input
-                            type="text"
+                        <label htmlFor="Genero">Género</label>
+                        <select
                             id="Genero"
                             name="genero"
                             value={formData.genero || ''}
                             onChange={handleChange}
-                        />
+                        >
+                            <option value="">Seleccione una opción</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Masculino">Masculino</option>
+                        </select>
                     </div>
                 </div>
                 <div className="form-row">
@@ -273,8 +276,8 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                             type="text"
                             id="EntidadFederativa"
                             name="estado"
-                            value={entidadInputValue}
-                            onChange={handleEntidadInputChange}
+                            value={entidadInputValue || ''}  // Seguimos usando el estado local para mostrar el valor
+                            onChange={handleEntidadInputChange}  // Manejamos el buscador
                             placeholder="Escribe para buscar..."
                         />
                         {showEntidadSuggestions && filteredEntidades.length > 0 && (
@@ -282,7 +285,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                                 {filteredEntidades.map((entidad, index) => (
                                     <li
                                         key={index}
-                                        onClick={() => handleEntidadSelect(entidad)}
+                                        onClick={() => handleEntidadSelect(entidad)}  // Selección de la entidad
                                     >
                                         {entidad}
                                     </li>
@@ -290,14 +293,15 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                             </ul>
                         )}
                     </div>
+
                     <div className="form-groupB form-group" ref={paisInputRef}>
                         <label htmlFor="Pais">País</label>
                         <input
                             type="text"
                             id="Pais"
                             name="pais"
-                            value={paisInputValue}
-                            onChange={handlePaisInputChange}
+                            value={paisInputValue || ''}  // Seguimos usando el estado local para mostrar el valor
+                            onChange={handlePaisInputChange}  // Manejamos el buscador
                             placeholder="Escribe para buscar..."
                         />
                         {showPaisSuggestions && filteredPaises.length > 0 && (
@@ -305,7 +309,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                                 {filteredPaises.map((pais, index) => (
                                     <li
                                         key={index}
-                                        onClick={() => handlePaisSelect(pais)}
+                                        onClick={() => handlePaisSelect(pais)}  // Selección del país
                                     >
                                         {pais}
                                     </li>
@@ -314,6 +318,8 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                         )}
                     </div>
                 </div>
+
+
                 <div className="boton_integracionS">
                     <button onClick={handleVerClickIntegracion}>
                         Regresar a Citas

@@ -75,7 +75,6 @@ const Requisitos = ({ citaSeleccionada }) => {
             }
 
             const completionData = await completionResponse.json();
-            console.log('Completion data received:', completionData);
 
             const completionStatus = {};
 
