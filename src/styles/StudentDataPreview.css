@@ -24,16 +24,62 @@
 }
 
 .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 8px;
+    display: flex; /* Cambiado de grid a flex */
+    flex-wrap: wrap; /* Permite que los elementos se ajusten a varias filas */
+    gap: 16px; /* Espaciado entre los elementos */
 }
 
-.student-data-preview input {
-    padding: 6px;
-    border: 1px solid #ccc;
+.requirement-item {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 180px; /* Se ajusta a un ancho mínimo de 180px */
+    min-width: 180px; /* Ancho mínimo */
+    padding: 0.75rem; /* Más padding interno */
+    background-color: white;
     border-radius: 4px;
-    font-size: 13px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow-wrap: break-word; /* Permite que el texto largo se ajuste dentro del contenedor */
+}
+
+.requirement-item label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.requirement-value {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.requirement-value.data {
+    background-color: var(--clr-salmon);
+    color: black;
+    word-wrap: break-word; /* Ajusta el texto largo */
+    padding: 8px; /* Agrega algo de espacio */
+    border-radius: 4px;
+}
+
+.requirement-date {
+    margin-top: 0.25rem;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.program-requirements {
+    padding-bottom: 2rem;
+}
+
+/* Espaciado adicional entre los primeros tres requisitos */
+.first-group {
+    margin-bottom: 32px; /* Más espacio entre los primeros tres y el siguiente grupo */
+}
+
+/* Espaciado adicional entre modalidad y programa */
+.modalidad-group {
+    margin-bottom: 40px; /* Más espacio entre modalidad y programa */
 }
 
 .buttons {
@@ -67,9 +113,20 @@
 .generate-button:hover {
     background-color: var(--clr-vino);
 }
+
 @media (max-width: 1000px) {
     .student-data-preview {
         margin-left: 15rem;
         margin-right: auto; /* Ajusta este valor según sea necesario */
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas en pantallas más pequeñas */
+    }
+}
+
+@media (max-width: 600px) {
+    .grid {
+        grid-template-columns: 1fr; /* 1 columna en pantallas muy pequeñas */
     }
 }

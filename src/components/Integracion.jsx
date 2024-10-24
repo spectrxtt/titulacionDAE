@@ -14,12 +14,6 @@ const Integracion = () => {
         setMostrarDatosPersonales(true);
     };
 
-    const handleEstadoChange = (index, newEstado) => {
-        const newCitas = [...citas];
-        newCitas[index] = { ...newCitas[index], Estado: newEstado };
-        setCitas(newCitas);
-    };
-
     useEffect(() => {
         const fetchCitas = async () => {
             try {
@@ -37,7 +31,13 @@ const Integracion = () => {
                 }
 
                 const data = await response.json();
-                setCitas(data);
+
+                // Filtrar las citas para excluir los estados "Integrado", "Rechazado" y "Cancelado"
+                const citasFiltradas = data.filter(cita =>
+                    !['Integrado', 'Rechazado', 'Cancelado'].includes(cita.estado_cita)
+                );
+
+                setCitas(citasFiltradas);
             } catch (error) {
                 console.error('Error al cargar citas:', error);
                 setError(error.message); // Establecer el error en el estado
@@ -72,6 +72,7 @@ const Integracion = () => {
                     <th>Fecha</th>
                     <th>Estado</th>
                     <th>Observaciones</th>
+                    <th>Integrador</th>
                     <th>Acciones</th>
                 </tr>
                 </thead>
@@ -81,8 +82,10 @@ const Integracion = () => {
                         <td>{cita.num_Cuenta || 'N/A'}</td>
                         <td>{cita.nombre || 'N/A'}</td>
                         <td>{cita.fecha || 'N/A'}</td>
-                        <td>{cita.estado || 'Pendiente'}</td>
+                        <td>{cita.estado_cita || 'N/A'}</td>
                         <td>{cita.observaciones || 'N/A'}</td>
+                        <td>{cita.id_usuario || 'N/A'}</td>
+
                         <td>
                             <button className="button" onClick={() => handleVerClick(cita)}>
                                 VER

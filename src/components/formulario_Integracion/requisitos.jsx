@@ -78,10 +78,11 @@ const Requisitos = ({ citaSeleccionada }) => {
 
             const completionStatus = {};
 
-            if (typeof completionData === 'object' && completionData !== null) {
-                for (let i = 1; i <= Object.keys(completionData).length / 3; i++) {
-                    const idRequisito = completionData[`id_requisito_${i}`];
-                    const cumplido = completionData[`cumplido_${i}`];
+            Object.keys(completionData).forEach((key) => {
+                if (key.startsWith('id_requisito_')) {
+                    const index = key.split('_')[2]; // Obtener el índice
+                    const idRequisito = completionData[key];
+                    const cumplido = completionData[`cumplido_${index}`];
 
                     if (idRequisito !== null && idRequisito !== undefined) {
                         completionStatus[idRequisito] = {
@@ -89,7 +90,8 @@ const Requisitos = ({ citaSeleccionada }) => {
                         };
                     }
                 }
-            }
+            });
+
 
             setRequisitosCompletadosModalidad(completionStatus);
 
@@ -465,6 +467,7 @@ const Requisitos = ({ citaSeleccionada }) => {
                         ))}
                     </>
                 )}
+
                 <div className="boton_integracionS">
                     <button onClick={handleVerClickEscolares}>
                         <i className="fa-solid fa-arrow-left"></i>
