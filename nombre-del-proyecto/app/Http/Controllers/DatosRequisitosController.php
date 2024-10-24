@@ -43,7 +43,7 @@ class DatosRequisitosController extends Controller
         // Actualizar los datos
         $estudianteObligatorio->update($request->only(['servicio_social', 'practicas_profecionales', 'cedai']));
 
-        return response()->json(['message' => 'Requisitos actualizados con éxito', 'data' => $estudianteObligatorio]);
+        return response()->json(['message' => 'Requisitos actualizados con éxito']);
     }
 
     public function obtenerRequisitosPrograma($num_Cuenta)
@@ -181,7 +181,7 @@ class DatosRequisitosController extends Controller
         // Actualizar el registro con los datos válidos
         $estudiantePrograma->update($dataToUpdate);
 
-        return response()->json(['message' => 'Requisitos actualizados con éxito', 'data' => $estudiantePrograma]);
+        return response()->json(['message' => 'Requisitos actualizados con éxito']);
     }
 
     // Función para obtener requisitos por número de cuenta
@@ -250,7 +250,7 @@ class DatosRequisitosController extends Controller
         // Actualizar el registro con los datos válidos
         $estudianteModalidad->update($dataToUpdate);
 
-        return response()->json(['message' => 'Requisitos actualizados con éxito', 'data' => $estudianteModalidad]);
+        return response()->json(['message' => 'Requisitos actualizados con éxito']);
     }
 
 

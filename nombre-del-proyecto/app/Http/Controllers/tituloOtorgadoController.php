@@ -11,7 +11,12 @@ class tituloOtorgadoController extends Controller
     {
         return view('titulos_otorgados.create');
     }
+    public function index()
+    {
 
+        $programas = tituloOtorgado::all('id_titulo_otorgado', 'titulo_otorgado');
+        return response()->json($programas, 200);
+    }
     public function store(Request $request)
     {
         try {

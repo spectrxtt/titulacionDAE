@@ -27,6 +27,8 @@ Route::middleware(['api'])->group(function () {
 
     // Rutas para citas
     Route::post('/cargar-citas', [CitasController::class, 'cargarCitas']);
+    Route::put('/actualizar-estado-cita/{id_cita}', [CitasController::class, 'actualizarEstadoCita']);
+
 
     // Rutas para bachillerato
     Route::post('/bachillerato', [BachilleratoController::class, 'store'])->name('bachillerato.store');
@@ -36,6 +38,7 @@ Route::middleware(['api'])->group(function () {
     Route::get('/programas-educativos', [programaEduController::class, 'index']);
 
     Route::post('/titulo-otorgado', [tituloOtorgadoController::class, 'store'])->name('titulo_otorgado.store');
+    Route::get('/titulo-otorgado', [tituloOtorgadoController::class, 'index'])->name('titulo_otorgado.index');
 
     Route::post('/modalidad-titulacion', [modalidadController::class, 'store'])->name('modalidad_titulacion.store');
     Route::get('/modalidades-titulacion', [modalidadController::class, 'index']);

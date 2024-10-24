@@ -148,4 +148,25 @@ class CitasController extends Controller
         }
     }
 
+    public function actualizarEstadoCita(Request $request, $id_cita)
+    {
+        // Buscar el estudiante por número de cuenta
+        $cita = Cita::find($id_cita);
+
+        // Verificar si el estudiante existe
+        if (!$cita) {
+            return response()->json(['message' => 'Cita no encontrada'], 404);
+        }
+
+        // Validar los datos recibidos
+        $validatedData = $request->validate([
+            'estado_cita' => 'nullable|string|max:255',
+        ]);
+
+        // Actualizar los datos del estudiante con los datos validados
+        $cita->update($validatedData);
+
+        // Retornar la respuesta con el estudiante actualizado
+        return response()->json(['message' => 'Datos actualizados correctamente', 'cita' => $cita]);
+    }
 }

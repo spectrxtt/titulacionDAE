@@ -19,6 +19,8 @@ class estudianteUni extends Model
         'periodo_pasantia',
         'id_modalidad',
         'id_programa_educativo',
+        'id_titulo_otorgado',
+
 
     ];
     public $timestamps = false; // Desactiva los timestamps

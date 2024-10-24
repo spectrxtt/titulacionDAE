@@ -83,37 +83,26 @@ class DatosEstudiantesController extends Controller
         try {
             // Actualizar estudianteBachillerato
             $estudianteBach = estudianteBachillerato::findOrFail($num_Cuenta);
-            $estudianteBach->update($request->only([
-                'id_bach',
-                'fecha_inicio_bach',
-                'fecha_fin_bach'
-            ]));
+            $estudianteBach->update($request->estudianteBach);
 
             // Actualizar estudianteUni
             $estudianteUni = estudianteUni::findOrFail($num_Cuenta);
-            $estudianteUni->update($request->only([
-                'id_programa_educativo',
-                'fecha_inicio_uni',
-                'fecha_fin_uni',
-                'periodo_pasantia',
-                'id_modalidad'
-            ]));
+            $estudianteUni->update($request->estudianteUni);
 
             // Actualizar o crear DatosEstudiantesRequisitosPrograma
-           DatosEstudiantesRequisitosPrograma::updateOrCreate(
+            DatosEstudiantesRequisitosPrograma::updateOrCreate(
                 ['num_Cuenta' => $num_Cuenta],
                 [
-                    'id_programa_educativo' => $request->id_programa_educativo,
-                    // Aquí puedes agregar más campos si es necesario
+                    'id_programa_educativo' => $request->estudianteUni['id_programa_educativo'],
                 ]
             );
 
             // Actualizar o crear DatosEstudiantesRequisitosModalidad
-           DatosEstudiantesRequisitosModalidad::updateOrCreate(
+            DatosEstudiantesRequisitosModalidad::updateOrCreate(
                 ['num_Cuenta' => $num_Cuenta],
                 [
-                    'id_modalidad' => $request->id_modalidad,
-                    'id_programa_educativo' => $request->id_programa_educativo,
+                    'id_modalidad' => $request->estudianteUni['id_modalidad'],
+                    'id_programa_educativo' => $request->estudianteUni['id_programa_educativo'],
                 ]
             );
 
@@ -129,5 +118,6 @@ class DatosEstudiantesController extends Controller
             return response()->json(['message' => 'Error al actualizar datos escolares: ' . $e->getMessage()], 500);
         }
     }
+
 }
 
