@@ -6,6 +6,7 @@ import jsPDF from 'jspdf';
 import { useFormData } from './integracionDatos';
 import ClipLoader from "react-spinners/ClipLoader";
 
+
 // Define los estados de la cita
 const ESTADOS_CITA = [
     { value: 'Pendiente de aprobacion de egresado', label: 'Pendiente de aprobación de egresado ' },
@@ -34,10 +35,10 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         setEstadoCita(event.target.value); // Actualiza el estado del campo
     };
 
-    const handleActualizarEstadoCita = async () => {
+    const handleActualizarEstadoCita = useCallback(async () => {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
+            const response = await fetch(`http://10.11.80.237:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,16 +60,14 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         } catch (error) {
             console.error('Error:', error);
         }
-    };
+    }, [citaSeleccionada.id_cita, estadoCita]);
 
-
-
-    // Fetch bachilleratos data
+    // Fetch datos de bachilleratos
     useEffect(() => {
         const fetchBachilleratos = async () => {
+            const token = localStorage.getItem('token');
             try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('http://127.0.0.1:8000/api/bachilleratos', {
+                const response = await fetch('http://10.11.80.237:8000/api/bachilleratos', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -83,8 +82,11 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
                 const bachilleratosMap = {};
                 if (Array.isArray(data)) {
                     data.forEach(bach => {
-                        if (bach && bach.id_bach && bach.nombre_bach) {
-                            bachilleratosMap[bach.id_bach] = bach.nombre_bach;
+                        if (bach && bach.id_bach && bach.nombre_bach && bach.bach_entidad) {
+                            bachilleratosMap[bach.id_bach] = {
+                                nombre: bach.nombre_bach,
+                                entidad: bach.bach_entidad
+                            };
                         }
                     });
                 }
@@ -95,9 +97,9 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         };
 
         const fetchProgramasEducativos = async () => {
+            const token = localStorage.getItem('token');
             try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('http://127.0.0.1:8000/api/programas-educativos', {
+                const response = await fetch('http://10.11.80.237:8000/api/programas-educativos', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -124,9 +126,9 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         };
 
         const fetchTitulosOtorgados = async () => {
+            const token = localStorage.getItem('token');
             try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('http://127.0.0.1:8000/api/titulo-otorgado', {
+                const response = await fetch('http://10.11.80.237:8000/api/titulo-otorgado', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -153,9 +155,9 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         };
 
         const fetchModalidades = async () => {
+            const token = localStorage.getItem('token');
             try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('http://127.0.0.1:8000/api/modalidades-titulacion', {
+                const response = await fetch('http://10.11.80.237:8000/api/modalidades-titulacion', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -181,6 +183,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             }
         };
 
+        // Llamadas a las funciones para cargar datos
         fetchBachilleratos();
         fetchProgramasEducativos();
         fetchTitulosOtorgados();
@@ -193,7 +196,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-modalidad/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidad/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -205,7 +208,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             setRequisitosModalidad(requisitosModalidad);
 
             // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
+            const completionResponse = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -260,7 +263,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-programa/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programa/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -272,7 +275,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             setRequisitosPrograma(requisitosPrograma);
 
             // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
+            const completionResponse = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -336,6 +339,11 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
         return bachilleratos[numericId] || `Bachillerato ${id}`;
     };
+    const getBachilleratoInfo = (id) => {
+        if (!id) return { nombre: 'No especificado', entidad: 'No especificado' };
+        const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
+        return bachilleratos[numericId] || { nombre: `Bachillerato ${id}`, entidad: 'No especificado' };
+    };
 
     const getProgramaEducativoNombre = (id) => {
         if (!id) return '';
@@ -354,7 +362,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
         return modalidades[numericId] || `Modalidad ${id}`;
     };
-
+    const bachilleratoInfo = getBachilleratoInfo(formData.id_bach);
     const renderRequisitos = () => {
         return (
             <div className="requirements-section">
@@ -430,94 +438,127 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
     };
 
     const generatePDF = () => {
-        const doc = new jsPDF();
-        let yPosition = 10;
-        const lineHeight = 10;
-        const margin = 10;
+        // Create PDF in portrait mode with mm units
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
 
-        // Función helper para agregar texto y actualizar la posición Y
-        const addText = (text) => {
-            doc.text(text, margin, yPosition);
-            yPosition += lineHeight;
+        // Set initial configurations
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        const margin = 20;
+
+        // Helper function to center text
+        const centerText = (text, y, fontSize = 12) => {
+            doc.setFontSize(fontSize);
+            const textWidth = doc.getTextWidth(text);
+            const x = (pageWidth - textWidth) / 2;
+            doc.text(text, x, y);
         };
 
-        doc.setFontSize(16);
-        addText("DATOS ESTUDIANTES - DATOS INTEGRADOS");
+        // Header
+        doc.setFont("helvetica", "bold");
+        centerText("La Universidad Autónoma", 30, 18);
+        centerText("del Estado de Hidalgo", 40, 18);
 
-        doc.setFontSize(12);
-        yPosition += 5;
+        // Title recipient
+        doc.setFont("helvetica", "bold");
+        centerText("otorga a", 50, 12);
 
-        // Datos Personales
-        addText("DATOS PERSONALES");
-        addText(`Número de cuenta: ${formData.num_Cuenta || ''}`);
-        addText(`Nombre: ${formData.nombre_estudiante || ''}`);
-        addText(`Apellido Paterno: ${formData.ap_paterno || ''}`);
-        addText(`Apellido Materno: ${formData.ap_materno || ''}`);
-        addText(`CURP: ${formData.curp || ''}`);
-        addText(`Género: ${formData.genero || ''}`);
-        addText(`Entidad Federativa: ${formData.estado || ''}`);
-        addText(`País: ${formData.pais || ''}`);
+        // Student name
+        centerText(`${formData.nombre_estudiante}`, 62, 16);
 
-        yPosition += 5;
+        // Degree title
+        doc.setFont("helvetica", "normal");
+        centerText("el título de", 73, 12);
 
-        // Datos Escolares
-        addText("DATOS ESCOLARES");
-        addText(`Bachillerato: ${getBachilleratoNombre(formData.id_bach)}`);
-        addText(`Fecha Inicio Bachillerato: ${formData.fecha_inicio_bach || ''}`);
-        addText(`Fecha Fin Bachillerato: ${formData.fecha_fin_bach || ''}`);
-        addText(`Programa Educativo: ${getProgramaEducativoNombre(formData.id_programa_educativo)}`);
-        addText(`Título Otorgado: ${getTituloOtorgadoNombre(formData.id_titulo_otorgado)}`);
-        addText(`Fecha Inicio Licenciatura: ${formData.fecha_inicio_uni || ''}`);
-        addText(`Fecha Fin Licenciatura: ${formData.fecha_fin_uni || ''}`);
-        addText(`Estado Pasantía: ${formData.periodo_pasantia || ''}`);
-        addText(`Modalidad de Titulación: ${getModalidadNombre(formData.id_modalidad)}`);
+        doc.setFont("helvetica", "bold");
+        centerText( `${getTituloOtorgadoNombre(formData.id_titulo_otorgado)}`, 85, 16);
 
-        // Cambiar a una nueva página para los requisitos
-        doc.addPage();
-        yPosition = margin; // Reiniciar la posición en la nueva página
+        // Modalidad
+        doc.setFont("helvetica", "normal");
+        centerText(`Modalidad: ${getModalidadNombre(formData.id_modalidad)}`, 100, 10);
 
-        // Requisitos
-        addText("REQUISITOS");
+        // Motto and location
+        doc.setFont("helvetica", "italic");
+        centerText('"Amor, Orden y Progreso"', 110, 10);
+        doc.setFont("helvetica", "normal");
+        centerText("Dado en la ciudad de Pachuca de Soto, Estado de Hidalgo, México, el día.", 115, 10);
 
-        // Requisitos fijos
-        addText(`Servicio Social: ${formData.servicio_social || 'No especificado'}`);
-        addText(`Prácticas Profesionales: ${formData.practicas_profecionales || 'No especificado'}`);
-        addText(`CEDAI: ${formData.cedai || 'No especificado'}`);
+        // Signatures - moved up
+        const signatureY = 125; // Ajustado hacia arriba
+        const leftColumnX = pageWidth * 0.25;
+        const rightColumnX = pageWidth * 0.75;
 
-        // Requisitos del programa
-        if (requisitosPrograma.length > 0) {
-            yPosition += 5;
-            addText("Requisitos del Programa:");
-            requisitosPrograma.forEach(requisito => {
-                const requisitoValue = formData[`requisito_${requisito.id_requisito_programa}`];
-                const fechaRequisito = formData[`fecha_requisito_${requisito.id_requisito_programa}`];
-                if (requisitoValue) {
-                    let texto = `${requisito.descripcion}: ${requisitoValue}`;
-                    if (requisitoValue === 'Sí' && fechaRequisito) {
-                        texto += ` (Fecha: ${new Date(fechaRequisito).toLocaleDateString()})`;
-                    }
-                    addText(texto);
-                }
-            });
-        }
+        // Helper function para centrar texto en una columna
+        const centerTextAtX = (text, x, y, fontSize = 12) => {
+            doc.setFontSize(fontSize);
+            const textWidth = doc.getTextWidth(text);
+            const finalX = x - (textWidth / 2);
+            doc.text(text, finalX, y);
+        };
 
-        // Requisitos de la modalidad
-        if (requisitosModalidad.length > 0) {
-            yPosition += 5;
-            addText("Requisitos de la Modalidad:");
+        // Firma izquierda
+        doc.setFont("helvetica", "normal");
+        centerTextAtX("El Rector", leftColumnX, signatureY, 10);
+        doc.setFont("helvetica", "normal");
+        centerTextAtX("Dr. Octavio Castillo Acosta", leftColumnX, signatureY + 5, 10);
 
-            requisitosModalidad.forEach(requisito => {
-                // Asignar un valor predeterminado si requisitoValue es undefined o null
-                const requisitoValue = formData[`requisito_${requisito.id_requisito_modalidad}`] || 'No especificado';
+        // Firma derecha
+        doc.setFont("helvetica", "normal");
+        centerTextAtX("El Secretario General", rightColumnX, signatureY, 10);
+        doc.setFont("helvetica", "normal");
+        centerTextAtX("M. en C. Julio César Leines Medécigo", rightColumnX, signatureY + 5, 10);
 
-                // Generar texto con el valor
-                let texto = `${requisito.descripcion}: ${requisitoValue}`;
-                addText(texto);
-            });
-        }
+        // Academic information - sin recuadro
+        let currentY = 150; // Posición inicial para la información académica
+        const leftMargin = 30;
+        const lineHeight = 6;
 
+        // CURP
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text(`CURP: ${formData.curp}`, leftMargin, currentY);
+        currentY += lineHeight * 2;
 
-        doc.save('student_data_preview.pdf');
+        // Estudios de Bachillerato
+        doc.setFont("helvetica", "bold");
+        doc.text("Estudios de Bachillerato:", leftMargin, currentY);
+        currentY += lineHeight * 1.5;
+
+        doc.setFont("helvetica", "normal");
+        doc.text(`Institución: ${bachilleratoInfo.nombre}`, leftMargin, currentY);
+        currentY += lineHeight;
+        doc.text(`Periodo: de ${formData.fecha_inicio_bach} a ${formData.fecha_fin_bach}`, leftMargin, currentY);
+        currentY += lineHeight;
+        doc.text(`Entidad federativa: ${bachilleratoInfo.entidad} (se registra entidad donde se expide el certificado)`, leftMargin, currentY);
+        currentY += lineHeight * 2;
+
+        // Estudios Profesionales
+        doc.setFont("helvetica", "bold");
+        doc.text("Estudios Profesionales:", leftMargin, currentY);
+        currentY += lineHeight * 1.5;
+
+        doc.setFont("helvetica", "normal");
+        doc.text("Institución: Universidad Autónoma del Estado de Hidalgo", leftMargin, currentY);
+        currentY += lineHeight;
+        doc.text(`Carrera: ${getProgramaEducativoNombre(formData.id_programa_educativo)}`, leftMargin, currentY);
+        currentY += lineHeight;
+        doc.text(`Periodo: de ${formData.fecha_inicio_uni} a ${formData.fecha_fin_uni} (este dato lo arroja el sistema automáticamente)`, leftMargin, currentY);
+        currentY += lineHeight;
+        doc.text("Entidad federativa: Hidalgo", leftMargin, currentY);
+        currentY += lineHeight;
+        doc.text("Evaluación profesional: (el dato lo arroja el sistema de forma automática)", leftMargin, currentY);
+
+        // Footer with student ID
+        doc.setFontSize(8);
+        const accountText = `No. de Cuenta: ${formData.num_Cuenta}`;
+        const textWidth = doc.getTextWidth(accountText);
+        doc.text(accountText, pageWidth - margin - textWidth, pageHeight - margin);
+
+        doc.save('titulo_universitario.pdf');
     };
 
     const handleVerClickRequisitos = () => setMostrarDatosRequisitos(true);
@@ -583,8 +624,15 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
                 <div className="grid">
                     <div className="requirement-item">
                         <label>Bachillerato</label>
-                        <div
-                            className="requirement-value data">{getBachilleratoNombre(formData.id_bach) || 'No especificado'}</div>
+                        <div className="requirement-value data">
+                            {bachilleratoInfo.nombre || 'No especificado'}
+                        </div>
+                    </div>
+                    <div className="requirement-item">
+                        <label>Entidad Bachillerato</label>
+                        <div className="requirement-value data">
+                            {bachilleratoInfo.entidad || 'No especificado'}
+                        </div>
                     </div>
                     <div className="requirement-item">
                         <label>Fecha Inicio Bachillerato</label>
@@ -630,7 +678,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             </div>
 
             <div className="buttons">
-                <button onClick={handleVerClickRequisitos} className="edit-button">EDITAR</button>
+            <button onClick={handleVerClickRequisitos} className="edit-button">EDITAR</button>
                 <button onClick={generatePDF} className="generate-button">GENERAR BORRADOR</button>
 
             </div>

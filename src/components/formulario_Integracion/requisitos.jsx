@@ -30,7 +30,7 @@ const Requisitos = ({ citaSeleccionada }) => {
         setLoading(true); // Comienza a cargar
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-obligatorios/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-obligatorios/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -54,7 +54,7 @@ const Requisitos = ({ citaSeleccionada }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-modalidad/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidad/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -66,7 +66,7 @@ const Requisitos = ({ citaSeleccionada }) => {
             setRequisitosModalidad(requisitosModalidad);
 
             // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
+            const completionResponse = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -123,7 +123,7 @@ const Requisitos = ({ citaSeleccionada }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-programa/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programa/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -135,7 +135,7 @@ const Requisitos = ({ citaSeleccionada }) => {
             setRequisitosPrograma(requisitosPrograma);
 
             // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
+            const completionResponse = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -223,7 +223,7 @@ const Requisitos = ({ citaSeleccionada }) => {
     const actualizarRequisitosObligatorios = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-obligatorios/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-obligatorios/${citaSeleccionada.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -264,7 +264,7 @@ const Requisitos = ({ citaSeleccionada }) => {
                 dataToSend[fechaField] = formData[`fecha_requisito_${requisito.id_requisito_programa}`] || '';
             });
 
-            const response = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -306,7 +306,7 @@ const Requisitos = ({ citaSeleccionada }) => {
                 dataToSend[cumplidoField] = formData[`requisito_${requisito.id_requisito_modalidad}`] || '';
             });
 
-            const response = await fetch(`http://127.0.0.1:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -429,10 +429,10 @@ const Requisitos = ({ citaSeleccionada }) => {
                                     onChange={handleInputChange}
                                 >
                                     <option value="">Seleccionar</option>
-                                    <option value="No">No</option>
-                                    <option value="Sí">Sí</option>
+                                    <option value="Incompleto">Incompleto</option>
+                                    <option value="Completo">Completo</option>
                                 </select>
-                                {formData[`requisito_${requisito.id_requisito_programa}`] === 'Sí' && (
+                                {formData[`requisito_${requisito.id_requisito_programa}`] === 'Completo' && (
                                     <input
                                         type="date"
                                         id={`fecha_requisito_${requisito.id_requisito_programa}`}
@@ -460,8 +460,8 @@ const Requisitos = ({ citaSeleccionada }) => {
                                     onChange={handleInputChange}
                                 >
                                     <option value="">Seleccionar</option>
-                                    <option value="No">No</option>
-                                    <option value="Sí">Sí</option>
+                                    <option value="Incompleto">Incompleto</option>
+                                    <option value="Completo">Completo</option>
                                 </select>
                             </div>
                         ))}

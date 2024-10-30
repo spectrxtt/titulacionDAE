@@ -18,7 +18,7 @@ const Integracion = () => {
         const fetchCitas = async () => {
             try {
                 const token = localStorage.getItem('token'); // Asume que guardas el token en localStorage
-                const response = await fetch('http://127.0.0.1:8000/api/citas', {
+                const response = await fetch('http://10.11.80.237:8000/api/citas', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
