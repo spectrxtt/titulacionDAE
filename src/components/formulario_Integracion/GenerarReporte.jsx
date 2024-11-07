@@ -1,27 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Integracion from '../Integracion';
-import { useCitas } from '../manejarCitas';
 
-const GenerarReporte = () => {
+// Define los estados de la cita
+const ESTADOS_CITA = [
+    { value: 'Integrado', label: 'Integrado' },
+    { value: 'Rechazado', label: 'Rechazado' },
+    { value: 'Corrección', label: 'Corrección' },
+
+];
+
+const GenerarReporte = ({ citaSeleccionada }) => {
     const [estadoCita, setEstadoCita] = useState('');
     const [observaciones, setObservaciones] = useState('');
-    const { citas, actualizarCitas } = useCitas();
     const [mostrarIntegracion, setMostrarIntegracion] = useState(false);
+
+    // Maneja el cambio en el estado de la cita
+    const handleEstadoChange = (event) => {
+        setEstadoCita(event.target.value);
+    };
+
+    const handleActualizarEstadoCita = useCallback(async () => {
+        if (!citaSeleccionada) {
+            console.error('No hay cita seleccionada');
+            return; // Salir si no hay cita
+        }
+
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`http://192.168.137.1:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ estado_cita: estadoCita, observaciones: observaciones }), // Envía también las observaciones
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al actualizar el estado de la cita');
+            }
+
+            const result = await response.json();
+            console.log(result.message);
+
+            // Cambia el estado para mostrar el componente Integracion
+            setMostrarIntegracion(true);
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }, [citaSeleccionada, estadoCita, observaciones]);
+
+    const handleGuardar = () => {
+        handleActualizarEstadoCita(); // Llama a la función que actualiza la cita
+    };
 
     if (mostrarIntegracion) {
         return <Integracion />;
     }
-
-    const handleGuardar = () => {
-        const newCitas = [...citas];
-        newCitas[0] = {
-            ...newCitas[0],
-            Estado: estadoCita,
-            Observaciones: observaciones,
-        };
-        actualizarCitas(newCitas);
-        setMostrarIntegracion(true);
-    };
 
     return (
         <div className="generar-reporte">
@@ -32,13 +68,14 @@ const GenerarReporte = () => {
                     <select
                         id="estadoCita"
                         value={estadoCita}
-                        onChange={(e) => setEstadoCita(e.target.value)}
+                        onChange={handleEstadoChange}
                     >
                         <option value="">Seleccione un estado</option>
-                        <option value="Completo">Integrado</option>
-                        <option value="Rechazado">Rechazado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En revisión">En revisión</option>
+                        {ESTADOS_CITA.map((estado) => (
+                            <option key={estado.value} value={estado.value}>
+                                {estado.label}
+                            </option>
+                        ))}
                     </select>
                 </div>
                 <div className="form-group">
@@ -51,8 +88,11 @@ const GenerarReporte = () => {
                     ></textarea>
                 </div>
                 <div className="boton_guardarReporte">
-                    <button onClick={handleGuardar}>Guardar Reporte</button>
+                    <button onClick={handleGuardar} disabled={!estadoCita}>
+                        Guardar Reporte
+                    </button>
                 </div>
+                {!citaSeleccionada && <p>No hay citas disponibles para actualizar.</p>}
             </div>
         </div>
     );

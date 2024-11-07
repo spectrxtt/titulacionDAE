@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LoginComponent from './components/loginComponent';
 import Home from './components/home';
 import Citas from './components/Citas';
@@ -22,12 +22,13 @@ function App() {
         setIsAuthenticated(true);
         setUserRole(user.rol); // Asegúrate de que user.rol existe
         setUserNombre(user.nombre_usuario); // Asegúrate de que user.rol existe
+
     };
 
     const handleLogout = () => {
         setIsAuthenticated(false);
         setUserRole(null); // Restablece el rol al cerrar sesión
-        setUserNombre(null); // Restablece el nombre al cerrar sesión
+        setUserNombre(null); // Restablece el rol al cerrar sesión
         localStorage.removeItem('user');
         localStorage.removeItem('token');
     };
@@ -46,7 +47,7 @@ function App() {
                             onProfileClick={() => console.log('Perfil')}
                             onLogout={handleLogout}
                             userRole={userRole} // Pasa userRole aquí
-                            userNombre={userNombre} // Pasa userNombre aquí
+                            userNombre={userNombre} // Pasa userRole aquí
                         />
                     )}
                     <Routes>
@@ -60,7 +61,7 @@ function App() {
                                     {currentComponent === 'Integracion' && <Integracion userRole={userRole}/>}
                                     {currentComponent === 'Expedientes' && <Expedientes userRole={userRole}/>}
                                     {currentComponent === 'Reportes' && <Reportes />}
-                                    {currentComponent === 'Configuracion' && <Configuracion userRole={userRole} />}
+                                    {currentComponent === 'Configuracion' && <Configuracion userRole={userRole} />} {/* Pasamos userRole */}
                                 </>
                             ) : <Navigate to="/" />}
                         />

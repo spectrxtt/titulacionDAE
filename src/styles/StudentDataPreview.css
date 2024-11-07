@@ -12,6 +12,31 @@
     margin-bottom: 15px;
     color: #333;
 }
+.boton_integracionS {
+    display: flex;
+    justify-content: flex-end;
+    padding: .5rem;
+    flex-direction: row;
+}
+
+.boton_integracionS button {
+    background-color: var(--clr-rojo);
+    color: white;
+    border: none;
+    border-radius: .5rem;
+    width: 10rem;
+    min-height: 2.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-left: 1.5rem;
+}
+
+.boton_integracionS button:hover{
+    background-color: var(--clr-vino);
+}
 
 .student-data-preview h3 {
     font-size: 16px;
@@ -85,7 +110,7 @@
 .buttons {
     display: flex;
     justify-content: space-between;
-    margin-top: 15px;
+    margin-top: 8px;
 }
 
 .student-data-preview button {

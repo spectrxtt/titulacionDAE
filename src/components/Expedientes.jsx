@@ -1,56 +1,119 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Integracion.css';
-import StudentDataPreview from './formulario_Integracion/BorradorPre';
-import { useCitas } from './manejarCitas';
+import DatosPersonales from './formulario_Integracion/datosPersonales';
 import Bitacora from './bitacora';
 
 const Expedientes = () => {
-    const { citas, actualizarCitas } = useCitas();
-    const [mostrarPreview, setMostrarPreview] = useState(false);
+    const [citas, setCitas] = useState([]); // Estado para almacenar las citas
+    const [mostrarDatosPersonales, setMostrarDatosPersonales] = useState(false);
     const [mostrarBitacora, setMostrarBitacora] = useState(false);
     const [citaSeleccionada, setCitaSeleccionada] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [busqueda, setBusqueda] = useState({
         cuenta: '',
-        nombre: '',
-        apellidoPaterno: '',
-        apellidoMaterno: ''
+        nombre: ''
     });
 
     const handleVerClick = (cita) => {
         setCitaSeleccionada(cita);
-        setMostrarPreview(true);
+        setMostrarDatosPersonales(true);
     };
 
     const handleBitacoraClick = () => {
         setMostrarBitacora(true);
     };
 
-    const handleEstadoChange = (id, newEstado) => {
-        const newCitas = citas.map(cita =>
-            cita.id === id ? { ...cita, estado: newEstado } : cita
-        );
-        actualizarCitas(newCitas);
-    };
-
     const handleBusquedaChange = (e) => {
         setBusqueda({ ...busqueda, [e.target.name]: e.target.value });
     };
 
-    const handleBuscar = () => {
-        console.log("Realizando búsqueda con:", busqueda);
+    const handleBuscar = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://192.168.137.1:8000/api/buscar-citas?cuenta=${busqueda.cuenta}&nombre=${busqueda.nombre}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al buscar citas');
+            }
+
+            const data = await response.json();
+
+            // Eliminar el filtro por estado "Integrado"
+            setCitas(data);
+        } catch (error) {
+            console.error('Error al realizar la búsqueda:', error);
+            setError(error.message);
+        }
     };
 
     const handleLimpiarBusqueda = () => {
         setBusqueda({
             cuenta: '',
-            nombre: '',
-            apellidoPaterno: '',
-            apellidoMaterno: ''
+            nombre: ''
         });
     };
 
-    if (mostrarPreview && citaSeleccionada) {
-        return <StudentDataPreview citaSeleccionada={citaSeleccionada} onClose={() => setMostrarPreview(false)} />;
+    useEffect(() => {
+        const fetchCitas = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://192.168.137.1:8000/api/citas', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar citas');
+                }
+
+                const data = await response.json();
+
+                // Filtrar citas con estado "Integrado" o "Rechazado"
+                const citasFiltradas = data.filter(cita =>
+                    cita.estado_cita === 'Integrado' || cita.estado_cita === 'Rechazado'|| cita.estado_cita === 'Validado para impresión'
+                );
+
+                // Ordenar las citas por fecha (asumiendo que fecha es una cadena ISO)
+                const citasOrdenadas = citasFiltradas.sort((a, b) =>
+                    new Date(b.fecha) - new Date(a.fecha)
+                );
+
+                // Tomar solo las últimas 5 citas
+                const ultimasCitas = citasOrdenadas.slice(0, 5);
+
+                setCitas(ultimasCitas);
+            } catch (error) {
+                console.error('Error al cargar citas:', error);
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCitas();
+    }, []); // Asegúrate de que las dependencias son correctas
+
+
+    if (loading) {
+        return <div>Cargando citas...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    if (mostrarDatosPersonales) {
+        return <DatosPersonales citaSeleccionada={citaSeleccionada} />;
     }
 
     if (mostrarBitacora) {
@@ -72,21 +135,7 @@ const Expedientes = () => {
                     name="nombre"
                     value={busqueda.nombre}
                     onChange={handleBusquedaChange}
-                    placeholder="Nombre"
-                />
-                <input
-                    type="text"
-                    name="apellidoPaterno"
-                    value={busqueda.apellidoPaterno}
-                    onChange={handleBusquedaChange}
-                    placeholder="Apellido Paterno"
-                />
-                <input
-                    type="text"
-                    name="apellidoMaterno"
-                    value={busqueda.apellidoMaterno}
-                    onChange={handleBusquedaChange}
-                    placeholder="Apellido Materno"
+                    placeholder="Nombre Completo"
                 />
 
                 <button onClick={handleBuscar}>Buscar</button>
@@ -94,28 +143,32 @@ const Expedientes = () => {
             </div>
 
             <div className="containerExpedientes">
-                <h3>EXPEDIENTES</h3>
+                <h3>EXPEDIENTES INTEGRADOS</h3>
                 <table className="table">
                     <thead>
                     <tr>
-                        <th>Fecha</th>
-                        <th>Nombre</th>
                         <th># Cuenta</th>
+                        <th>Nombre</th>
+                        <th>Fecha</th>
                         <th>Estado</th>
                         <th>Observaciones</th>
+                        <th>Integrador</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
                     {citas.map((cita, index) => (
                         <tr key={index}>
-                            <td>{cita['Fecha']}</td>
-                            <td>{cita['Alumno']}</td>
-                            <td>{cita['No.Cuenta']}</td>
-                            <td>{cita['Estado'] || 'Pendiente'}</td>
-                            <td>{cita['Observaciones']}</td>
+                            <td>{cita.num_Cuenta || 'N/A'}</td>
+                            <td>{cita.nombre || 'N/A'}</td>
+                            <td>{cita.fecha || 'N/A'}</td>
+                            <td>{cita.estado_cita || 'N/A'}</td>
+                            <td>{cita.observaciones || 'N/A'}</td>
+                            <td>{cita.id_usuario || 'N/A'}</td>
                             <td>
-                                <button className="button" onClick={() => handleVerClick(cita)}>Integrar</button>
+                                <button className="button" onClick={() => handleVerClick(cita)}>
+                                    VER
+                                </button>
                                 <button className="button" onClick={handleBitacoraClick}>Bitácora</button>
                             </td>
                         </tr>

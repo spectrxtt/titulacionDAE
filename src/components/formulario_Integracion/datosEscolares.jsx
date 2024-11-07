@@ -31,8 +31,10 @@ const DatosEscolares = ({ citaSeleccionada }) => {
     const [titulosOtorgados, settitulosOtorgados] = useState([]);
     const [modalidadesTitulacion, setModalidadesTitulacion] = useState([]);
     const dataFetchedRef = useRef(false);
-
-
+    const suggestionsRef = useRef(null); // Ref para la lista de sugerencias
+    const inputRef = useRef(null); // Ref para el campo de búsqueda
+    const inputRefProgramas = useRef(null); // Ref para el campo de búsqueda
+    const inputRefTitulo = useRef(null); // Ref para el campo de búsqueda
 
 
     const today = new Date();
@@ -46,22 +48,22 @@ const DatosEscolares = ({ citaSeleccionada }) => {
         try {
             const token = localStorage.getItem('token');
             const [bachResponse, uniResponse, bachilleratosResponse, programasResponse, titulosResponse, modalidadesResponse] = await Promise.all([
-                fetch(`http://10.11.80.237:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
+                fetch(`http://192.168.137.1:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch(`http://10.11.80.237:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
+                fetch(`http://192.168.137.1:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://10.11.80.237:8000/api/bachilleratos', {
+                fetch('http://192.168.137.1:8000/api/bachilleratos', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://10.11.80.237:8000/api/programas-educativos', {
+                fetch('http://192.168.137.1:8000/api/programas-educativos', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://10.11.80.237:8000/api/titulo-otorgado', {
+                fetch('http://192.168.137.1:8000/api/titulo-otorgado', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://10.11.80.237:8000/api/modalidades-titulacion', {
+                fetch('http://192.168.137.1:8000/api/modalidades-titulacion', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 })
             ]);
@@ -102,124 +104,162 @@ const DatosEscolares = ({ citaSeleccionada }) => {
         if (formData.id_bach && bachilleratos.length > 0) {
             const selectedBach = bachilleratos.find(bach => bach.id_bach === formData.id_bach);
             if (selectedBach) {
-                setDisplayName(selectedBach.nombre_bach);
                 setSearchTerm(selectedBach.nombre_bach);
             }
         }
     }, [formData.id_bach, bachilleratos]);
 
-    // Modificar el efecto de filtrado para usar searchTerm
+    // Manejar el clic fuera del input
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (inputRef.current && !inputRef.current.contains(event.target)) {
+                setShowResults(false); // Ocultar sugerencias
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // Actualizar los resultados de búsqueda
     useEffect(() => {
         if (searchTerm) {
             const filtered = bachilleratos.filter(bach =>
                 bach.nombre_bach.toLowerCase().includes(searchTerm.toLowerCase())
             );
             setFilteredBachilleratos(filtered);
-            setShowResults(true);
+            setShowResults(filtered.length > 0); // Mostrar resultados solo si hay coincidencias
         } else {
-            setFilteredBachilleratos(bachilleratos);
-            setShowResults(false);
+            setShowResults(false); // Ocultar sugerencias si no hay texto en el campo
         }
     }, [searchTerm, bachilleratos]);
 
     const handleSearchChange = (e) => {
         const value = e.target.value;
-        setSearchTerm(value);
-        setShowResults(true);
-        // No actualizamos formData.id_bach aquí, solo cuando se seleccione un bachillerato
+        setSearchTerm(value); // Mantenemos el valor local para el buscador
     };
 
     const handleSelectBachillerato = (bach) => {
-        updateFormData({ id_bach: bach.id_bach }); // Mantener el ID en formData
-        setDisplayName(bach.nombre_bach); // Actualizar el nombre mostrado
-        setSearchTerm(bach.nombre_bach);
-        setShowResults(false);
+        updateFormData({ ...formData, id_bach: bach.id_bach });
+        setSearchTerm(bach.nombre_bach); // Mostrar nombre seleccionado en el input
+        setShowResults(false); // Ocultar la lista de sugerencias
     };
 
+    const handleFocus = () => {
+        setShowResults(true); // Mostrar sugerencias al enfocar
+    };
 
+    // Manejar el clic fuera del input
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (inputRefProgramas.current && !inputRefProgramas.current.contains(event.target)) {
+                setShowResultsProgramas(false); // Ocultar sugerencias
+            }
+        };
 
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // Actualizar el displayName y searchTerm cuando se carga formData.id_programa_educativo
     useEffect(() => {
         if (formData.id_programa_educativo && programasEducativos.length > 0) {
-            const selectedProgramas = programasEducativos.find(bach => bach.id_programa_educativo === formData.id_programa_educativo);
+            const selectedProgramas = programasEducativos.find(prog => prog.id_programa_educativo === formData.id_programa_educativo);
             if (selectedProgramas) {
-                setDisplayName(selectedProgramas.programa_educativo);
                 setSearchTermProgramas(selectedProgramas.programa_educativo);
             }
         }
     }, [formData.id_programa_educativo, programasEducativos]);
 
-    // Modificar el efecto de filtrado para usar searchTerm
+    // Modificar el efecto de filtrado para usar searchTermProgramas
     useEffect(() => {
         if (searchTermProgramas) {
-            const filtered = programasEducativos.filter(programasEducativos =>
-                programasEducativos.programa_educativo.toLowerCase().includes(searchTermProgramas.toLowerCase()) // Corregido aquí
+            const filtered = programasEducativos.filter(programa =>
+                programa.programa_educativo.toLowerCase().includes(searchTermProgramas.toLowerCase())
             );
             setFilteredProgramas(filtered);
-            setShowResultsProgramas(true);
+            setShowResultsProgramas(filtered.length > 0); // Mostrar resultados solo si hay coincidencias
         } else {
-            setFilteredProgramas(programasEducativos);
-            setShowResultsProgramas(false);
+            setShowResultsProgramas(false); // Ocultar sugerencias si no hay texto en el campo
         }
     }, [searchTermProgramas, programasEducativos]);
 
-
-
     const handleSearchChangePrograma = (e) => {
         const value = e.target.value;
-        setSearchTermProgramas(value);
-        setShowResultsProgramas(true);
-        // No actualizamos formData.id_bach aquí, solo cuando se seleccione un bachillerato
+        setSearchTermProgramas(value); // Actualizar el valor de búsqueda
+        setShowResultsProgramas(true); // Mostrar resultados mientras se escribe
     };
 
     const handleSelectPrograma = (programa) => {
         updateFormData({ id_programa_educativo: programa.id_programa_educativo }); // Mantener el ID en formData
-        setDisplayName(programa.programa_educativo); // Actualizar el nombre mostrado
-        setSearchTermProgramas(programa.programa_educativo);
-        setShowResultsProgramas(false);
+        setSearchTermProgramas(programa.programa_educativo); // Actualizar el nombre mostrado
+        setShowResultsProgramas(false); // Ocultar la lista de sugerencias
+    };
+
+    const handleFocusProgramas = () => {
+        setShowResultsProgramas(true); // Mostrar sugerencias al enfocar
     };
 
 
 
 
+    // Manejar el clic fuera del input
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (inputRefTitulo.current && !inputRefTitulo.current.contains(event.target)) {
+                setShowResultsTitulo(false); // Ocultar sugerencias
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // Actualizar el displayName y searchTerm cuando se carga formData.id_titulo_otorgado
     useEffect(() => {
         if (formData.id_titulo_otorgado && titulosOtorgados.length > 0) {
-            const selectedTitulos = titulosOtorgados.find(titulos => titulos.id_titulo_otorgado === formData.id_titulo_otorgado);
+            const selectedTitulos = titulosOtorgados.find(titulo => titulo.id_titulo_otorgado === formData.id_titulo_otorgado);
             if (selectedTitulos) {
-                setDisplayName(selectedTitulos.titulo_otorgado);
                 setSearchTermTitulo(selectedTitulos.titulo_otorgado);
             }
         }
-    }, [formData.id_titulo_otorgado,titulosOtorgados]);
+    }, [formData.id_titulo_otorgado, titulosOtorgados]);
 
-    // Modificar el efecto de filtrado para usar searchTerm
+    // Modificar el efecto de filtrado para usar searchTermTitulo
     useEffect(() => {
         if (searchTermTitulo) {
-            const filtered = titulosOtorgados.filter(titulosOtorgados =>
-                titulosOtorgados.titulo_otorgado.toLowerCase().includes(searchTermTitulo.toLowerCase()) // Corregido aquí
+            const filtered = titulosOtorgados.filter(titulo =>
+                titulo.titulo_otorgado.toLowerCase().includes(searchTermTitulo.toLowerCase())
             );
             setFilteredTitulo(filtered);
-            setShowResultsTitulo(true);
+            setShowResultsTitulo(filtered.length > 0); // Mostrar resultados solo si hay coincidencias
         } else {
-            setFilteredTitulo(titulosOtorgados);
-            setShowResultsTitulo(false);
+            setShowResultsTitulo(false); // Ocultar sugerencias si no hay texto en el campo
         }
     }, [searchTermTitulo, titulosOtorgados]);
 
-
-
     const handleSearchChangeTitulo = (e) => {
         const value = e.target.value;
-        setSearchTermTitulo(value);
-        setShowResultsProgramas(true);
-        // No actualizamos formData.id_bach aquí, solo cuando se seleccione un bachillerato
+        setSearchTermTitulo(value); // Actualizar el valor de búsqueda
+        setShowResultsTitulo(true); // Mostrar resultados mientras se escribe
     };
 
     const handleSelectTitulo = (titulo) => {
         updateFormData({ id_titulo_otorgado: titulo.id_titulo_otorgado }); // Mantener el ID en formData
-        setDisplayName(titulo.titulo_otorgado); // Actualizar el nombre mostrado
-        setSearchTermTitulo(titulo.titulo_otorgado);
-        setShowResultsTitulo(false);
+        setSearchTermTitulo(titulo.titulo_otorgado); // Actualizar el nombre mostrado
+        setShowResultsTitulo(false); // Ocultar la lista de sugerencias
     };
+
+    const handleFocusTitulo = () => {
+        setShowResultsTitulo(true); // Mostrar sugerencias al enfocar
+    };
+
 
 
 
@@ -273,7 +313,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
             // Log los datos que se están enviando
             console.log('Datos a modificar:', JSON.stringify(dataToUpdate, null, 2)); // Formateo para mejor legibilidad
 
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/datos-escolares/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/datos-escolares/${citaSeleccionada.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -352,38 +392,32 @@ const DatosEscolares = ({ citaSeleccionada }) => {
 
             <h2>Datos Escolares</h2>
             <div className="form-container-personales">
-                <div className="form-group-personales">
+                <div className="form-group-personales" ref={inputRef}> {/* Ref al contenedor */}
                     <label htmlFor="bachillerato">Bachillerato procedencia</label>
-
-                        <input
-                            type="text"
-                            id="bachillerato"
-                            value={searchTerm}
-                            onChange={handleCombinedChange}
-                            placeholder="Buscar bachillerato..."
-                        />
-                        <input
-                            type="hidden"
-                            name="id_bach"
-                            value={formData.id_bach || ''}
-                        />
-                        {showResults && (
-                            <ul className="search-results">
-                                {filteredBachilleratos.length > 0 ? (
-                                    filteredBachilleratos.map((bach) => (
-                                        <li
-                                            key={bach.id_bach}
-                                            onClick={() => handleSelectBachillerato(bach)}
-                                        >
-                                            {bach.nombre_bach}
-                                        </li>
-                                    ))
-                                ) : (
-                                    <li>No se encontraron resultados</li>
-                                )}
-                            </ul>
-                        )}
-
+                    <input
+                        type="text"
+                        id="bachillerato"
+                        value={searchTerm}
+                        onChange={handleCombinedChange}
+                        placeholder="Buscar bachillerato..."
+                        onFocus={handleFocus} // Mostrar sugerencias al enfocar
+                    />
+                    {showResults && (
+                        <ul className="search-results">
+                            {filteredBachilleratos.length > 0 ? (
+                                filteredBachilleratos.map((bach) => (
+                                    <li
+                                        key={bach.id_bach}
+                                        onClick={() => handleSelectBachillerato(bach)}
+                                    >
+                                        {bach.nombre_bach}
+                                    </li>
+                                ))
+                            ) : (
+                                <li>No se encontraron resultados</li>
+                            )}
+                        </ul>
+                    )}
                 </div>
                 <div className="form-row">
                     <div className="form-group">
@@ -409,15 +443,15 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                 </div>
 
                 <div className="form-row">
-                    <div className="form-group-personales">
+                    <div className="form-group-personales" ref={inputRefProgramas}> {/* Ref al contenedor */}
                         <label htmlFor="programa">Programa Educativo</label>
-
                         <input
                             type="text"
                             id="programa"
                             value={searchTermProgramas}
-                            onChange={handleCombinedChangePrograma}
+                            onChange={handleCombinedChangePrograma} // Usar la función de cambio de búsqueda
                             placeholder="Buscar programa educativo..."
+                            onFocus={handleFocusProgramas} // Mostrar sugerencias al enfocar
                         />
                         <input
                             type="hidden"
@@ -440,19 +474,18 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                                 )}
                             </ul>
                         )}
-
                     </div>
 
                     <div className="form-group">
-                        <div className="form-group-personales">
-                            <label htmlFor="titulo">Titulo Otorgado</label>
-
+                        <div className="form-group-personales" ref={inputRefTitulo}> {/* Ref al contenedor */}
+                            <label htmlFor="titulo">Título Otorgado</label>
                             <input
                                 type="text"
                                 id="titulo"
                                 value={searchTermTitulo}
-                                onChange={handleCombinedChangeTitulo}
-                                placeholder="Buscar Titulo otorgado..."
+                                onChange={handleSearchChangeTitulo} // Usar la función de cambio de búsqueda
+                                placeholder="Buscar Título otorgado..."
+                                onFocus={handleFocusTitulo} // Mostrar sugerencias al enfocar
                             />
                             <input
                                 type="hidden"
@@ -464,7 +497,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                                     {filteredTitulo.length > 0 ? (
                                         filteredTitulo.map((titulo) => (
                                             <li
-                                                key={formData.id_titulo_otorgado}
+                                                key={titulo.id_titulo_otorgado} // Cambiado a la clave correcta
                                                 onClick={() => handleSelectTitulo(titulo)}
                                             >
                                                 {titulo.titulo_otorgado}
@@ -475,10 +508,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                                     )}
                                 </ul>
                             )}
-
                         </div>
-
-
                     </div>
                     <div className="form-group">
                         <label htmlFor="fecha_inicio_uni">Fecha Inicio Universidad</label>
@@ -502,7 +532,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                     </div>
                 </div>
                 <div className="form-group-personales">
-                    <label htmlFor="periodo_pasantia">Periodo de Pasantía</label>
+                    <label htmlFor="periodo_pasantia">Fecha limite de para titularse </label>
                     <input
                         id="periodo_pasantia"
                         type="text"
@@ -515,25 +545,25 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                                 : 'fecha-pasantia-verde'
                         }
                     />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="modalidad">Modalidad de titulación</label>
-                    <select
-                        id="modalidad"
-                        name="id_modalidad"
-                        value={formData.id_modalidad || ''}
-                        onChange={handleChange}
-                    >
-                        <option value="">Seleccione la modalidad de titulacion</option>
-                        {modalidadesTitulacion.map(modalidad => (
-                            <option key={modalidad.id_modalidad} value={modalidad.id_modalidad}>
-                                {modalidad.modalidad_titulacion}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+            </div>
+            <div className="form-group">
+                <label htmlFor="modalidad">Modalidad de titulación</label>
+                <select
+                    id="modalidad"
+                    name="id_modalidad"
+                    value={formData.id_modalidad || ''}
+                    onChange={handleChange}
+                >
+                    <option value="">Seleccione la modalidad de titulacion</option>
+                    {modalidadesTitulacion.map(modalidad => (
+                        <option key={modalidad.id_modalidad} value={modalidad.id_modalidad}>
+                            {modalidad.modalidad_titulacion}
+                        </option>
+                    ))}
+                </select>
+            </div>
 
-                <div className="boton_integracionS">
+            <div className="boton_integracionS">
                     <button onClick={handleVerClickPersonales}>
                         <i className="fa-solid fa-arrow-left"></i>
                     </button>

@@ -8,7 +8,7 @@ const ListaUsuarios = ({ onEdit, onDelete }) => {
     useEffect(() => {
         const fetchUsuarios = async () => {
             try {
-                const response = await fetch('http://10.11.80.237:8000/api/usuarios');
+                const response = await fetch('http://192.168.137.1:8000/api/usuarios');
                 const data = await response.json();
                 setUsuarios(data);
             } catch (error) {

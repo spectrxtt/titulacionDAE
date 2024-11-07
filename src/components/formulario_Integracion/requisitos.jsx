@@ -20,7 +20,6 @@ const Requisitos = ({ citaSeleccionada }) => {
     const [requisitosCompletadosModalidad, setRequisitosCompletadosModalidad] = useState({});
     const [dataFetched, setDataFetched] = useState(false);
 
-    // Función para obtener los requisitos obligatorios
     const fetchRequisitos = useCallback(async () => {
         if (dataFetchedRef.current || !citaSeleccionada || !citaSeleccionada.num_Cuenta) {
             setLoading(false);
@@ -30,141 +29,49 @@ const Requisitos = ({ citaSeleccionada }) => {
         setLoading(true); // Comienza a cargar
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-obligatorios/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
             if (!response.ok) {
-                throw new Error('Error al obtener requisitos');
+                throw new Error('Error al obtener los requisitos');
             }
 
             const data = await response.json();
             updateFormData(data); // Actualiza los datos en el formulario
-            dataFetchedRef.current = true; // Indica que los datos ya se han obtenido
-        } catch (error) {
-            console.error('Error:', error);
-        } finally {
-            setLoading(false); // Detiene la carga
-        }
-    }, [citaSeleccionada, updateFormData]);
 
-    const fetchRequisitosModalidad = useCallback(async () => {
-        if (!citaSeleccionada || !citaSeleccionada.num_Cuenta || dataFetched) return;
-
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidad/${citaSeleccionada.num_Cuenta}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al obtener requisitos de programa');
-            }
-
-            const requisitosModalidad = await response.json();
-            setRequisitosModalidad(requisitosModalidad);
-
-            // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-
-            if (!completionResponse.ok) {
-                throw new Error('Error al obtener estado de cumplimiento de requisitos');
-            }
-
-            const completionData = await completionResponse.json();
+            // Aquí puedes obtener los requisitos y sus estados de cumplimiento
+            const requisitosPrograma = data.requisitosPrograma || [];
+            const requisitosModalidad = data.requisitosModalidad || [];
+            const completionData = data.completados || {};
 
             const completionStatus = {};
 
-            Object.keys(completionData).forEach((key) => {
-                if (key.startsWith('id_requisito_')) {
-                    const index = key.split('_')[2]; // Obtener el índice
-                    const idRequisito = completionData[key];
-                    const cumplido = completionData[`cumplido_${index}`];
-
-                    if (idRequisito !== null && idRequisito !== undefined) {
-                        completionStatus[idRequisito] = {
-                            cumplido: cumplido === null ? '' : cumplido,
-                        };
-                    }
-                }
-            });
-
-
-            setRequisitosCompletadosModalidad(completionStatus);
-
-            // Update formData with completion status
-            const updatedFormData = { ...formData };
-            requisitosModalidad.forEach(requisito => {
-                const status = completionStatus[requisito.id_requisito_modalidad];
+            // Procesamos los requisitos de programa
+            requisitosPrograma.forEach(requisito => {
+                const status = completionData[`requisito_${requisito.id_requisito_programa}`];
                 if (status) {
-                    updatedFormData[`requisito_${requisito.id_requisito_modalidad}`] = status.cumplido;
-                } else {
-                    // If no status found, set fields to empty strings
-                    updatedFormData[`requisito_${requisito.id_requisito_modalidad}`] = '';
-                    updatedFormData[`fecha_requisito_${requisito.id_requisito_modalidad}`] = '';
+                    completionStatus[requisito.id_requisito_programa] = {
+                        cumplido: status.cumplido,
+                        fecha_cumplido: status.fecha_cumplido || '',
+                    };
                 }
             });
-            updateFormData(updatedFormData);
-            setDataFetched(true);
 
-        } catch (error) {
-            console.error('Error in fetchRequisitosModalidad:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [citaSeleccionada, updateFormData, formData, dataFetched]);
-
-    const fetchRequisitosPrograma = useCallback(async () => {
-        if (!citaSeleccionada || !citaSeleccionada.num_Cuenta || dataFetched) return;
-
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programa/${citaSeleccionada.num_Cuenta}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al obtener requisitos de programa');
-            }
-
-            const requisitosPrograma = await response.json();
-            setRequisitosPrograma(requisitosPrograma);
-
-            // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-
-            if (!completionResponse.ok) {
-                throw new Error('Error al obtener estado de cumplimiento de requisitos');
-            }
-
-            const completionData = await completionResponse.json();
-
-            const completionStatus = {};
-
-            if (typeof completionData === 'object' && completionData !== null) {
-                for (let i = 1; i <= Object.keys(completionData).length / 3; i++) {
-                    const idRequisito = completionData[`id_requisito_${i}`];
-                    const cumplido = completionData[`cumplido_${i}`];
-                    const fechaCumplido = completionData[`fecha_cumplido_${i}`];
-
-                    if (idRequisito !== null && idRequisito !== undefined) {
-                        completionStatus[idRequisito] = {
-                            cumplido: cumplido === null ? '' : cumplido,
-                            fecha_cumplido: fechaCumplido || ''
-                        };
-                    }
+            // Procesamos los requisitos de modalidad
+            requisitosModalidad.forEach(requisito => {
+                const status = completionData[`requisito_${requisito.id_requisito_modalidad}`];
+                if (status) {
+                    completionStatus[requisito.id_requisito_modalidad] = {
+                        cumplido: status.cumplido,
+                        fecha_cumplido: status.fecha_cumplido || '',
+                    };
                 }
-            }
+            });
 
             setRequisitosCompletados(completionStatus);
 
-            // Update formData with completion status
+            // Actualiza formData con el estado de los requisitos
             const updatedFormData = { ...formData };
             requisitosPrograma.forEach(requisito => {
                 const status = completionStatus[requisito.id_requisito_programa];
@@ -172,26 +79,35 @@ const Requisitos = ({ citaSeleccionada }) => {
                     updatedFormData[`requisito_${requisito.id_requisito_programa}`] = status.cumplido;
                     updatedFormData[`fecha_requisito_${requisito.id_requisito_programa}`] = status.fecha_cumplido;
                 } else {
-                    // If no status found, set fields to empty strings
                     updatedFormData[`requisito_${requisito.id_requisito_programa}`] = '';
                     updatedFormData[`fecha_requisito_${requisito.id_requisito_programa}`] = '';
                 }
             });
+
+            requisitosModalidad.forEach(requisito => {
+                const status = completionStatus[requisito.id_requisito_modalidad];
+                if (status) {
+                    updatedFormData[`requisito_${requisito.id_requisito_modalidad}`] = status.cumplido;
+                    updatedFormData[`fecha_requisito_${requisito.id_requisito_modalidad}`] = status.fecha_cumplido;
+                } else {
+                    updatedFormData[`requisito_${requisito.id_requisito_modalidad}`] = '';
+                    updatedFormData[`fecha_requisito_${requisito.id_requisito_modalidad}`] = '';
+                }
+            });
+
             updateFormData(updatedFormData);
             setDataFetched(true);
-
+            dataFetchedRef.current = true; // Indica que los datos ya se han obtenido
         } catch (error) {
-            console.error('Error in fetchRequisitosPrograma:', error);
+            console.error('Error:', error);
         } finally {
-            setLoading(false);
+            setLoading(false); // Detiene la carga
         }
-    }, [citaSeleccionada, updateFormData, formData, dataFetched]);
+    }, [citaSeleccionada, updateFormData, formData]);
 
     useEffect(() => {
         fetchRequisitos();
-        fetchRequisitosPrograma();
-        fetchRequisitosModalidad();
-    }, [fetchRequisitos, fetchRequisitosPrograma, fetchRequisitosModalidad]);
+    }, [fetchRequisitos]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -204,15 +120,12 @@ const Requisitos = ({ citaSeleccionada }) => {
         setMostrarDatosEscolares(true);
     };
 
-// Y dentro de tu useEffect
+    // Y dentro de tu useEffect
     useEffect(() => {
         if (mostrarDatosEscolares) {
             fetchRequisitos();
-            fetchRequisitosPrograma();
-            fetchRequisitosModalidad();
         }
-    }, [mostrarDatosEscolares, fetchRequisitos, fetchRequisitosPrograma, fetchRequisitosModalidad]);
-
+    }, [mostrarDatosEscolares, fetchRequisitos]);
 
     // Maneja el clic en el botón "Generar Reporte"
     const handleGenerarReporteClick = (e) => {
@@ -220,121 +133,52 @@ const Requisitos = ({ citaSeleccionada }) => {
         setMostrarGenerarReporte(true);
     };
 
-    const actualizarRequisitosObligatorios = async () => {
+    const actualizarRequisitos = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-obligatorios/${citaSeleccionada.num_Cuenta}`, {
+            const dataToSend = {
+                // Requisitos obligatorios
+                requisitos_obligatorios: {
+                    servicio_social: formData.servicio_social || '',
+                    practicas_profecionales: formData.practicas_profecionales || '',
+                    cedai: formData.cedai || ''
+                },
+                // Requisitos del programa
+                requisitos_programa: requisitosPrograma.map(requisito => ({
+                    id_requisito: requisito.id_requisito_programa,
+                    cumplido: formData[`requisito_${requisito.id_requisito_programa}`] || '',
+                    fecha_cumplido: formData[`fecha_requisito_${requisito.id_requisito_programa}`] || ''
+                })),
+                // Requisitos de la modalidad
+                requisitos_modalidad: requisitosModalidad.map(requisito => ({
+                    id_requisito: requisito.id_requisito_modalidad,
+                    cumplido: formData[`requisito_${requisito.id_requisito_modalidad}`] || '',
+                }))
+            };
+
+            // Enviar la solicitud a la ruta correspondiente
+            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitosCompletos/${citaSeleccionada.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    servicio_social: formData.servicio_social,
-                    practicas_profecionales: formData.practicas_profecionales,
-                    cedai: formData.cedai
-                })
+                body: JSON.stringify(dataToSend)
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(`Error al actualizar requisitos obligatorios: ${errorData.message || response.statusText}`);
+                throw new Error(`Error al actualizar los requisitos: ${errorData.message || response.statusText}`);
             }
 
-            console.log('Requisitos obligatorios actualizados con éxito');
+            console.log('Todos los requisitos actualizados con éxito');
         } catch (error) {
-            console.error('Error en actualizarRequisitosObligatorios:', error);
+            console.error('Error en actualizarRequisitos:', error);
             throw error;
         }
     };
 
-    const actualizarRequisitosPrograma = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const dataToSend = {};
-
-            requisitosPrograma.forEach((requisito, index) => {
-                const reqNumber = index + 1;
-                const idField = `id_requisito_${reqNumber}`;
-                const cumplidoField = `cumplido_${reqNumber}`;
-                const fechaField = `fecha_cumplido_${reqNumber}`;
-
-                dataToSend[idField] = requisito.id_requisito_programa;
-                dataToSend[cumplidoField] = formData[`requisito_${requisito.id_requisito_programa}`] || '';
-                dataToSend[fechaField] = formData[`fecha_requisito_${requisito.id_requisito_programa}`] || '';
-            });
-
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(dataToSend)
-            });
-
-            console.log('Respuesta del servidor:', response.status, response.statusText);
-
-            if (!response.ok) {
-                const textResponse = await response.text();
-                console.log('Respuesta de error completa:', textResponse);
-                throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
-            }
-
-            const jsonResponse = await response.json();
-            console.log('Respuesta JSON del servidor:', jsonResponse);
-
-            console.log('Requisitos del programa actualizados con éxito');
-        } catch (error) {
-            console.error('Error detallado en actualizarRequisitosPrograma:', error);
-            throw error;
-        }
-    };
-
-    const actualizarRequisitosModalidad = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const dataToSend = {};
-
-            requisitosModalidad.forEach((requisito, index) => {
-                const reqNumber = index + 1;
-                const idField = `id_requisito_${reqNumber}`;
-                const cumplidoField = `cumplido_${reqNumber}`;
-
-
-                dataToSend[idField] = requisito.id_requisito_modalidad;
-                dataToSend[cumplidoField] = formData[`requisito_${requisito.id_requisito_modalidad}`] || '';
-            });
-
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(dataToSend)
-            });
-
-            console.log('Respuesta del servidor:', response.status, response.statusText);
-
-            if (!response.ok) {
-                const textResponse = await response.text();
-                console.log('Respuesta de error completa:', textResponse);
-                throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
-            }
-
-            const jsonResponse = await response.json();
-            console.log('Respuesta JSON del servidor:', jsonResponse);
-
-            console.log('Requisitos de la modalidad actualizados con éxito');
-        } catch (error) {
-            console.error('Error detallado en actualizarRequisitosPrograma:', error);
-            throw error;
-        }
-    };
-
-
-    const handleSubmit =async (e) => {
+    const handleSubmit = async (e) => {
         setMostrarDatosEscolares(false);
         setMostrarDatosborrador(true);
         setMostrarGenerarReporte(false);
@@ -342,11 +186,7 @@ const Requisitos = ({ citaSeleccionada }) => {
         setLoading(true);
 
         try {
-            await actualizarRequisitosObligatorios();
-            await actualizarRequisitosPrograma();
-            await actualizarRequisitosModalidad();
-
-
+            await actualizarRequisitos();
             console.log('Todos los requisitos actualizados con éxito');
             // Aquí puedes añadir alguna notificación de éxito para el usuario
         } catch (error) {
@@ -357,10 +197,9 @@ const Requisitos = ({ citaSeleccionada }) => {
         }
     };
 
-
-    if (mostrarDatosEscolares) return <DatosEscolares citaSeleccionada={citaSeleccionada}/>;
-    if (mostrarDatosborrador) return <StudentDataPreview citaSeleccionada={citaSeleccionada}/>;
-    if (mostrarGenerarReporte) return <GenerarReporte citaSeleccionada={citaSeleccionada}/>;
+    if (mostrarDatosEscolares) return <DatosEscolares citaSeleccionada={citaSeleccionada} />;
+    if (mostrarDatosborrador) return <StudentDataPreview citaSeleccionada={citaSeleccionada} />;
+    if (mostrarGenerarReporte) return <GenerarReporte citaSeleccionada={citaSeleccionada} />;
 
     if (loading) {
         return (
@@ -415,29 +254,29 @@ const Requisitos = ({ citaSeleccionada }) => {
                     </div>
                 </div>
 
-                {requisitosPrograma.length > 0 && (
+                {requisitos_programa.length > 0 && (
                     <>
-                        {requisitosPrograma.map((requisito, index) => (
-                            <div className="form-group" key={index}>
-                                <label htmlFor={`requisito_${requisito.id_requisito_programa}`}>
+                        {requisitos_programa.map((requisito) => (
+                            <div className="form-group" key={requisito.id_requisito_programa}>
+                                <label htmlFor={`requisito_programa_${requisito.id_requisito_programa}`}>
                                     {requisito.descripcion}
                                 </label>
                                 <select
-                                    id={`requisito_${requisito.id_requisito_programa}`}
-                                    name={`requisito_${requisito.id_requisito_programa}`}
-                                    value={formData[`requisito_${requisito.id_requisito_programa}`] || ''}
+                                    id={`requisito_programa_${requisito.id_requisito_programa}`}
+                                    name={`requisito_programa_${requisito.id_requisito_programa}`}
+                                    value={formData[`requisito_programa_${requisito.id_requisito_programa}`] || ''}
                                     onChange={handleInputChange}
                                 >
                                     <option value="">Seleccionar</option>
                                     <option value="Incompleto">Incompleto</option>
                                     <option value="Completo">Completo</option>
                                 </select>
-                                {formData[`requisito_${requisito.id_requisito_programa}`] === 'Completo' && (
+                                {formData[`requisito_programa_${requisito.id_requisito_programa}`] === 'Completo' && (
                                     <input
                                         type="date"
-                                        id={`fecha_requisito_${requisito.id_requisito_programa}`}
-                                        name={`fecha_requisito_${requisito.id_requisito_programa}`}
-                                        value={formData[`fecha_requisito_${requisito.id_requisito_programa}`] || ''}
+                                        id={`fecha_requisito_programa_${requisito.id_requisito_programa}`}
+                                        name={`fecha_requisito_programa_${requisito.id_requisito_programa}`}
+                                        value={formData[`fecha_requisito_programa_${requisito.id_requisito_programa}`] || ''}
                                         onChange={handleInputChange}
                                     />
                                 )}
@@ -446,23 +285,32 @@ const Requisitos = ({ citaSeleccionada }) => {
                     </>
                 )}
 
-                {requisitosModalidad.length > 0 && (
+                {requisitos_modalidad.length > 0 && (
                     <>
-                        {requisitosModalidad.map((requisito, index) => (
-                            <div className="form-group" key={index}>
-                                <label htmlFor={`requisito_${requisito.id_requisito_modalidad}`}>
+                        {requisitos_modalidad.map((requisito) => (
+                            <div className="form-group" key={requisito.id_requisito_modalidad}>
+                                <label htmlFor={`requisito_modalidad_${requisito.id_requisito_modalidad}`}>
                                     {requisito.descripcion}
                                 </label>
                                 <select
-                                    id={`requisito_${requisito.id_requisito_modalidad}`}
-                                    name={`requisito_${requisito.id_requisito_modalidad}`}
-                                    value={formData[`requisito_${requisito.id_requisito_modalidad}`] || ''}
+                                    id={`requisito_modalidad_${requisito.id_requisito_modalidad}`}
+                                    name={`requisito_modalidad_${requisito.id_requisito_modalidad}`}
+                                    value={formData[`requisito_modalidad_${requisito.id_requisito_modalidad}`] || ''}
                                     onChange={handleInputChange}
                                 >
                                     <option value="">Seleccionar</option>
                                     <option value="Incompleto">Incompleto</option>
                                     <option value="Completo">Completo</option>
                                 </select>
+                                {formData[`requisito_modalidad_${requisito.id_requisito_modalidad}`] === 'Completo' && (
+                                    <input
+                                        type="date"
+                                        id={`fecha_requisito_modalidad_${requisito.id_requisito_modalidad}`}
+                                        name={`fecha_requisito_modalidad_${requisito.id_requisito_modalidad}`}
+                                        value={formData[`fecha_requisito_modalidad_${requisito.id_requisito_modalidad}`] || ''}
+                                        onChange={handleInputChange}
+                                    />
+                                )}
                             </div>
                         ))}
                     </>

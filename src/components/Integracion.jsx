@@ -14,11 +14,12 @@ const Integracion = () => {
         setMostrarDatosPersonales(true);
     };
 
+
     useEffect(() => {
         const fetchCitas = async () => {
             try {
                 const token = localStorage.getItem('token'); // Asume que guardas el token en localStorage
-                const response = await fetch('http://10.11.80.237:8000/api/citas', {
+                const response = await fetch('http://192.168.137.1:8000/api/citas', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -34,7 +35,7 @@ const Integracion = () => {
 
                 // Filtrar las citas para excluir los estados "Integrado", "Rechazado" y "Cancelado"
                 const citasFiltradas = data.filter(cita =>
-                    !['Integrado', 'Rechazado', 'Cancelado'].includes(cita.estado_cita)
+                    !['Integrado', 'Rechazado', 'Cancelado', 'Validado para impresión'].includes(cita.estado_cita)
                 );
 
                 setCitas(citasFiltradas);

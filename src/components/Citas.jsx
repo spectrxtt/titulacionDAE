@@ -25,15 +25,15 @@ const formatDate = (fechaTexto) => {
 };
 
 const CargarCitas = () => {
-    const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
     const [datosTemporales, setDatosTemporales] = useState([]);
     const [fileLoaded, setFileLoaded] = useState(false);
-    const [fechaCitas, setFechaCitas] = useState('');
+
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
+        setFiles(event.target.files);
         setError('');
     };
 
@@ -43,50 +43,69 @@ const CargarCitas = () => {
 
     const handleDrop = (event) => {
         event.preventDefault();
-        const droppedFile = event.dataTransfer.files[0];
-        setFile(droppedFile);
+        setFiles(event.dataTransfer.files);
     };
 
     const handleUpload = () => {
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const wb = XLSX.read(event.target.result, { type: 'array' });
-                const wsname = wb.SheetNames[0];
-                const ws = wb.Sheets[wsname];
-                const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        if (files.length > 0) {
+            const allDataPromises = Array.from(files).map((file) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const wb = XLSX.read(event.target.result, { type: 'array' });
+                            const wsname = wb.SheetNames[0];
+                            const ws = wb.Sheets[wsname];
+                            const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-                let fechaCitasCell = data[1][0].trim();
-                const regexFecha = /(\d{1,2} de [a-zA-Z]+) de (\d{4})/;
-                const matchFecha = fechaCitasCell.match(regexFecha);
-                const fechaFormateada = matchFecha ? formatDate(matchFecha[0]) : 'Fecha no encontrada';
-                setFechaCitas(fechaFormateada);
+                            let fechaCitasCell = data[1][0].trim();
+                            const regexFecha = /(\d{1,2} de [a-zA-Z]+) de (\d{4})/;
+                            const matchFecha = fechaCitasCell.match(regexFecha);
+                            const fechaFormateada = matchFecha ? formatDate(matchFecha[0]) : 'Fecha no encontrada';
 
-                const rows = data.slice(4).filter(row => row.some(cell => cell !== undefined && cell !== null && cell !== ''));
-                const result = rows.map(row => {
-                    const nombreCompleto = row[2] || 'No data';
-                    const [ap_paterno, ap_materno] = nombreCompleto.split(' ');
+                            const rows = data.slice(4).filter(row => row.some(cell => cell !== undefined && cell !== null && cell !== ''));
+                            const result = rows.map(row => {
+                                const nombreCompleto = row[2] || 'No data';
+                                const [ap_paterno, ap_materno] = nombreCompleto.split(' ');
 
-                    return {
-                        fecha: fechaFormateada,
-                        num_Cuenta: row[1] ? row[1].toString() : 'No data',
-                        nombre: nombreCompleto,
-                        ap_paterno: ap_paterno || '',
-                        ap_materno: ap_materno || '',
-                        carrera: row[3] || 'No data',
-                        observaciones: 'Ninguna',
-                        estado_cita: 'pendiente'
+                                return {
+                                    fecha: fechaFormateada,
+                                    num_Cuenta: row[1] ? row[1].toString() : 'No data',
+                                    nombre: nombreCompleto,
+                                    ap_paterno: ap_paterno || '',
+                                    ap_materno: ap_materno || '',
+                                    carrera: row[3] || 'No data',
+                                    observaciones: 'Ninguna',
+                                    estado_cita: 'pendiente'
+                                };
+                            });
+
+                            resolve(result);
+                        } catch (error) {
+                            reject(error);
+                        }
                     };
+                    reader.onerror = (error) => reject(error);
+                    reader.readAsArrayBuffer(file);
                 });
+            });
 
-                setDatosTemporales(result);
-                setFileLoaded(true);
-            };
-            reader.readAsArrayBuffer(file);
+            Promise.all(allDataPromises)
+                .then((allData) => {
+                    const mergedData = allData.flat();
+                    setDatosTemporales(prevData => [...prevData, ...mergedData]);
+                    setFileLoaded(true);
+                    setError('');
+                })
+                .catch((error) => {
+                    console.error("Error al leer archivos:", error);
+                    setError("Ocurrió un error al leer los archivos.");
+                });
         } else {
-            setError('Por favor, selecciona un archivo válido.');
+            setError('Por favor, selecciona archivos válidos.');
         }
     };
+
 
     const capitalizeFirstLetter = (string) => {
         return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
@@ -157,7 +176,7 @@ const CargarCitas = () => {
 
             console.log('Datos a enviar:', JSON.stringify(dataToSend, null, 2));
             const token = localStorage.getItem('token');
-            const response = await fetch('http://10.11.80.237:8000/api/cargar-citas', {
+            const response = await fetch('http://192.168.137.1:8000/api/cargar-citas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,},
@@ -196,20 +215,22 @@ const CargarCitas = () => {
                             accept=".xlsx, .xls"
                             onChange={handleFileChange}
                             id="file-upload"
+                            multiple
                             style={{ display: 'none' }}
                         />
                         <label htmlFor="file-upload">
                             <Upload />
                             <p>
-                                Seleccione o arrastre el archivo .xlsx para cargar las citas
+                                Seleccione o arrastre los archivos .xlsx para cargar las citas
                             </p>
                         </label>
-                        {file && <p className="file-selected">Archivo seleccionado: {file.name}</p>}
+                        {files.length > 0 && (
+                            <p className="file-selected">Archivos seleccionados: {Array.from(files).map(file => file.name).join(', ')}</p>
+                        )}
                     </div>
                 ) : (
                     <div>
                         <h3 className="datosCargados">Datos Cargados</h3>
-                        <p>Fecha de Citas: {fechaCitas}</p>
                         <table className="data-table">
                             <thead>
                             <tr>
@@ -238,7 +259,7 @@ const CargarCitas = () => {
                 {!fileLoaded && (
                     <button onClick={handleUpload} className="upload-button">
                         <Upload />
-                        CARGAR ARCHIVO
+                        CARGAR ARCHIVOS
                     </button>
                 )}
                 {datosTemporales.length > 0 && <p className='infoCitas'>Número de citas cargadas: {datosTemporales.length}</p>}

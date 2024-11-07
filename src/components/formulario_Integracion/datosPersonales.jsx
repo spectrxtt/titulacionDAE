@@ -30,7 +30,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
     const actualizarDatosEstudiante = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/${formData.num_Cuenta}`, {
+            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/${formData.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/${citaSeleccionada.num_Cuenta}`, {
+                const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/${citaSeleccionada.num_Cuenta}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
     }
 
     if (mostrarGenerarReporte) {
-        return <GenerarReporte />;
+        return <GenerarReporte citaSeleccionada={citaSeleccionada}/>;
     }
 
     // Mostrar el spinner mientras los datos están cargando

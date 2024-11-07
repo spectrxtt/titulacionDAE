@@ -9,9 +9,7 @@ import '../styles/home.css';
 const Home = () => {
     const [showDatosPersonales, setShowDatosPersonales] = useState(false);
     const [showProfileOptions, setShowProfileOptions] = useState(false);
-
-
-
+    const [citaSeleccionada, setCitaSeleccionada] = useState(null); // Nuevo estado para almacenar la cita seleccionada
 
     // Cierra las opciones del perfil
     const handleCloseProfileOptions = () => {
@@ -28,14 +26,24 @@ const Home = () => {
         if (!showDatosPersonales) {
             return (
                 <div className="contentRow">
-                    <AlertasYNotificaciones />
-                    <ResumenDeCitas onVerClick={() => setShowDatosPersonales(true)} />
+                    <AlertasYNotificaciones
+                        onVerClick={(cita) => {
+                            setCitaSeleccionada(cita); // Guarda la cita seleccionada
+                            setShowDatosPersonales(true); // Muestra los datos personales
+                        }}
+                    />
+                    <ResumenDeCitas
+                        onVerClick={(cita) => {
+                            setCitaSeleccionada(cita); // Guarda la cita seleccionada
+                            setShowDatosPersonales(true); // Muestra los datos personales
+                        }}
+                    />
                 </div>
             );
         }
 
         // Muestra los datos personales si se hace clic en Ver
-        return <DatosPersonales />;
+        return <DatosPersonales citaSeleccionada={citaSeleccionada} />; // Pasa la cita seleccionada
     };
 
     return (

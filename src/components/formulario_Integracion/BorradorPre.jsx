@@ -9,9 +9,9 @@ import ClipLoader from "react-spinners/ClipLoader";
 
 // Define los estados de la cita
 const ESTADOS_CITA = [
-    { value: 'Pendiente de aprobacion de egresado', label: 'Pendiente de aprobación de egresado ' },
-    { value: 'Pendiente de aprobación de impresion', label: 'Pendiente de aprobación de impresion' },
+    { value: 'Enviado, pendiente de validar', label: 'Enviado, pendiente de validar' },
     { value: 'Integrado', label: 'Integrado' },
+    { value: 'Validado para impresión', label: 'Validado para impresión' },
 ];
 
 const StudentDataPreview = ({ citaSeleccionada }) => {
@@ -32,13 +32,13 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
     const [estadoCita, setEstadoCita] = useState(''); // Estado para el campo de selección
 
     const handleEstadoChange = (event) => {
-        setEstadoCita(event.target.value); // Actualiza el estado del campo
+        setEstadoCita(event.target.value);
     };
 
     const handleActualizarEstadoCita = useCallback(async () => {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://10.11.80.237:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
+            const response = await fetch(`http://192.168.137.1:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -62,12 +62,14 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         }
     }, [citaSeleccionada.id_cita, estadoCita]);
 
+
+
     // Fetch datos de bachilleratos
     useEffect(() => {
         const fetchBachilleratos = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://10.11.80.237:8000/api/bachilleratos', {
+                const response = await fetch('http://192.168.137.1:8000/api/bachilleratos', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -99,7 +101,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchProgramasEducativos = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://10.11.80.237:8000/api/programas-educativos', {
+                const response = await fetch('http://192.168.137.1:8000/api/programas-educativos', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -121,14 +123,14 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
                 }
                 setProgramasEducativos(programasMap);
             } catch (error) {
-                console.error('Error al cargar programas educativos:', error);
+                console.error('Error al cargar programas educativos: ', error);
             }
         };
 
         const fetchTitulosOtorgados = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://10.11.80.237:8000/api/titulo-otorgado', {
+                const response = await fetch('http://192.168.137.1:8000/api/titulo-otorgado', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -157,7 +159,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchModalidades = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://10.11.80.237:8000/api/modalidades-titulacion', {
+                const response = await fetch('http://192.168.137.1:8000/api/modalidades-titulacion', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -196,7 +198,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidad/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitos-modalidad/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -208,7 +210,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             setRequisitosModalidad(requisitosModalidad);
 
             // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
+            const completionResponse = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -263,7 +265,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programa/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitos-programa/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -275,7 +277,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             setRequisitosPrograma(requisitosPrograma);
 
             // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://10.11.80.237:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
+            const completionResponse = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -333,12 +335,6 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
     }, [fetchRequisitosPrograma, fetchRequisitosModalidad]);
 
 
-
-    const getBachilleratoNombre = (id) => {
-        if (!id) return '';
-        const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
-        return bachilleratos[numericId] || `Bachillerato ${id}`;
-    };
     const getBachilleratoInfo = (id) => {
         if (!id) return { nombre: 'No especificado', entidad: 'No especificado' };
         const numericId = typeof id === 'string' ? parseInt(id, 10) : id;
@@ -390,12 +386,11 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
                 </div>
 
                 {/* Requisitos del programa */}
-                {/* Requisitos del programa */}
                 {requisitosPrograma.length > 0 && (
                     <div className="program-requirements grid">
                         {requisitosPrograma.map((requisito) => {
                             const requisitoValue = formData[`requisito_${requisito.id_requisito_programa}`];
-                            const fechaRequisito = formData[`fecha_requisito_${requisito.id_requisito_programa}`];
+                            const fechaRequisito = formData[`fecha_cumplido_${requisito.id_requisito_programa}`];
 
                             return (
                                 <div className="requirement-item" key={`program_${requisito.id_requisito_programa}`}>
@@ -468,18 +463,115 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         centerText("otorga a", 50, 12);
 
         // Student name
-        centerText(`${formData.nombre_estudiante}`, 62, 16);
+        centerText(`${formData.nombre_estudiante} ${formData.ap_paterno} ${formData.ap_materno}`, 62, 16);
 
         // Degree title
         doc.setFont("helvetica", "normal");
         centerText("el título de", 73, 12);
 
         doc.setFont("helvetica", "bold");
-        centerText( `${getTituloOtorgadoNombre(formData.id_titulo_otorgado)}`, 85, 16);
+        centerText(`${getTituloOtorgadoNombre(formData.id_titulo_otorgado)}`, 85, 16);
 
-        // Modalidad
-        doc.setFont("helvetica", "normal");
-        centerText(`Modalidad: ${getModalidadNombre(formData.id_modalidad)}`, 100, 10);
+
+        function numeroATexto(numero) {
+            if (isNaN(numero)) {
+                return "Número inválido"; // Verifica si el número es inválido
+            }
+
+            let entero = Math.floor(numero);  // Cambiado de 'const' a 'let'
+            const decimal = numero - entero;
+
+            const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+            const decenas = ['', '', 'veinti', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+            const centenas = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+
+            let textoEntero = '';
+            let textoDecimal = '';
+
+            // Construcción del texto entero
+            if (entero === 0) {
+                textoEntero = 'cero';
+            } else {
+                if (entero >= 100) {
+                    textoEntero += centenas[Math.floor(entero / 100)];
+                    entero %= 100;
+                }
+                if (entero >= 20) {
+                    textoEntero += decenas[Math.floor(entero / 10)];
+                    if (entero % 10 !== 0) {
+                        textoEntero += ' y ' + unidades[entero % 10];
+                    }
+                } else {
+                    textoEntero += unidades[entero];
+                }
+            }
+
+            // Construcción del texto decimal
+            if (decimal !== 0) {
+                textoDecimal = 'punto ';
+                const decimalEntero = Math.floor(decimal * 100);
+                const decimalUnidades = decimalEntero % 10;
+                const decimalDecenas = Math.floor(decimalEntero / 10);
+                if (decimalDecenas !== 0) {
+                    textoDecimal += decenas[decimalDecenas];
+                    if (decimalUnidades !== 0) {
+                        textoDecimal += ' y ' + unidades[decimalUnidades];
+                    }
+                } else {
+                    textoDecimal += unidades[decimalUnidades];
+                }
+            }
+
+            return `${textoEntero} ${textoDecimal}`.trim();
+        }
+
+
+
+// Obtener el nombre de la modalidad
+        const modalidadNombre = getModalidadNombre(formData.id_modalidad);
+
+// Condición para mostrar los requisitos
+        if (modalidadNombre === 'Alto Rendimiento con promedio de 0.00 (cero punto cero)' || formData.id_modalidad === 17) {
+            // Ajustar tamaño y estilo de fuente para el texto de la modalidad
+            doc.setFont("helvetica", "normal"); // Asegura que la fuente no esté en negritas
+            doc.setFontSize(10); // Ajusta este valor según el tamaño que desees
+
+            // Usar el primer requisito como el promedio
+            const primerRequisito = requisitosModalidad.length > 0 ?
+                formData[`requisito_${requisitosModalidad[0].id_requisito_modalidad}`] || 'No especificado'
+                : 'No especificado';
+
+            // Convertir el primer requisito a texto solo si es un número
+            const promedioTexto = !isNaN(primerRequisito) ? numeroATexto(primerRequisito) : 'NO ESPECIFICADO';
+
+            // Texto de modalidad centrado con el primer requisito como "promedio" en ambos formatos
+            const modalidadText = `Modalidad: Alto Rendimiento con promedio de ${primerRequisito} (${promedioTexto})`;
+            const textWidth = doc.getTextWidth(modalidadText);
+            const centerX = (pageWidth - textWidth) / 2;
+            doc.text(modalidadText, centerX, 100); // Ajusta la coordenada Y según sea necesario
+
+            // Mostrar los requisitos restantes centrados
+            if (requisitosModalidad.length > 1) { // Solo mostrar el resto si hay más de un requisito
+                doc.setFontSize(10); // Ajusta este valor según el tamaño que desees para los requisitos
+                requisitosModalidad.slice(1).forEach((requisito, index) => {
+                    const requisitoValue = formData[`requisito_${requisito.id_requisito_modalidad}`] || 'No especificado';
+                    const requisitoTextWidth = doc.getTextWidth(requisitoValue);
+                    const requisitoCenterX = (pageWidth - requisitoTextWidth) / 2;
+                    doc.text(requisitoValue, requisitoCenterX, 110 + (index * 10)); // Ajusta la coordenada Y para cada requisito
+                });
+            }
+        } else {
+            // Ajustar tamaño y estilo de fuente para el nombre de la modalidad sin requisitos
+            doc.setFont("helvetica", "normal"); // Asegura que la fuente no esté en negritas
+            doc.setFontSize(10); // Ajusta este valor según el tamaño que desees
+            const modalidadText = `Modalidad: ${modalidadNombre}`;
+            const textWidth = doc.getTextWidth(modalidadText);
+            const centerX = (pageWidth - textWidth) / 2;
+            doc.text(modalidadText, centerX, 100); // Ajusta la coordenada Y según sea necesario
+        }
+
+
+
 
         // Motto and location
         doc.setFont("helvetica", "italic");
@@ -678,19 +770,23 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             </div>
 
             <div className="buttons">
-            <button onClick={handleVerClickRequisitos} className="edit-button">EDITAR</button>
+                <button onClick={handleVerClickRequisitos}className="generate-button"><i
+                    className="fa-solid fa-arrow-left"></i></button>
                 <button onClick={generatePDF} className="generate-button">GENERAR BORRADOR</button>
 
             </div>
-            <select value={estadoCita} onChange={handleEstadoChange}>
-                <option value="">Seleccionar estado</option>
-                {ESTADOS_CITA.map((estado) => (
-                    <option key={estado.value} value={estado.value}>
-                        {estado.label}
-                    </option>
-                ))}
-            </select>
-            <button onClick={handleActualizarEstadoCita} className="generate-button">Actualizar</button>
+            <div className="boton_integracionS">
+                <select value={estadoCita} onChange={handleEstadoChange}>
+                    <option value="">Seleccionar estado</option>
+                    {ESTADOS_CITA.map((estado) => (
+                        <option key={estado.value} value={estado.value}>
+                            {estado.label}
+                        </option>
+                    ))}
+                </select>
+                <button onClick={handleActualizarEstadoCita} className="generate-button">Actualizar</button>
+
+            </div>
 
         </div>
 

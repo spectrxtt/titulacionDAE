@@ -86,6 +86,61 @@ th, td {
     border-radius: .5rem;
     color: white;
 }
+@media (max-width: 1720px) {
+    .containerIntegracion {
+        font-size: 0.8rem; /* Reduce el tamaño del texto */
+        min-width: auto;
+        width: 90%;
+        margin-left: 12rem;
+        margin-right: auto;
+    }
+
+    .table {
+        font-size: 0.75rem; /* Reduce aún más el tamaño del texto en la tabla */
+        overflow-x: auto;
+    }
+
+    th, td {
+        padding: 4px;
+    }
+}
+
+@media (max-width: 1440px) {
+    .containerIntegracion {
+        font-size: 0.8rem; /* Reduce el tamaño del texto */
+        min-width: auto;
+        width: 80%;
+        margin-left: 15rem;
+        margin-right: auto;
+    }
+
+    .table {
+        font-size: 0.75rem; /* Reduce aún más el tamaño del texto en la tabla */
+        overflow-x: auto;
+    }
+
+    th, td {
+        padding: 4px;
+    }
+}
+@media (max-width: 1240px) {
+    .containerIntegracion {
+        font-size: 0.8rem; /* Reduce el tamaño del texto */
+        min-width: auto;
+        width: 75%;
+        margin-left: 18rem;
+        margin-right: auto;
+    }
+
+    .table {
+        font-size: 0.70rem; /* Reduce aún más el tamaño del texto en la tabla */
+        overflow-x: auto;
+    }
+
+    th, td {
+        padding: 4px;
+    }
+}
 
 @media (max-width: 1000px) {
     .integracion-wrapper {
@@ -98,23 +153,25 @@ th, td {
     }
 
     .containerExpedientes {
-        font-size: .75rem;
+        font-size: .5rem;
         min-width: auto;
         width: 100%;
     }
     .containerIntegracion {
-        font-size: .75rem;
+        font-size: 0.8rem; /* Reduce el tamaño del texto */
         min-width: auto;
-        width: 75%;
-        margin-left: 15rem;
+        width: 65%;
+        margin-left: 18rem;
+        margin-right: auto;
     }
 
     .table {
-        font-size: 0.7rem;
+        font-size: 0.5rem; /* Reduce aún más el tamaño del texto en la tabla */
+        overflow-x: auto;
     }
 
     th, td {
-        padding: 5px;
+        padding: 4px;
     }
     .reportes-wrapper {
         margin-left: 220px; /* Ajusta este valor según el ancho de tu sidebar */

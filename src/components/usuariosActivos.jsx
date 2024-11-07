@@ -11,7 +11,7 @@ const UsuariosActivosChecklist = ({ onConfirmar }) => {
     useEffect(() => {
         const obtenerIntegradores = async () => {
             try {
-                const response = await fetch('http://10.11.80.237:8000/api/usuarios'); // Cambia la URL según tu API
+                const response = await fetch('http://192.168.137.1:8000/api/usuarios'); // Cambia la URL según tu API
                 if (!response.ok) {
                     throw new Error('Error al obtener usuarios');
                 }
