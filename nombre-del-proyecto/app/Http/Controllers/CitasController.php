@@ -148,6 +148,41 @@ class CitasController extends Controller
         }
     }
 
+    public function buscar(Request $request)
+    {
+        $num_Cuenta = $request->query('cuenta');
+        $nombre = $request->query('nombre');
+
+        \Log::info('Parámetros recibidos - Cuenta: ' . $num_Cuenta . ', Nombre: ' . $nombre);
+
+        try {
+            // Verifica que al menos uno de los parámetros esté presente
+            if (empty($num_Cuenta) && empty($nombre)) {
+                return response()->json(['message' => 'Debe proporcionar al menos un parámetro para la búsqueda'], 400);
+            }
+
+            // Inicializa la consulta con el filtro condicionalmente
+            $citas = Cita::when($num_Cuenta, function ($query, $num_Cuenta) {
+                return $query->where('num_Cuenta', $num_Cuenta);
+            })
+                ->when($nombre, function ($query, $nombre) {
+                    return $query->where('nombre', 'like', '%' . $nombre . '%');
+                })
+                ->get();
+
+            // Si no se encuentran citas, devuelve un mensaje
+            if ($citas->isEmpty()) {
+                return response()->json(['message' => 'No se encontraron citas'], 404);
+            }
+
+            return response()->json($citas);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al buscar citas: ' . $e->getMessage()], 500);
+        }
+    }
+
+
+
     public function actualizarEstadoCita(Request $request, $id_cita)
     {
         // Buscar el estudiante por número de cuenta
@@ -161,6 +196,7 @@ class CitasController extends Controller
         // Validar los datos recibidos
         $validatedData = $request->validate([
             'estado_cita' => 'nullable|string|max:255',
+            'observaciones'=> 'nullable|string|max:255',
         ]);
 
         // Actualizar los datos del estudiante con los datos validados

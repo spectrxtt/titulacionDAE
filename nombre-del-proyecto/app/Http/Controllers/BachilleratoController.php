@@ -42,7 +42,7 @@ class BachilleratoController extends Controller
 
     public function index()
     {
-        $bachilleratos = Bachillerato::all(['id_bach', 'nombre_bach']);
+        $bachilleratos = Bachillerato::all(['id_bach', 'nombre_bach', 'bach_entidad']);
         return response()->json($bachilleratos);
     }
 

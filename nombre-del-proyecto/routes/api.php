@@ -30,6 +30,7 @@ Route::middleware(['api'])->group(function () {
     Route::put('/actualizar-estado-cita/{id_cita}', [CitasController::class, 'actualizarEstadoCita']);
 
 
+
     // Rutas para bachillerato
     Route::post('/bachillerato', [BachilleratoController::class, 'store'])->name('bachillerato.store');
     Route::get('/bachilleratos', [BachilleratoController::class, 'index']);
@@ -60,19 +61,23 @@ Route::middleware(['api'])->group(function () {
     Route::put('/estudiantes/datos-escolares/{num_Cuenta}', [DatosEstudiantesController::class, 'updateDatosEscolares']);
 
     Route::get('/estudiantes/requisitos-obligatorios/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerObligatoriosPorNumeroCuenta']);
-    Route::put('/estudiantes/requisitos-obligatorios/{num_Cuenta}', [DatosRequisitosController::class, 'actualizarRequisitos']);
 
     Route::get('/estudiantes/requisitos-programaEs/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosProgramaPorNumeroCuenta']);
-    Route::put('/estudiantes/requisitos-programaEs/{num_Cuenta}', [DatosRequisitosController::class, 'actualizarRequisitosPrograma']);
 
     Route::get('/estudiantes/requisitos-modalidadEs/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosModalidadPorNumeroCuenta']);
-    Route::put('/estudiantes/requisitos-modalidadEs/{num_Cuenta}', [DatosRequisitosController::class, 'actualizarRequisitosModalidad']);
+
+    Route::get('/estudiantes/requisitosdata/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosCompletos']);
+    Route::get('/estudiantes/requisitosdataespecifica/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosCompletosEspecificos']);
+
+    Route::put('/estudiantes/requisitosCompletos/{num_Cuenta}', [DatosRequisitosController::class, 'actualizarRequisitosGenerico']);
 
 
     Route::get('/estudiantes/requisitos-programa/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosPrograma']);
 
     // Ruta para obtener el id_modalidad y el id_programa_educativo
     Route::get('/estudiantes/requisitos-modalidad/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosModalidad']);
+
+    Route::get('/buscar-citas', [CitasController::class, 'buscar']);
 
 
 
