@@ -31,7 +31,7 @@ const Expedientes = () => {
     const handleBuscar = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.167:8000/api/buscar-citas?cuenta=${busqueda.cuenta}&nombre=${busqueda.nombre}&fecha_inicio=${busqueda.fecha_inicio}&fecha_fin=${busqueda.fecha_fin}&estado=${busqueda.estado}`, {
+            const response = await fetch(`http://10.11.80.167:8000/api/buscar-citas?cuenta=${busqueda.cuenta}&nombre=${busqueda.nombre}&fecha=${busqueda.fecha}&estado=${busqueda.estado}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ const Expedientes = () => {
                 <input
                     type="date"
                     name="fechaInicio"
-                    value={busqueda.fechaInicio || ''}
+                    value={busqueda.fecha || ''}
                     onChange={handleBusquedaChange}
                     placeholder="Fecha de Inicio"
                 />
