@@ -152,11 +152,10 @@ class CitasController extends Controller
     {
         $num_Cuenta = $request->query('cuenta');
         $nombre = $request->query('nombre');
-        $fechaInicio = $request->query('fecha_inicio');
-        $fechaFin = $request->query('fecha_fin');
-        $estadoCita = $request->query('estado_cita');
+        $fecha = $request->query('fecha');
+        $estadoCita = $request->query('estado');
 
-        \Log::info('Parámetros recibidos - Cuenta: ' . $num_Cuenta . ', Nombre: ' . $nombre . ', Fecha Inicio: ' . $fechaInicio . ', Fecha Fin: ' . $fechaFin . ', Estado: ' . $estadoCita);
+        \Log::info('Parámetros recibidos - Cuenta: ' . $num_Cuenta . ', Nombre: ' . $nombre .', Fecha: ' . $fecha . ', Estado: ' . $estadoCita);
 
         try {
             // Inicializa la consulta con el filtro condicionalmente
@@ -166,12 +165,10 @@ class CitasController extends Controller
                 ->when($nombre, function ($query, $nombre) {
                     return $query->where('nombre', 'like', '%' . $nombre . '%');
                 })
-                ->when($fechaInicio, function ($query, $fechaInicio) {
-                    return $query->whereDate('created_at', '>=', $fechaInicio);
+                ->when($fecha, function ($query, $fecha) {
+                    return $query->where('fecha', 'like', '%' . $fecha . '%');
                 })
-                ->when($fechaFin, function ($query, $fechaFin) {
-                    return $query->whereDate('created_at', '<=', $fechaFin);
-                })
+
                 ->when($estadoCita, function ($query, $estadoCita) {
                     // Asegúrate de que el estado_cita sea exactamente igual al valor proporcionado
                     return $query->where('estado_cita', '=', $estadoCita);
@@ -188,6 +185,7 @@ class CitasController extends Controller
             return response()->json(['error' => 'Error al buscar citas: ' . $e->getMessage()], 500);
         }
     }
+
 
 
 
