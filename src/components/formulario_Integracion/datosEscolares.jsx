@@ -48,22 +48,22 @@ const DatosEscolares = ({ citaSeleccionada }) => {
         try {
             const token = localStorage.getItem('token');
             const [bachResponse, uniResponse, bachilleratosResponse, programasResponse, titulosResponse, modalidadesResponse] = await Promise.all([
-                fetch(`http://192.168.137.1:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
+                fetch(`http://10.11.80.167:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch(`http://192.168.137.1:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
+                fetch(`http://10.11.80.167:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://192.168.137.1:8000/api/bachilleratos', {
+                fetch('http://10.11.80.167:8000/api/bachilleratos', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://192.168.137.1:8000/api/programas-educativos', {
+                fetch('http://10.11.80.167:8000/api/programas-educativos', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://192.168.137.1:8000/api/titulo-otorgado', {
+                fetch('http://10.11.80.167:8000/api/titulo-otorgado', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://192.168.137.1:8000/api/modalidades-titulacion', {
+                fetch('http://10.11.80.167:8000/api/modalidades-titulacion', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 })
             ]);
@@ -313,7 +313,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
             // Log los datos que se están enviando
             console.log('Datos a modificar:', JSON.stringify(dataToUpdate, null, 2)); // Formateo para mejor legibilidad
 
-            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/datos-escolares/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.167:8000/api/estudiantes/datos-escolares/${citaSeleccionada.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

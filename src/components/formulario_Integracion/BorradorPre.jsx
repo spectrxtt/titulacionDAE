@@ -11,7 +11,6 @@ import ClipLoader from "react-spinners/ClipLoader";
 const ESTADOS_CITA = [
     { value: 'Enviado, pendiente de validar', label: 'Enviado, pendiente de validar' },
     { value: 'Integrado', label: 'Integrado' },
-    { value: 'Validado para impresión', label: 'Validado para impresión' },
 ];
 
 const StudentDataPreview = ({ citaSeleccionada }) => {
@@ -24,8 +23,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
     const [modalidades, setModalidades] = useState({});
     const [requisitosPrograma, setRequisitosPrograma] = useState([]);
     const [requisitosModalidad, setRequisitosModalidad] = useState([]);
-    const [requisitosCompletados, setRequisitosCompletados] = useState({});
-    const [requisitosCompletadosModalidad, setRequisitosCompletadosModalidad] = useState({});
+    const dataFetchedRef = useRef(false);
     const [dataFetched, setDataFetched] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -38,7 +36,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
     const handleActualizarEstadoCita = useCallback(async () => {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://192.168.137.1:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
+            const response = await fetch(`http://10.11.80.167:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -69,7 +67,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchBachilleratos = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://192.168.137.1:8000/api/bachilleratos', {
+                const response = await fetch('http://10.11.80.167:8000/api/bachilleratos', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -101,7 +99,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchProgramasEducativos = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://192.168.137.1:8000/api/programas-educativos', {
+                const response = await fetch('http://10.11.80.167:8000/api/programas-educativos', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -130,7 +128,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchTitulosOtorgados = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://192.168.137.1:8000/api/titulo-otorgado', {
+                const response = await fetch('http://10.11.80.167:8000/api/titulo-otorgado', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -159,7 +157,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchModalidades = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://192.168.137.1:8000/api/modalidades-titulacion', {
+                const response = await fetch('http://10.11.80.167:8000/api/modalidades-titulacion', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -192,148 +190,72 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         fetchModalidades();
     }, []);
 
-    const fetchRequisitosModalidad = useCallback(async () => {
-        if (!citaSeleccionada || !citaSeleccionada.num_Cuenta || dataFetched) return;
+    const fetchRequisitos = useCallback(async () => {
+        if (dataFetchedRef.current || !citaSeleccionada?.num_Cuenta) {
+            setLoading(false);
+            return;
+        }
 
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitos-modalidad/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.167:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
-            if (!response.ok) {
-                throw new Error('Error al obtener requisitos de programa');
-            }
+            if (!response.ok) throw new Error('Error al obtener los requisitos');
 
-            const requisitosModalidad = await response.json();
-            setRequisitosModalidad(requisitosModalidad);
+            const data = await response.json();
 
-            // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitos-modalidadEs/${citaSeleccionada.num_Cuenta}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
+            // Guardar los requisitos
+            setRequisitosPrograma(data.requisitos_programa || []);
+            setRequisitosModalidad(data.requisitos_modalidad || []);
 
-            if (!completionResponse.ok) {
-                throw new Error('Error al obtener estado de cumplimiento de requisitos');
-            }
+            // Preparar los datos del formulario
+            const newFormData = {
+                ...formData,
+                servicio_social: data.requisitos_obligatorios?.servicio_social || '',
+                practicas_profecionales: data.requisitos_obligatorios?.practicas_profecionales || '',
+                cedai: data.requisitos_obligatorios?.cedai || ''
+            };
 
-            const completionData = await completionResponse.json();
+            // Process program details
+            data.requisitos_programa?.forEach((req, index) => {
+                const detalleKey = `id_requisito_${index + 1}`;
+                const cumplidoKey = `cumplido_${index + 1}`;
+                const fechaKey = `fecha_cumplido_${index + 1}`;
 
-            const completionStatus = {};
-
-            if (typeof completionData === 'object' && completionData !== null) {
-                for (let i = 1; i <= Object.keys(completionData).length / 3; i++) {
-                    const idRequisito = completionData[`id_requisito_${i}`];
-                    const cumplido = completionData[`cumplido_${i}`];
-
-                    if (idRequisito !== null && idRequisito !== undefined) {
-                        completionStatus[idRequisito] = {
-                            cumplido: cumplido === null ? '' : cumplido,
-                        };
-                    }
-                }
-            }
-
-            setRequisitosCompletadosModalidad(completionStatus);
-
-            // Update formData with completion status
-            const updatedFormData = { ...formData };
-            requisitosModalidad.forEach(requisito => {
-                const status = completionStatus[requisito.id_requisito_modalidad];
-                if (status) {
-                    updatedFormData[`requisito_${requisito.id_requisito_modalidad}`] = status.cumplido;
-                } else {
-                    // If no status found, set fields to empty strings
-                    updatedFormData[`requisito_${requisito.id_requisito_modalidad}`] = '';
-                    updatedFormData[`fecha_requisito_${requisito.id_requisito_modalidad}`] = '';
+                if (data.detalles_programa[detalleKey] === req.id_requisito_programa) {
+                    // Set the exact value from 'cumplidoKey' without conversion
+                    newFormData[`requisito_${req.id_requisito_programa}`] = data.detalles_programa[cumplidoKey];
+                    newFormData[`fecha_requisito_${req.id_requisito_programa}`] = data.detalles_programa[fechaKey] || '';
                 }
             });
-            updateFormData(updatedFormData);
+
+
+            // Procesar detalles de modalidad
+            data.requisitos_modalidad?.forEach((req, index) => {
+                const detalleKey = `id_requisito_${index + 1}`;
+                const cumplidoKey = `cumplido_${index + 1}`;
+
+                if (data.detalles_modalidad[detalleKey] === req.id_requisito_modalidad) {
+                    newFormData[`requisito_${req.id_requisito_modalidad}`] = data.detalles_modalidad[cumplidoKey];
+                }
+            });
+
+            updateFormData(newFormData);
             setDataFetched(true);
-
+            dataFetchedRef.current = true;
         } catch (error) {
-            console.error('Error in fetchRequisitosModalidad:', error);
+            console.error('Error:', error);
         } finally {
             setLoading(false);
         }
-    }, [citaSeleccionada, updateFormData, formData, dataFetched]);
-
-    const fetchRequisitosPrograma = useCallback(async () => {
-        if (!citaSeleccionada || !citaSeleccionada.num_Cuenta || dataFetched) return;
-
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitos-programa/${citaSeleccionada.num_Cuenta}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al obtener requisitos de programa');
-            }
-
-            const requisitosPrograma = await response.json();
-            setRequisitosPrograma(requisitosPrograma);
-
-            // Fetch completion status for these requirements
-            const completionResponse = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitos-programaEs/${citaSeleccionada.num_Cuenta}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-
-            if (!completionResponse.ok) {
-                throw new Error('Error al obtener estado de cumplimiento de requisitos');
-            }
-
-            const completionData = await completionResponse.json();
-
-            const completionStatus = {};
-
-            Object.keys(completionData).forEach((key) => {
-                if (key.startsWith('id_requisito_')) {
-                    const index = key.split('_')[2]; // Obtener el índice
-                    const idRequisito = completionData[key];
-                    const cumplido = completionData[`cumplido_${index}`];
-
-                    if (idRequisito !== null && idRequisito !== undefined) {
-                        completionStatus[idRequisito] = {
-                            cumplido: cumplido === null ? '' : cumplido,
-                        };
-                    }
-                }
-            });
-
-
-            setRequisitosCompletados(completionStatus);
-
-            // Update formData with completion status
-            const updatedFormData = { ...formData };
-            requisitosPrograma.forEach(requisito => {
-                const status = completionStatus[requisito.id_requisito_programa];
-                if (status) {
-                    updatedFormData[`requisito_${requisito.id_requisito_programa}`] = status.cumplido;
-                    updatedFormData[`fecha_requisito_${requisito.id_requisito_programa}`] = status.fecha_cumplido;
-                } else {
-                    // If no status found, set fields to empty strings
-                    updatedFormData[`requisito_${requisito.id_requisito_programa}`] = '';
-                    updatedFormData[`fecha_requisito_${requisito.id_requisito_programa}`] = '';
-                }
-            });
-            updateFormData(updatedFormData);
-            setDataFetched(true);
-
-        } catch (error) {
-            console.error('Error in fetchRequisitosPrograma:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [citaSeleccionada, updateFormData, formData, dataFetched]);
+    }, [citaSeleccionada, updateFormData, formData]);
 
     useEffect(() => {
-        fetchRequisitosPrograma();
-        fetchRequisitosModalidad();
-    }, [fetchRequisitosPrograma, fetchRequisitosModalidad]);
-
+        fetchRequisitos();
+    }, [fetchRequisitos]);
 
     const getBachilleratoInfo = (id) => {
         if (!id) return { nombre: 'No especificado', entidad: 'No especificado' };
@@ -372,7 +294,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
                     </span>
                     </div>
                     <div className="requirement-item">
-                    <label>Prácticas Profesionales</label>
+                        <label>Prácticas Profesionales</label>
                         <span className={`requirement-value ${formData.practicas_profecionales === 'Sí' ? 'completed' : 'data'}`}>
                         {formData.practicas_profecionales || 'No especificado'}
                     </span>
@@ -462,8 +384,17 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         doc.setFont("helvetica", "bold");
         centerText("otorga a", 50, 12);
 
-        // Student name
-        centerText(`${formData.nombre_estudiante} ${formData.ap_paterno} ${formData.ap_materno}`, 62, 16);
+        // Ensure each part of the name is included only if it has a value
+        const fullName = [
+            formData.nombre_estudiante,
+            formData.ap_paterno,
+            formData.ap_materno
+        ].filter(part => part && part !== 'null' && part !== 'No especificado').join(' ');
+
+        // Center the full name in the PDF if not empty
+        if (fullName) {
+            centerText(fullName, 62, 16);
+        }
 
         // Degree title
         doc.setFont("helvetica", "normal");
@@ -478,7 +409,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
                 return "Número inválido"; // Verifica si el número es inválido
             }
 
-            let entero = Math.floor(numero);  // Cambiado de 'const' a 'let'
+            const entero = Math.floor(numero);
             const decimal = numero - entero;
 
             const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
@@ -509,7 +440,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             // Construcción del texto decimal
             if (decimal !== 0) {
                 textoDecimal = 'punto ';
-                const decimalEntero = Math.floor(decimal * 100);
+                const decimalEntero = Math.round(decimal * 100);
                 const decimalUnidades = decimalEntero % 10;
                 const decimalDecenas = Math.floor(decimalEntero / 10);
                 if (decimalDecenas !== 0) {
@@ -524,8 +455,6 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
 
             return `${textoEntero} ${textoDecimal}`.trim();
         }
-
-
 
 // Obtener el nombre de la modalidad
         const modalidadNombre = getModalidadNombre(formData.id_modalidad);
@@ -545,7 +474,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             const promedioTexto = !isNaN(primerRequisito) ? numeroATexto(primerRequisito) : 'NO ESPECIFICADO';
 
             // Texto de modalidad centrado con el primer requisito como "promedio" en ambos formatos
-            const modalidadText = `Modalidad: Alto Rendimiento con promedio de ${primerRequisito} (${promedioTexto})`;
+            const modalidadText = `Modalidad: Alto Rendimiento Academico con promedio de ${primerRequisito} (${promedioTexto})`;
             const textWidth = doc.getTextWidth(modalidadText);
             const centerX = (pageWidth - textWidth) / 2;
             doc.text(modalidadText, centerX, 100); // Ajusta la coordenada Y según sea necesario

@@ -14,94 +14,69 @@ const Requisitos = ({ citaSeleccionada }) => {
     const { formData, updateFormData } = useFormData();
     const [loading, setLoading] = useState(true);
     const dataFetchedRef = useRef(false);
-    const [requisitosPrograma, setRequisitosPrograma] = useState([]); // Estado para los requisitos dinámicos
-    const [requisitosModalidad, setRequisitosModalidad] = useState([]); // Estado para los requisitos dinámicos
-    const [requisitosCompletados, setRequisitosCompletados] = useState({});
-    const [requisitosCompletadosModalidad, setRequisitosCompletadosModalidad] = useState({});
+    const [requisitosPrograma, setRequisitosPrograma] = useState([]);
+    const [requisitosModalidad, setRequisitosModalidad] = useState([]);
     const [dataFetched, setDataFetched] = useState(false);
 
     const fetchRequisitos = useCallback(async () => {
-        if (dataFetchedRef.current || !citaSeleccionada || !citaSeleccionada.num_Cuenta) {
+        if (dataFetchedRef.current || !citaSeleccionada?.num_Cuenta) {
             setLoading(false);
             return;
         }
 
-        setLoading(true); // Comienza a cargar
+        setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.167:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
-            if (!response.ok) {
-                throw new Error('Error al obtener los requisitos');
-            }
+            if (!response.ok) throw new Error('Error al obtener los requisitos');
 
             const data = await response.json();
-            updateFormData(data); // Actualiza los datos en el formulario
 
-            // Aquí puedes obtener los requisitos y sus estados de cumplimiento
-            const requisitosPrograma = data.requisitosPrograma || [];
-            const requisitosModalidad = data.requisitosModalidad || [];
-            const completionData = data.completados || {};
+            // Guardar los requisitos
+            setRequisitosPrograma(data.requisitos_programa || []);
+            setRequisitosModalidad(data.requisitos_modalidad || []);
 
-            const completionStatus = {};
+            // Preparar los datos del formulario
+            const newFormData = {
+                ...formData,
+                servicio_social: data.requisitos_obligatorios?.servicio_social || '',
+                practicas_profecionales: data.requisitos_obligatorios?.practicas_profecionales || '',
+                cedai: data.requisitos_obligatorios?.cedai || ''
+            };
 
-            // Procesamos los requisitos de programa
-            requisitosPrograma.forEach(requisito => {
-                const status = completionData[`requisito_${requisito.id_requisito_programa}`];
-                if (status) {
-                    completionStatus[requisito.id_requisito_programa] = {
-                        cumplido: status.cumplido,
-                        fecha_cumplido: status.fecha_cumplido || '',
-                    };
+            // Process program details
+            data.requisitos_programa?.forEach((req, index) => {
+                const detalleKey = `id_requisito_${index + 1}`;
+                const cumplidoKey = `cumplido_${index + 1}`;
+                const fechaKey = `fecha_cumplido_${index + 1}`;
+
+                if (data.detalles_programa[detalleKey] === req.id_requisito_programa) {
+                    // Set the exact value from 'cumplidoKey' without conversion
+                    newFormData[`requisito_${req.id_requisito_programa}`] = data.detalles_programa[cumplidoKey];
+                    newFormData[`fecha_requisito_${req.id_requisito_programa}`] = data.detalles_programa[fechaKey] || '';
                 }
             });
 
-            // Procesamos los requisitos de modalidad
-            requisitosModalidad.forEach(requisito => {
-                const status = completionData[`requisito_${requisito.id_requisito_modalidad}`];
-                if (status) {
-                    completionStatus[requisito.id_requisito_modalidad] = {
-                        cumplido: status.cumplido,
-                        fecha_cumplido: status.fecha_cumplido || '',
-                    };
+            // Procesar detalles de modalidad
+            data.requisitos_modalidad?.forEach((req, index) => {
+                const detalleKey = `id_requisito_${index + 1}`;
+                const cumplidoKey = `cumplido_${index + 1}`;
+
+                if (data.detalles_modalidad[detalleKey] === req.id_requisito_modalidad) {
+                    newFormData[`requisito_${req.id_requisito_modalidad}`] = data.detalles_modalidad[cumplidoKey];
                 }
             });
 
-            setRequisitosCompletados(completionStatus);
-
-            // Actualiza formData con el estado de los requisitos
-            const updatedFormData = { ...formData };
-            requisitosPrograma.forEach(requisito => {
-                const status = completionStatus[requisito.id_requisito_programa];
-                if (status) {
-                    updatedFormData[`requisito_${requisito.id_requisito_programa}`] = status.cumplido;
-                    updatedFormData[`fecha_requisito_${requisito.id_requisito_programa}`] = status.fecha_cumplido;
-                } else {
-                    updatedFormData[`requisito_${requisito.id_requisito_programa}`] = '';
-                    updatedFormData[`fecha_requisito_${requisito.id_requisito_programa}`] = '';
-                }
-            });
-
-            requisitosModalidad.forEach(requisito => {
-                const status = completionStatus[requisito.id_requisito_modalidad];
-                if (status) {
-                    updatedFormData[`requisito_${requisito.id_requisito_modalidad}`] = status.cumplido;
-                    updatedFormData[`fecha_requisito_${requisito.id_requisito_modalidad}`] = status.fecha_cumplido;
-                } else {
-                    updatedFormData[`requisito_${requisito.id_requisito_modalidad}`] = '';
-                    updatedFormData[`fecha_requisito_${requisito.id_requisito_modalidad}`] = '';
-                }
-            });
-
-            updateFormData(updatedFormData);
+            updateFormData(newFormData);
             setDataFetched(true);
-            dataFetchedRef.current = true; // Indica que los datos ya se han obtenido
+            dataFetchedRef.current = true;
         } catch (error) {
             console.error('Error:', error);
         } finally {
-            setLoading(false); // Detiene la carga
+            setLoading(false);
         }
     }, [citaSeleccionada, updateFormData, formData]);
 
@@ -114,64 +89,54 @@ const Requisitos = ({ citaSeleccionada }) => {
         updateFormData({ [name]: value });
     };
 
-    // Navegación a Datos Escolares
-    const handleVerClickEscolares = async (e) => {
+    const handleVerClickEscolares = (e) => {
         e.preventDefault();
         setMostrarDatosEscolares(true);
     };
 
-    // Y dentro de tu useEffect
-    useEffect(() => {
-        if (mostrarDatosEscolares) {
-            fetchRequisitos();
-        }
-    }, [mostrarDatosEscolares, fetchRequisitos]);
-
-    // Maneja el clic en el botón "Generar Reporte"
     const handleGenerarReporteClick = (e) => {
         e.preventDefault();
         setMostrarGenerarReporte(true);
     };
 
+
+
     const actualizarRequisitos = async () => {
         try {
             const token = localStorage.getItem('token');
             const dataToSend = {
-                // Requisitos obligatorios
                 requisitos_obligatorios: {
                     servicio_social: formData.servicio_social || '',
                     practicas_profecionales: formData.practicas_profecionales || '',
                     cedai: formData.cedai || ''
                 },
-                // Requisitos del programa
                 requisitos_programa: requisitosPrograma.map(requisito => ({
                     id_requisito: requisito.id_requisito_programa,
-                    cumplido: formData[`requisito_${requisito.id_requisito_programa}`] || '',
+                    cumplido: formData[`requisito_${requisito.id_requisito_programa}`],
                     fecha_cumplido: formData[`fecha_requisito_${requisito.id_requisito_programa}`] || ''
                 })),
-                // Requisitos de la modalidad
                 requisitos_modalidad: requisitosModalidad.map(requisito => ({
                     id_requisito: requisito.id_requisito_modalidad,
-                    cumplido: formData[`requisito_${requisito.id_requisito_modalidad}`] || '',
+                    cumplido: formData[`requisito_${requisito.id_requisito_modalidad}`]
                 }))
             };
 
-            // Enviar la solicitud a la ruta correspondiente
-            const response = await fetch(`http://192.168.137.1:8000/api/estudiantes/requisitosCompletos/${citaSeleccionada.num_Cuenta}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(dataToSend)
-            });
+            const response = await fetch(
+                `http://10.11.80.167:8000/api/estudiantes/requisitosCompletos/${citaSeleccionada.num_Cuenta}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(dataToSend)
+                }
+            );
 
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(`Error al actualizar los requisitos: ${errorData.message || response.statusText}`);
             }
-
-            console.log('Todos los requisitos actualizados con éxito');
         } catch (error) {
             console.error('Error en actualizarRequisitos:', error);
             throw error;
@@ -179,19 +144,15 @@ const Requisitos = ({ citaSeleccionada }) => {
     };
 
     const handleSubmit = async (e) => {
-        setMostrarDatosEscolares(false);
-        setMostrarDatosborrador(true);
-        setMostrarGenerarReporte(false);
         e.preventDefault();
         setLoading(true);
-
         try {
             await actualizarRequisitos();
-            console.log('Todos los requisitos actualizados con éxito');
-            // Aquí puedes añadir alguna notificación de éxito para el usuario
+            setMostrarDatosEscolares(false);
+            setMostrarDatosborrador(true);
+            setMostrarGenerarReporte(false);
         } catch (error) {
             console.error('Error al actualizar requisitos:', error);
-            // Aquí puedes añadir alguna notificación de error para el usuario
         } finally {
             setLoading(false);
         }
@@ -222,111 +183,145 @@ const Requisitos = ({ citaSeleccionada }) => {
                 <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="servicio_social">Servicio Social</label>
-                        <input
-                            type="text"
+                        <select
                             id="servicio_social"
                             name="servicio_social"
                             value={formData.servicio_social || ''}
                             onChange={handleInputChange}
-                        />
+                        >
+                            <option value="">Seleccionar</option>
+                            <option value="Completo">Completo</option>
+                            <option value="Incompleto">Incompleto</option>
+                        </select>
                     </div>
+
                     <div className="form-group">
                         <label htmlFor="practicas_profecionales">Prácticas Profesionales</label>
-                        <input
-                            type="text"
+                        <select
                             id="practicas_profecionales"
                             name="practicas_profecionales"
                             value={formData.practicas_profecionales || ''}
                             onChange={handleInputChange}
-                        />
+                        >
+                            <option value="">Seleccionar</option>
+                            <option value="Completo">Completo</option>
+                            <option value="Incompleto">Incompleto</option>
+                        </select>
                     </div>
-                </div>
-                <div className="form-row">
+
                     <div className="form-group">
                         <label htmlFor="cedai">CEDAI</label>
-                        <input
-                            type="text"
+                        <select
                             id="cedai"
                             name="cedai"
                             value={formData.cedai || ''}
                             onChange={handleInputChange}
-                        />
+                        >
+                            <option value="">Seleccionar</option>
+                            <option value="Completo">Completo</option>
+                            <option value="Incompleto">Incompleto</option>
+                        </select>
                     </div>
                 </div>
 
-                {requisitos_programa.length > 0 && (
-                    <>
-                        {requisitos_programa.map((requisito) => (
-                            <div className="form-group" key={requisito.id_requisito_programa}>
-                                <label htmlFor={`requisito_programa_${requisito.id_requisito_programa}`}>
-                                    {requisito.descripcion}
-                                </label>
-                                <select
-                                    id={`requisito_programa_${requisito.id_requisito_programa}`}
-                                    name={`requisito_programa_${requisito.id_requisito_programa}`}
-                                    value={formData[`requisito_programa_${requisito.id_requisito_programa}`] || ''}
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="">Seleccionar</option>
-                                    <option value="Incompleto">Incompleto</option>
-                                    <option value="Completo">Completo</option>
-                                </select>
-                                {formData[`requisito_programa_${requisito.id_requisito_programa}`] === 'Completo' && (
-                                    <input
-                                        type="date"
-                                        id={`fecha_requisito_programa_${requisito.id_requisito_programa}`}
-                                        name={`fecha_requisito_programa_${requisito.id_requisito_programa}`}
-                                        value={formData[`fecha_requisito_programa_${requisito.id_requisito_programa}`] || ''}
-                                        onChange={handleInputChange}
-                                    />
-                                )}
-                            </div>
-                        ))}
-                    </>
-                )}
+                    {/* Requisitos de Programa */}
+                    {requisitosPrograma.length > 0 && (
+                        <div className="requisitos-section">
+                            <h3>Requisitos del Programa</h3>
+                            {requisitosPrograma.map((requisito) => {
+                                const fechaRequisito = formData[`fecha_requisito_${requisito.id_requisito_programa}`];
+                                const periodoPasantia = formData.periodo_pasantia;
 
-                {requisitos_modalidad.length > 0 && (
-                    <>
-                        {requisitos_modalidad.map((requisito) => (
-                            <div className="form-group" key={requisito.id_requisito_modalidad}>
-                                <label htmlFor={`requisito_modalidad_${requisito.id_requisito_modalidad}`}>
-                                    {requisito.descripcion}
-                                </label>
-                                <select
-                                    id={`requisito_modalidad_${requisito.id_requisito_modalidad}`}
-                                    name={`requisito_modalidad_${requisito.id_requisito_modalidad}`}
-                                    value={formData[`requisito_modalidad_${requisito.id_requisito_modalidad}`] || ''}
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="">Seleccionar</option>
-                                    <option value="Incompleto">Incompleto</option>
-                                    <option value="Completo">Completo</option>
-                                </select>
-                                {formData[`requisito_modalidad_${requisito.id_requisito_modalidad}`] === 'Completo' && (
-                                    <input
-                                        type="date"
-                                        id={`fecha_requisito_modalidad_${requisito.id_requisito_modalidad}`}
-                                        name={`fecha_requisito_modalidad_${requisito.id_requisito_modalidad}`}
-                                        value={formData[`fecha_requisito_modalidad_${requisito.id_requisito_modalidad}`] || ''}
-                                        onChange={handleInputChange}
-                                    />
-                                )}
-                            </div>
-                        ))}
-                    </>
-                )}
+                                // Determinar la clase de color según la comparación de fechas
+                                let colorClase = '';
+                                if (fechaRequisito && periodoPasantia) {
+                                    // Convertir `periodoPasantia` de "DD/MM/YYYY" a "YYYY-MM-DD" para compatibilidad
+                                    const [day, month, year] = periodoPasantia.split('/');
+                                    const pasantiaDate = new Date(`${year}-${month}-${day}`);
 
-                <div className="boton_integracionS">
-                    <button onClick={handleVerClickEscolares}>
-                        <i className="fa-solid fa-arrow-left"></i>
-                    </button>
-                    <button onClick={handleSubmit}>
-                        <i className="fa-solid fa-arrow-right"></i>
-                    </button>
+                                    // Convertir `fechaRequisito` directamente a Date, ya que está en "YYYY-MM-DD"
+                                    const requisitoDate = new Date(fechaRequisito);
+
+                                    // Comparar las fechas
+                                    colorClase = requisitoDate.getTime() <= pasantiaDate.getTime() ? 'fecha-pasantia-verde' : 'fecha-pasantia-rojo';
+                                }
+
+                                return (
+                                    <div className="form-group" key={requisito.id_requisito_programa}>
+                                        <label htmlFor={`requisito_${requisito.id_requisito_programa}`}>
+                                            {requisito.descripcion}
+                                        </label>
+                                        <select
+                                            id={`requisito_${requisito.id_requisito_programa}`}
+                                            name={`requisito_${requisito.id_requisito_programa}`}
+                                            value={formData[`requisito_${requisito.id_requisito_programa}`] || ''}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="">Seleccionar</option>
+                                            <option value="Incompleto">Incompleto</option>
+                                            <option value="Completo">Completo</option>
+                                        </select>
+                                        {formData[`requisito_${requisito.id_requisito_programa}`] === 'Completo' && (
+                                            <input
+                                                type="date"
+                                                id={`fecha_requisito_${requisito.id_requisito_programa}`}
+                                                name={`fecha_requisito_${requisito.id_requisito_programa}`}
+                                                value={formData[`fecha_requisito_${requisito.id_requisito_programa}`] || ''}
+                                                onChange={handleInputChange}
+                                                className={colorClase} // Agregar la clase de color
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {requisitosModalidad.length > 0 && (
+                        <>
+                            {requisitosModalidad.map((requisito, index) => (
+                                <div className="form-group" key={index}>
+                                    <label htmlFor={`requisito_${requisito.id_requisito_modalidad}`}>
+                                        {requisito.descripcion}
+                                    </label>
+                                    {requisito.id_modalidad === 17 ? (
+                                        // Campo de texto para id 17
+                                        <input
+                                            type="text"
+                                            id={`requisito_${requisito.id_requisito_modalidad}`}
+                                            name={`requisito_${requisito.id_requisito_modalidad}`}
+                                            value={formData[`requisito_${requisito.id_requisito_modalidad}`] || ''}
+                                            onChange={handleInputChange}
+                                        />
+                                    ) : (
+                                        // Selector para otros casos
+                                        <select
+                                            id={`requisito_${requisito.id_requisito_modalidad}`}
+                                            name={`requisito_${requisito.id_requisito_modalidad}`}
+                                            value={formData[`requisito_${requisito.id_requisito_modalidad}`] || ''}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="">Seleccionar</option>
+                                            <option value="Incompleto">Incompleto</option>
+                                            <option value="Completo">Completo</option>
+                                        </select>
+                                    )}
+                                </div>
+                            ))}
+                        </>
+                    )}
+
+                    <div className="boton_integracionS">
+                        <button onClick={handleVerClickEscolares}>
+                            <i className="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <button onClick={handleSubmit}>
+                            <i className="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    );
-}
+            );
+            };
 
-export default Requisitos;
+            export default Requisitos;

@@ -57,14 +57,6 @@ const Sidebar = ({ onComponentChange, onProfileClick, onLogout, userRole, userNo
                             </span>
                         </li>
                         <li>
-                            <button onClick={() => handleClick(['Reportes'])}>
-                                <i className="fa-solid fa-chart-simple"></i>
-                            </button>
-                            <span className={isOpen ? '' : 'hidden'}>
-                                <button onClick={() => handleClick(['Reportes'])}>Reportes</button>
-                            </span>
-                        </li>
-                        <li>
                             <button onClick={() => handleClick(['Configuracion'])}>
                                 <i className="fa-solid fa-gear"></i>
                             </button>
@@ -119,14 +111,7 @@ const Sidebar = ({ onComponentChange, onProfileClick, onLogout, userRole, userNo
                                 <button onClick={() => handleClick(['Expedientes'])}>Expedientes</button>
                             </span>
                         </li>
-                        <li>
-                            <button onClick={() => handleClick(['Reportes'])}>
-                                <i className="fa-solid fa-chart-simple"></i>
-                            </button>
-                            <span className={isOpen ? '' : 'hidden'}>
-                                <button onClick={() => handleClick(['Reportes'])}>Reportes</button>
-                            </span>
-                        </li>
+
                         <li>
                             <button onClick={() => handleClick(['Configuracion'])}>
                                 <i className="fa-solid fa-gear"></i>

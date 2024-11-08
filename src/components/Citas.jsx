@@ -176,7 +176,7 @@ const CargarCitas = () => {
 
             console.log('Datos a enviar:', JSON.stringify(dataToSend, null, 2));
             const token = localStorage.getItem('token');
-            const response = await fetch('http://192.168.137.1:8000/api/cargar-citas', {
+            const response = await fetch('http://10.11.80.167:8000/api/cargar-citas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,},

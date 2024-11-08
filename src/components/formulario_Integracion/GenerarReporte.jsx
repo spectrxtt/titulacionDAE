@@ -6,6 +6,8 @@ const ESTADOS_CITA = [
     { value: 'Integrado', label: 'Integrado' },
     { value: 'Rechazado', label: 'Rechazado' },
     { value: 'Corrección', label: 'Corrección' },
+    { value: 'Atendiendo Corrección', label: 'Atendiendo Corrección' },
+    { value: 'Corrección Atendida', label: 'Corrección Atendida' },
 
 ];
 
@@ -27,13 +29,13 @@ const GenerarReporte = ({ citaSeleccionada }) => {
 
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://192.168.137.1:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
+            const response = await fetch(`http://10.11.80.167:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ estado_cita: estadoCita, observaciones: observaciones }), // Envía también las observaciones
+                body: JSON.stringify({ estado_cita: estadoCita, observaciones: observaciones || 'Ninguna' }), // Envía 'Ninguna' si el campo está vacío
             });
 
             if (!response.ok) {

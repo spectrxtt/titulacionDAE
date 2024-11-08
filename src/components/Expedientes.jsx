@@ -31,7 +31,7 @@ const Expedientes = () => {
     const handleBuscar = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://192.168.137.1:8000/api/buscar-citas?cuenta=${busqueda.cuenta}&nombre=${busqueda.nombre}`, {
+            const response = await fetch(`http://10.11.80.167:8000/api/buscar-citas?cuenta=${busqueda.cuenta}&nombre=${busqueda.nombre}&fecha_inicio=${busqueda.fecha_inicio}&fecha_fin=${busqueda.fecha_fin}&estado=${busqueda.estado}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const Expedientes = () => {
         const fetchCitas = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://192.168.137.1:8000/api/citas', {
+                const response = await fetch('http://10.11.80.167:8000/api/citas', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -123,6 +123,7 @@ const Expedientes = () => {
     return (
         <div className="integracion-wrapper">
             <div className="buscador">
+                {/* Account Number Filter */}
                 <input
                     type="text"
                     name="cuenta"
@@ -130,6 +131,8 @@ const Expedientes = () => {
                     onChange={handleBusquedaChange}
                     placeholder="Número de Cuenta"
                 />
+
+                {/* Full Name Filter */}
                 <input
                     type="text"
                     name="nombre"
@@ -138,6 +141,40 @@ const Expedientes = () => {
                     placeholder="Nombre Completo"
                 />
 
+                {/* Start Date Filter */}
+                <input
+                    type="date"
+                    name="fechaInicio"
+                    value={busqueda.fechaInicio || ''}
+                    onChange={handleBusquedaChange}
+                    placeholder="Fecha de Inicio"
+                />
+
+                {/* End Date Filter */}
+                <input
+                    type="date"
+                    name="fechaFinal"
+                    value={busqueda.fechaFinal || ''}
+                    onChange={handleBusquedaChange}
+                    placeholder="Fecha Final"
+                />
+
+                {/* Status Filter */}
+                <select
+                    name="estadoCita"
+                    value={busqueda.estadoCita || ''}
+                    onChange={handleBusquedaChange}
+                >
+                    <option value="">Seleccione un estado</option>
+                    <option value="Enviado, pendiente de validar">Enviado, pendiente de validar</option>
+                    <option value="Integrado">Integrado</option>
+                    <option value="Rechazado">Rechazado</option>
+                    <option value="Corrección">Corrección</option>
+                    <option value="Atendiendo Corrección">Atendiendo Corrección</option>
+                    <option value="Corrección Atendida">Corrección Atendida</option>
+                </select>
+
+                {/* Search and Clear Buttons */}
                 <button onClick={handleBuscar}>Buscar</button>
                 <button onClick={handleLimpiarBusqueda}>Limpiar</button>
             </div>
