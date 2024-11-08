@@ -119,5 +119,32 @@ class DatosEstudiantesController extends Controller
         }
     }
 
+    public function getAllStudentData($num_Cuenta)
+    {
+        // Fetch the main student data
+        $estudiante = Estudiante::with(['citas']) // Load citas relationship
+        ->where('num_Cuenta', $num_Cuenta)
+            ->first();
+
+        if (!$estudiante) {
+            return response()->json(['error' => 'Estudiante no encontrado'], 404);
+        }
+
+        // Fetch bachillerato data
+        $bachilleratoData = estudianteBachillerato::where('num_Cuenta', $num_Cuenta)->first();
+
+        // Fetch university data
+        $uniData = estudianteUni::where('num_Cuenta', $num_Cuenta)->first();
+
+        // Combine all data into one object
+        $result = [
+            'personal_data' => $estudiante,
+            'bachillerato_data' => $bachilleratoData,
+            'university_data' => $uniData
+        ];
+
+        return response()->json($result);
+    }
+
 }
 

@@ -54,6 +54,10 @@ Route::middleware(['api'])->group(function () {
     Route::get('/estudiantes/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerPorNumeroCuenta']);
     Route::put('/estudiantes/{num_Cuenta}', [DatosEstudiantesController::class, 'update']);
 
+
+    Route::get('/estudiantesCompletos/{num_Cuenta}', [DatosEstudiantesController::class, 'getAllStudentData']);
+
+
     Route::get('/estudiantes/bachillerato/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerBachilleratoPorNumeroCuenta']);
 
     Route::get('/estudiantes/uni/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerUniPorNumeroCuenta']);

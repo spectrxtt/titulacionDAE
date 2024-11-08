@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Usuario;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth; // Add this line
 use Laravel\Sanctum\HasApiTokens;
 
 class UsuarioController extends Controller
@@ -22,14 +23,7 @@ class UsuarioController extends Controller
         ]);
 
         // Crear un nuevo usuario
-        $usuario = new Usuario();
-        $usuario->usuario = $request->input('usuario');
-        $usuario->password = $request->input('password'); // El modelo hará el hasheo automáticamente
-        $usuario->nombre_usuario = $request->input('nombre_usuario');
-        $usuario->rol = $request->input('rol');
-
-        // Guardar el usuario en la base de datos
-        $usuario->save();
+        $usuario = Usuario::create($validatedData);
 
         return response()->json(['message' => 'Usuario creado con éxito'], 201);
     }

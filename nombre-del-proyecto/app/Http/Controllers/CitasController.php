@@ -152,21 +152,29 @@ class CitasController extends Controller
     {
         $num_Cuenta = $request->query('cuenta');
         $nombre = $request->query('nombre');
+        $fechaInicio = $request->query('fecha_inicio');
+        $fechaFin = $request->query('fecha_fin');
+        $estadoCita = $request->query('estado_cita');
 
-        \Log::info('Parámetros recibidos - Cuenta: ' . $num_Cuenta . ', Nombre: ' . $nombre);
+        \Log::info('Parámetros recibidos - Cuenta: ' . $num_Cuenta . ', Nombre: ' . $nombre . ', Fecha Inicio: ' . $fechaInicio . ', Fecha Fin: ' . $fechaFin . ', Estado: ' . $estadoCita);
 
         try {
-            // Verifica que al menos uno de los parámetros esté presente
-            if (empty($num_Cuenta) && empty($nombre)) {
-                return response()->json(['message' => 'Debe proporcionar al menos un parámetro para la búsqueda'], 400);
-            }
-
             // Inicializa la consulta con el filtro condicionalmente
             $citas = Cita::when($num_Cuenta, function ($query, $num_Cuenta) {
                 return $query->where('num_Cuenta', $num_Cuenta);
             })
                 ->when($nombre, function ($query, $nombre) {
                     return $query->where('nombre', 'like', '%' . $nombre . '%');
+                })
+                ->when($fechaInicio, function ($query, $fechaInicio) {
+                    return $query->whereDate('created_at', '>=', $fechaInicio);
+                })
+                ->when($fechaFin, function ($query, $fechaFin) {
+                    return $query->whereDate('created_at', '<=', $fechaFin);
+                })
+                ->when($estadoCita, function ($query, $estadoCita) {
+                    // Asegúrate de que el estado_cita sea exactamente igual al valor proporcionado
+                    return $query->where('estado_cita', '=', $estadoCita);
                 })
                 ->get();
 
@@ -180,6 +188,9 @@ class CitasController extends Controller
             return response()->json(['error' => 'Error al buscar citas: ' . $e->getMessage()], 500);
         }
     }
+
+
+
 
 
 
