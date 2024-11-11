@@ -9,27 +9,27 @@ class Cita extends Model
 {
     use HasFactory;
 
-    // Define la tabla asociada
     protected $table = 'citas';
+
+    // Especifica el nombre de la columna primaria
     protected $primaryKey = 'id_cita';
 
-    // Campos que se pueden rellenar (asignación masiva)
     protected $fillable = [
         'id_cita',
         'fecha',
         'nombre',
+        'programa_educativo',
         'observaciones',
         'estado_cita',
         'id_usuario',
         'num_Cuenta',
     ];
 
-    // Desactiva los timestamps si no los usas
-    public $timestamps = false;
+    public $timestamps = false; // Desactiva los timestamps
 
     // Relación con el usuario
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'id_usuario');
+        return $this->belongsTo(Usuario::class, 'id_usuario');
     }
 }

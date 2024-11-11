@@ -29,4 +29,3 @@ class Estudiante extends Model
         return $this->hasMany(Cita::class, 'num_Cuenta', 'num_Cuenta');
     }
 }
-

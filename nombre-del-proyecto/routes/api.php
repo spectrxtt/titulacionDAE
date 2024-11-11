@@ -55,7 +55,7 @@ Route::middleware(['api'])->group(function () {
     Route::put('/estudiantes/{num_Cuenta}', [DatosEstudiantesController::class, 'update']);
 
 
-    Route::get('/estudiantesCompletos/{num_Cuenta}', [DatosEstudiantesController::class, 'getAllStudentData']);
+    Route::get('/estudiantesCompletos', [DatosEstudiantesController::class, 'busquedaExcel']);
 
 
     Route::get('/estudiantes/bachillerato/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerBachilleratoPorNumeroCuenta']);
@@ -91,4 +91,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/citas', [CitasController::class, 'index']);
 
 });
-

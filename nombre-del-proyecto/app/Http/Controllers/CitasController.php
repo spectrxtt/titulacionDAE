@@ -37,6 +37,7 @@ class CitasController extends Controller
             // Maneja las citas
             foreach ($request->input('citas') as $citaData) {
                 Cita::create([
+                    'id_cita' => $citaData['id_cita'],
                     'fecha' => $citaData['fecha'],
                     'nombre' => $citaData['nombre'],
                     'observaciones' => $citaData['observaciones'],
@@ -135,18 +136,22 @@ class CitasController extends Controller
             $role = $user->rol;
 
             if ($role === 'admin' || $role === 'impresion') {
-                $citas = Cita::all();
+                $citas = Cita::with('usuario:nombre_usuario,id_usuario')->get();
             } elseif ($role === 'integrador') {
-                $citas = Cita::where('id_usuario', $user->id_usuario)->get(); // Solo citas asignadas al integrador
+                $citas = Cita::where('id_usuario', $user->id_usuario)
+                    ->with('usuario:nombre_usuario,id_usuario')
+                    ->get(); // Solo citas asignadas al integrador
             } else {
                 return response()->json(['error' => 'Rol no autorizado'], 403);
             }
 
+            // Retornar citas con el nombre de usuario en la respuesta
             return response()->json($citas);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener citas: ' . $e->getMessage()], 500);
         }
     }
+
 
     public function buscar(Request $request)
     {
@@ -168,11 +173,12 @@ class CitasController extends Controller
                 ->when($fecha, function ($query, $fecha) {
                     return $query->where('fecha', 'like', '%' . $fecha . '%');
                 })
-
                 ->when($estadoCita, function ($query, $estadoCita) {
                     // Asegúrate de que el estado_cita sea exactamente igual al valor proporcionado
                     return $query->where('estado_cita', '=', $estadoCita);
                 })
+                // Cargar la relación 'usuario' con el campo 'nombre_usuario'
+                ->with('usuario:nombre_usuario,id_usuario')
                 ->get();
 
             // Si no se encuentran citas, devuelve un mensaje
@@ -180,16 +186,12 @@ class CitasController extends Controller
                 return response()->json(['message' => 'No se encontraron citas'], 404);
             }
 
+            // Retornar las citas con el nombre del usuario cargado
             return response()->json($citas);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al buscar citas: ' . $e->getMessage()], 500);
         }
     }
-
-
-
-
-
 
 
     public function actualizarEstadoCita(Request $request, $id_cita)
