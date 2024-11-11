@@ -14,12 +14,11 @@ const Integracion = () => {
         setMostrarDatosPersonales(true);
     };
 
-
     useEffect(() => {
         const fetchCitas = async () => {
             try {
                 const token = localStorage.getItem('token'); // Asume que guardas el token en localStorage
-                const response = await fetch('http://10.11.80.167:8000/api/citas', {
+                const response = await fetch('http://10.11.80.188:8000/api/citas', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -65,39 +64,43 @@ const Integracion = () => {
     return (
         <div className="containerIntegracion">
             <h3>CITAS DEL DÍA</h3>
-            <table className="table">
-                <thead>
-                <tr>
-                    <th># Cuenta</th>
-                    <th>Nombre</th>
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                    <th>Observaciones</th>
-                    <th>Integrador</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody>
-                {citas.map((cita, index) => (
-                    <tr key={index}>
-                        <td>{cita.num_Cuenta || 'N/A'}</td>
-                        <td>{cita.nombre || 'N/A'}</td>
-                        <td>{cita.fecha || 'N/A'}</td>
-                        <td>{cita.estado_cita || 'N/A'}</td>
-                        <td>{cita.observaciones || 'N/A'}</td>
-                        <td>{cita.id_usuario || 'N/A'}</td>
-
-                        <td>
-                            <button className="button" onClick={() => handleVerClick(cita)}>
-                                VER
-                            </button>
-                        </td>
+            <div className="table-wrapper"> {/* Contenedor de la tabla con desplazamiento */}
+                <table className="table">
+                    <thead>
+                    <tr>
+                        <th># Cuenta</th>
+                        <th>Nombre</th>
+                        <th>Programa Educativo</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Observaciones</th>
+                        <th>Integrador</th>
+                        <th>Acciones</th>
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {citas.map((cita, index) => (
+                        <tr key={index}>
+                            <td>{cita.num_Cuenta || 'N/A'}</td>
+                            <td>{cita.nombre || 'N/A'}</td>
+                            <td>{cita.programa_educativo || 'N/A'}</td>
+                            <td>{cita.fecha || 'N/A'}</td>
+                            <td>{cita.estado_cita || 'N/A'}</td>
+                            <td>{cita.observaciones || 'N/A'}</td>
+                            <td>{cita.usuario?.nombre_usuario || 'N/A'}</td> {/* Accediendo correctamente al nombre del integrador */}
+                            <td>
+                                <button className="button" onClick={() => handleVerClick(cita)}>
+                                    VER
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
+
 };
 
 export default Integracion;

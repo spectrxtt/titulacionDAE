@@ -121,12 +121,13 @@ const CargarCitas = () => {
                         fecha: cita.fecha,
                         num_Cuenta: cita.num_Cuenta,
                         nombre: cita.nombre.toUpperCase(),
-                        carrera: cita.carrera,
+                        programa_educativo: cita.carrera, // Asegúrate de que carrera representa el programa educativo
                         observaciones: cita.observaciones,
                         estado_cita: cita.estado_cita,
                         id_usuario: usuarioAleatorio.id_usuario
                     };
                 }),
+                // No cambies las secciones restantes
                 estudiantes: datosTemporales.map(cita => {
                     const nombreCompleto = cita.nombre.trim();
                     const nombreParts = nombreCompleto.split(' ');
@@ -142,44 +143,21 @@ const CargarCitas = () => {
                         ap_materno: ap_materno.trim()
                     };
                 }),
-
-                estudiantesBach: datosTemporales.map(cita => {
-                    return {
-                        num_Cuenta: cita.num_Cuenta,
-                    };
-                }),
-
-                estudiantesUni: datosTemporales.map(cita => {
-                    return {
-                        num_Cuenta: cita.num_Cuenta,
-                    };
-                }),
-
-                requisitosObligatorios: datosTemporales.map(cita => {
-                    return {
-                        num_Cuenta: cita.num_Cuenta,
-                    };
-                }),
-
-                requisitosPrograma: datosTemporales.map(cita => {
-                    return {
-                        num_Cuenta: cita.num_Cuenta,
-                    };
-                }),
-
-                requisitosModalidad: datosTemporales.map(cita => {
-                    return {
-                        num_Cuenta: cita.num_Cuenta,
-                    };
-                })
+                estudiantesBach: datosTemporales.map(cita => ({ num_Cuenta: cita.num_Cuenta })),
+                estudiantesUni: datosTemporales.map(cita => ({ num_Cuenta: cita.num_Cuenta })),
+                requisitosObligatorios: datosTemporales.map(cita => ({ num_Cuenta: cita.num_Cuenta })),
+                requisitosPrograma: datosTemporales.map(cita => ({ num_Cuenta: cita.num_Cuenta })),
+                requisitosModalidad: datosTemporales.map(cita => ({ num_Cuenta: cita.num_Cuenta }))
             };
 
             console.log('Datos a enviar:', JSON.stringify(dataToSend, null, 2));
             const token = localStorage.getItem('token');
-            const response = await fetch('http://10.11.80.167:8000/api/cargar-citas', {
+            const response = await fetch('http://10.11.80.188:8000/api/cargar-citas', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
                 body: JSON.stringify(dataToSend)
             });
 
@@ -199,6 +177,7 @@ const CargarCitas = () => {
             setError(`Error al cargar citas: ${error.message}`);
         }
     };
+
 
     return (
         <div className="cargar-citas-con-usuarios">
@@ -237,7 +216,7 @@ const CargarCitas = () => {
                                 <th>Fecha</th>
                                 <th>No.Cuenta</th>
                                 <th>Alumno</th>
-                                <th>Carrera</th>
+                                <th>Programa Educativo</th>
                             </tr>
                             </thead>
                             <tbody>

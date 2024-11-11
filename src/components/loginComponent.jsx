@@ -15,7 +15,7 @@ function LoginComponent({ onLogin }) {
         setError('');
 
         try {
-            const response = await axios.post('http://10.11.80.167:8000/api/login', { usuario, password });
+            const response = await axios.post('http://10.11.80.188:8000/api/login', { usuario, password });
 
             // Login exitoso
             localStorage.setItem('token', response.data.token);

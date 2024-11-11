@@ -30,7 +30,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
     const actualizarDatosEstudiante = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.167:8000/api/estudiantes/${formData.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.188:8000/api/estudiantes/${formData.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://10.11.80.167:8000/api/estudiantes/${citaSeleccionada.num_Cuenta}`, {
+                const response = await fetch(`http://10.11.80.188:8000/api/estudiantes/${citaSeleccionada.num_Cuenta}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

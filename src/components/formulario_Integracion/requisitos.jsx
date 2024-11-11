@@ -27,7 +27,7 @@ const Requisitos = ({ citaSeleccionada }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.167:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.188:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -122,7 +122,7 @@ const Requisitos = ({ citaSeleccionada }) => {
             };
 
             const response = await fetch(
-                `http://10.11.80.167:8000/api/estudiantes/requisitosCompletos/${citaSeleccionada.num_Cuenta}`,
+                `http://10.11.80.188:8000/api/estudiantes/requisitosCompletos/${citaSeleccionada.num_Cuenta}`,
                 {
                     method: 'PUT',
                     headers: {

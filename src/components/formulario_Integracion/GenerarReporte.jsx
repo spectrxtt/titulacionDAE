@@ -29,7 +29,7 @@ const GenerarReporte = ({ citaSeleccionada }) => {
 
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://10.11.80.167:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
+            const response = await fetch(`http://10.11.80.188:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

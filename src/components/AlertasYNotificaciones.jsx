@@ -19,7 +19,7 @@ const ResumenDeCitas = ({ onVerClick }) => {
         const fetchCitas = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://10.11.80.167:8000/api/citas', {
+                const response = await fetch('http://10.11.80.188:8000/api/citas', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

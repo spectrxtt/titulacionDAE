@@ -142,6 +142,25 @@ th, td {
     }
 }
 
+@media (max-width: 920px) {
+    .containerIntegracion {
+        font-size: 0.5rem; /* Reduce el tamaño del texto */
+        min-width: auto;
+        width: 80%;
+        margin-left: 18rem;
+        margin-right: auto;
+    }
+
+    .table {
+        font-size: 0.40rem; /* Reduce aún más el tamaño del texto en la tabla */
+        overflow-x: auto;
+    }
+
+    th, td {
+        padding: 2px;
+    }
+}
+
 @media (max-width: 1000px) {
     .integracion-wrapper {
         margin-left: 220px; /* Ajusta este valor según el ancho de tu sidebar */

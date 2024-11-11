@@ -58,14 +58,14 @@ const CrearUsuarioFormulario = ({ onClose, usuarioExistente }) => {
 
         try {
             const response = usuarioExistente
-                ? await fetch(`http://10.11.80.167:8000/api/usuarios/${usuarioExistente.id_usuario}`, {
+                ? await fetch(`http://10.11.80.188:8000/api/usuarios/${usuarioExistente.id_usuario}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(usuarioData),
                 })
-                : await fetch('http://10.11.80.167:8000/api/usuarios', {
+                : await fetch('http://10.11.80.188:8000/api/usuarios', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ const GestionUsuarios = () => {
 
     const obtenerUsuarios = async () => {
         try {
-            const response = await fetch('http://10.11.80.167:8000/api/usuarios');
+            const response = await fetch('http://10.11.80.188:8000/api/usuarios');
             if (!response.ok) {
                 throw new Error('Error al obtener usuarios');
             }
@@ -191,7 +191,7 @@ const GestionUsuarios = () => {
         if (!confirmDelete) return; // Si el usuario cancela, no continuar
 
         try {
-            const response = await fetch(`http://10.11.80.167:8000/api/usuarios/${id_usuario}`, {
+            const response = await fetch(`http://10.11.80.188:8000/api/usuarios/${id_usuario}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
