@@ -28,42 +28,49 @@ Route::middleware(['api'])->group(function () {
     // Rutas para citas
     Route::post('/cargar-citas', [CitasController::class, 'cargarCitas']);
     Route::put('/actualizar-estado-cita/{id_cita}', [CitasController::class, 'actualizarEstadoCita']);
-
-
+    Route::put('/actualizar-estado-cita-fecha/{id_cita}', [CitasController::class, 'actualizarEstadoCitafECHA']);
 
     // Rutas para bachillerato
     Route::post('/bachillerato', [BachilleratoController::class, 'store'])->name('bachillerato.store');
     Route::get('/bachilleratos', [BachilleratoController::class, 'index']);
+    Route::put('/bachillerato/{id}', [BachilleratoController::class, 'updateBachillerato']);
 
+    // Rutas para programas educativos
     Route::post('/programa-educativo', [programaEduController::class, 'store'])->name('programa_educativo.store');
     Route::get('/programas-educativos', [programaEduController::class, 'index']);
 
+    // Rutas para titulos otorgados
     Route::post('/titulo-otorgado', [tituloOtorgadoController::class, 'store'])->name('titulo_otorgado.store');
     Route::get('/titulo-otorgado', [tituloOtorgadoController::class, 'index'])->name('titulo_otorgado.index');
 
+    // Rutas para modalidades
     Route::post('/modalidad-titulacion', [modalidadController::class, 'store'])->name('modalidad_titulacion.store');
     Route::get('/modalidades-titulacion', [modalidadController::class, 'index']);
 
-
+    // Rutas para requisitos de modalidad
     Route::post('/requisitos-modalidad', [requisitosModalidadController::class, 'store'])->name('requisitos_modalidad.store');
     Route::get('/requisitos-modalidad', [RequisitosModalidadController::class, 'index']);
 
+    // Rutas para requisitos de programa
     Route::post('/requisitos-programa', [requisitosProgramaController::class, 'store'])->name('requisitos_programa.store');
     Route::get('/requisitos-programa', [requisitosProgramaController::class, 'index']);
 
     Route::get('/estudiantes/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerPorNumeroCuenta']);
     Route::put('/estudiantes/{num_Cuenta}', [DatosEstudiantesController::class, 'update']);
 
-
+    // Rutas para descargar excel
     Route::get('/estudiantesCompletos', [DatosEstudiantesController::class, 'busquedaExcel']);
 
-
+    // Rutas para obtener bachillerato de estudiante
     Route::get('/estudiantes/bachillerato/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerBachilleratoPorNumeroCuenta']);
 
+    // Rutas para obtener programa educativo de estudiante
     Route::get('/estudiantes/uni/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerUniPorNumeroCuenta']);
 
+    // Rutas para actualizar datos escolares
     Route::put('/estudiantes/datos-escolares/{num_Cuenta}', [DatosEstudiantesController::class, 'updateDatosEscolares']);
 
+    // Rutas para obtener requisitos obligatorios
     Route::get('/estudiantes/requisitos-obligatorios/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerObligatoriosPorNumeroCuenta']);
 
     Route::get('/estudiantes/requisitos-programaEs/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosProgramaPorNumeroCuenta']);
@@ -81,13 +88,14 @@ Route::middleware(['api'])->group(function () {
     // Ruta para obtener el id_modalidad y el id_programa_educativo
     Route::get('/estudiantes/requisitos-modalidad/{num_Cuenta}', [DatosRequisitosController::class, 'obtenerRequisitosModalidad']);
 
+    // Rutas para buscar citas
     Route::get('/buscar-citas', [CitasController::class, 'buscar']);
 
-
-
 });
+// Rutas para obtener citas por rol
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/citas', [CitasController::class, 'index']);
-
+    Route::get('/citasExpedientes', [CitasController::class, 'indexExpedientes']);
+    Route::delete('/citas/{id_cita}', [CitasController::class, 'destroy']);
 });

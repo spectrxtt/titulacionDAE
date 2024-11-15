@@ -37,13 +37,13 @@ class CitasController extends Controller
             // Maneja las citas
             foreach ($request->input('citas') as $citaData) {
                 Cita::create([
-                    'id_cita' => $citaData['id_cita'],
-                    'fecha' => $citaData['fecha'],
-                    'nombre' => $citaData['nombre'],
-                    'observaciones' => $citaData['observaciones'],
-                    'estado_cita' => $citaData['estado_cita'],
-                    'id_usuario' => $citaData['id_usuario'],
-                    'num_Cuenta' => $citaData['num_Cuenta'],
+                    'fecha' => $citaData['fecha'] ?? null,
+                    'nombre' => $citaData['nombre'] ?? null,
+                    'observaciones' => $citaData['observaciones'] ?? null,
+                    'estado_cita' => $citaData['estado_cita'] ?? null,
+                    'id_usuario' => $citaData['id_usuario'] ?? null,
+                    'num_Cuenta' => $citaData['num_Cuenta'] ?? null,
+                    'programa_educativo' => $citaData['programa_educativo'] ?? null, // Agregado aquí
                 ]);
             }
 
@@ -136,16 +136,61 @@ class CitasController extends Controller
             $role = $user->rol;
 
             if ($role === 'admin' || $role === 'impresion') {
-                $citas = Cita::with('usuario:nombre_usuario,id_usuario')->get();
+                // Incluir la modalidad usando 'estudiante'
+                $citas = Cita::with(['usuario:nombre_usuario,id_usuario', 'estudiante.modalidad'])->get();
             } elseif ($role === 'integrador') {
+                // Incluir la modalidad para un integrador
                 $citas = Cita::where('id_usuario', $user->id_usuario)
-                    ->with('usuario:nombre_usuario,id_usuario')
+                    ->with(['usuario:nombre_usuario,id_usuario', 'estudiante.modalidad'])
                     ->get(); // Solo citas asignadas al integrador
             } else {
                 return response()->json(['error' => 'Rol no autorizado'], 403);
             }
 
-            // Retornar citas con el nombre de usuario en la respuesta
+            // Retornar citas con el nombre de usuario y modalidad
+            return response()->json($citas);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener citas: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function indexExpedientes(Request $request)
+    {
+        try {
+            $user = Auth::user(); // Obtener el usuario autenticado
+
+            if (!$user) {
+                return response()->json(['error' => 'Usuario no autenticado'], 401);
+            }
+
+            $role = $user->rol;
+
+            if ($role === 'admin' || $role === 'impresion') {
+                // Incluir la modalidad usando 'estudiante'
+                $citas = Cita::with(['usuario:nombre_usuario,id_usuario', 'estudiante.modalidad'])
+                    ->where(function ($query) {
+                        $query->where('estado_cita', 'Integrado')
+                            ->orWhere('estado_cita', 'Rechazado');
+                    })
+                    ->orderByDesc('id_cita')
+                    ->take(10)
+                    ->get();
+            } elseif ($role === 'integrador') {
+                // Incluir la modalidad para un integrador
+                $citas = Cita::where('id_usuario', $user->id_usuario)
+                    ->where(function ($query) {
+                        $query->where('estado_cita', 'Integrado')
+                            ->orWhere('estado_cita', 'Rechazado');
+                    })
+                    ->with(['usuario:nombre_usuario,id_usuario', 'estudiante.modalidad'])
+                    ->orderByDesc('id_cita')
+                    ->take(10)
+                    ->get(); // Solo citas asignadas al integrador
+            } else {
+                return response()->json(['error' => 'Rol no autorizado'], 403);
+            }
+
+            // Retornar citas con el nombre de usuario y modalidad
             return response()->json($citas);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener citas: ' . $e->getMessage()], 500);
@@ -157,42 +202,75 @@ class CitasController extends Controller
     {
         $num_Cuenta = $request->query('cuenta');
         $nombre = $request->query('nombre');
-        $fecha = $request->query('fecha');
+        $fecha_inicio = $request->query('fecha_inicio');
+        $fecha_fin = $request->query('fecha_fin');
         $estadoCita = $request->query('estado');
 
-        \Log::info('Parámetros recibidos - Cuenta: ' . $num_Cuenta . ', Nombre: ' . $nombre .', Fecha: ' . $fecha . ', Estado: ' . $estadoCita);
+        \Log::info('Parámetros recibidos - Cuenta: ' . $num_Cuenta .
+            ', Nombre: ' . $nombre .
+            ', Fecha inicio: ' . $fecha_inicio .
+            ', Fecha fin: ' . $fecha_fin .
+            ', Estado: ' . $estadoCita);
 
         try {
-            // Inicializa la consulta con el filtro condicionalmente
-            $citas = Cita::when($num_Cuenta, function ($query, $num_Cuenta) {
+            $citas = Cita::with(['usuario', 'estudiante.modalidad']) // Cargar las relaciones usuario y modalidad
+            ->when($num_Cuenta, function ($query, $num_Cuenta) {
                 return $query->where('num_Cuenta', $num_Cuenta);
             })
                 ->when($nombre, function ($query, $nombre) {
                     return $query->where('nombre', 'like', '%' . $nombre . '%');
                 })
-                ->when($fecha, function ($query, $fecha) {
-                    return $query->where('fecha', 'like', '%' . $fecha . '%');
+                ->when($fecha_inicio || $fecha_fin, function ($query) use ($fecha_inicio, $fecha_fin) {
+                    if ($fecha_inicio && $fecha_fin) {
+                        return $query->whereBetween('fecha', [$fecha_inicio, $fecha_fin]);
+                    } elseif ($fecha_inicio) {
+                        return $query->whereDate('fecha', '=', $fecha_inicio);
+                    } elseif ($fecha_fin) {
+                        return $query->whereDate('fecha', '=', $fecha_fin);
+                    }
                 })
                 ->when($estadoCita, function ($query, $estadoCita) {
-                    // Asegúrate de que el estado_cita sea exactamente igual al valor proporcionado
                     return $query->where('estado_cita', '=', $estadoCita);
                 })
-                // Cargar la relación 'usuario' con el campo 'nombre_usuario'
-                ->with('usuario:nombre_usuario,id_usuario')
                 ->get();
 
-            // Si no se encuentran citas, devuelve un mensaje
-            if ($citas->isEmpty()) {
+            // Transformar las citas manteniendo la relación usuario y añadiendo la modalidad titulacion
+            $citasTransformadas = $citas->map(function ($cita) {
+                // Si no hay usuario, se asigna un objeto usuario vacío o con 'N/A'
+                $cita->usuario = $cita->usuario ?: (object)['nombre_usuario' => 'N/A'];
+                // Si no hay modalidad, se asigna 'N/A'
+                $cita->estudiante->modalidad = $cita->estudiante->modalidad ?: (object)['modalidad_titulacion' => 'N/A'];
+                return $cita;
+            });
+
+            if ($citasTransformadas->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron citas'], 404);
             }
 
-            // Retornar las citas con el nombre del usuario cargado
-            return response()->json($citas);
+            return response()->json($citasTransformadas);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al buscar citas: ' . $e->getMessage()], 500);
         }
     }
 
+
+    public function destroy($id_cita)
+    {
+        try {
+            // Busca la cita por su id_cita
+            $cita = Cita::where('id_cita', $id_cita)->firstOrFail();
+
+            // Elimina la cita
+            $cita->delete();
+
+            // Retorna una respuesta exitosa
+            return response()->json(['message' => 'Cita eliminada exitosamente.'], 200);
+        } catch (\Exception $e) {
+            // En caso de error, captura el mensaje y devuelve una respuesta de error
+            \Log::error($e->getMessage());
+            return response()->json(['error' => 'No se pudo eliminar la cita.'], 500);
+        }
+    }
 
     public function actualizarEstadoCita(Request $request, $id_cita)
     {
@@ -216,4 +294,28 @@ class CitasController extends Controller
         // Retornar la respuesta con el estudiante actualizado
         return response()->json(['message' => 'Datos actualizados correctamente', 'cita' => $cita]);
     }
+    public function actualizarEstadoCitafECHA(Request $request, $id_cita)
+    {
+        // Buscar la cita por su id
+        $cita = Cita::find($id_cita);
+
+        // Verificar si la cita existe
+        if (!$cita) {
+            return response()->json(['message' => 'Cita no encontrada'], 404);
+        }
+
+        // Validar los datos recibidos, incluyendo la fecha
+        $validatedData = $request->validate([
+            'estado_cita' => 'nullable|string|max:255',
+            'observaciones' => 'nullable|string|max:255',
+            'fecha' => 'nullable|date' // Añadir validación para la fecha
+        ]);
+
+        // Actualizar la cita con los datos validados
+        $cita->update($validatedData);
+
+        // Retornar la respuesta con la cita actualizada
+        return response()->json(['message' => 'Datos actualizados correctamente', 'cita' => $cita]);
+    }
+
 }

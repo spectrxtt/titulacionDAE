@@ -28,4 +28,9 @@ class estudianteUni extends Model
     {
         return $this->hasMany(Cita::class, 'num_Cuenta', 'num_Cuenta');
     }
+    public function modalidad()
+    {
+        return $this->belongsTo(Modalidad::class, 'id_modalidad', 'id_modalidad');
+    }
+
 }

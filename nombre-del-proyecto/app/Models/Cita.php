@@ -32,4 +32,9 @@ class Cita extends Model
     {
         return $this->belongsTo(Usuario::class, 'id_usuario');
     }
+    // En el modelo Cita
+    public function estudiante()
+    {
+        return $this->belongsTo(estudianteUni::class, 'num_Cuenta', 'num_Cuenta');
+    }
 }
