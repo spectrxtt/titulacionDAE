@@ -113,21 +113,23 @@ const CargarCitas = () => {
 
     const handleConfirmarAsignacion = async (usuarios) => {
         try {
+            let userIndex = 0; // índice inicial para la asignación cíclica
+
             const dataToSend = {
                 citas: datosTemporales.map(cita => {
-                    const usuarioAleatorio = usuarios[Math.floor(Math.random() * usuarios.length)];
+                    const usuarioAsignado = usuarios[userIndex];
+                    userIndex = (userIndex + 1) % usuarios.length; // avanzar al siguiente usuario de forma cíclica
 
                     return {
                         fecha: cita.fecha,
                         num_Cuenta: cita.num_Cuenta,
                         nombre: cita.nombre.toUpperCase(),
-                        programa_educativo: cita.carrera, // Asegúrate de que carrera representa el programa educativo
+                        programa_educativo: cita.carrera,
                         observaciones: cita.observaciones,
                         estado_cita: cita.estado_cita,
-                        id_usuario: usuarioAleatorio.id_usuario
+                        id_usuario: usuarioAsignado.id_usuario
                     };
                 }),
-                // No cambies las secciones restantes
                 estudiantes: datosTemporales.map(cita => {
                     const nombreCompleto = cita.nombre.trim();
                     const nombreParts = nombreCompleto.split(' ');
@@ -177,6 +179,7 @@ const CargarCitas = () => {
             setError(`Error al cargar citas: ${error.message}`);
         }
     };
+
 
 
     return (

@@ -5,6 +5,7 @@ import Integracion from '../Integracion';
 import { useFormData } from './integracionDatos';
 import GenerarReporte from "./GenerarReporte";
 import ClipLoader from "react-spinners/ClipLoader";
+import StudentDataPreview from './BorradorPre';
 import entidadesFederativas from '../../data/entidadesFederativas.json';
 import paises from '../../data/paises.json';
 
@@ -12,6 +13,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
     const [mostrarDatosEscolares, setMostrarDatosEscolares] = useState(false);
         const [mostrarIntegracion, setMostrarIntegracion] = useState(false);
         const [mostrarGenerarReporte, setMostrarGenerarReporte] = useState(false);
+        const [mostrarDatosborrador, setMostrarDatosborrador] = useState(false);
         const { formData, updateFormData } = useFormData();
         const [estudianteData, setEstudianteData] = useState(null);
         const [loading, setLoading] = useState(true); // Nuevo estado para control de carga
@@ -159,6 +161,11 @@ const DatosPersonales = ({ citaSeleccionada }) => {
         await actualizarDatosEstudiante();
         setMostrarDatosEscolares(true);
     };
+    const handleVerClickbORRADOR = async (e) => {
+        e.preventDefault();
+        await actualizarDatosEstudiante();
+        setMostrarDatosborrador(true);
+    };
 
     const handleVerClickIntegracion = (e) => {
         e.preventDefault();
@@ -181,6 +188,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
     if (mostrarGenerarReporte) {
         return <GenerarReporte citaSeleccionada={citaSeleccionada}/>;
     }
+    if (mostrarDatosborrador) return <StudentDataPreview citaSeleccionada={citaSeleccionada} />;
 
     // Mostrar el spinner mientras los datos están cargando
     if (loading) {
@@ -198,6 +206,7 @@ const DatosPersonales = ({ citaSeleccionada }) => {
                 <button onClick={handleGenerarReporteClick}>
                     <i className="fa-solid fa-triangle-exclamation"></i>
                 </button>
+
             </div>
             <h2>Datos Personales</h2>
             <div className="form-container-personales">

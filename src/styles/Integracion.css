@@ -40,30 +40,60 @@
 .containerIntegracion {
     min-width: 500px;
     padding: 10px;
+    margin-left: 13rem;
     border: 1px solid var(--clr-rojo);
     border-radius: .5rem;
     background-color: #FAF3EE;
     text-align: center;
 }
+.containerIntegracion table{
+    font-size: .8rem;
+}
 .containerExpedientes {
-    min-width: 500px;
+    min-width: 400px;
+    margin-left: 15.5rem;
     padding: 10px;
     border: 1px solid var(--clr-rojo);
     border-radius: .5rem;
     background-color: #FAF3EE;
     text-align: center;
+    /* overflow: hidden; Este puede estar bloqueando el desplazamiento */
+}
+
+.table-wrapper {
+    width: 90%;
+    overflow-x: auto; /* Habilita el desplazamiento horizontal */
 }
 
 .table {
     width: 100%;
     border-collapse: collapse;
     margin: 0 auto;
+    font-size: 0.65rem; /* Adjust the font size of the table */
 }
 
 th, td {
-    padding: 10px;
-    text-align: center;
+    padding: 6px; /* Reduce the padding of the table cells */
+    text-align: left;
 }
+
+/* You can also add specific width styles for each column if needed */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+    width: 10%;
+}
+
+.table th:nth-child(2),
+.table td:nth-child(2) {
+    width: 15%;
+}
+
+.table th:nth-child(3),
+.table td:nth-child(3) {
+    width: 20%;
+}
+
+
 
 .dropdown {
     padding: 5px;
@@ -86,6 +116,7 @@ th, td {
     border-radius: .5rem;
     color: white;
 }
+
 @media (max-width: 1720px) {
     .containerIntegracion {
         font-size: 0.8rem; /* Reduce el tamaño del texto */
@@ -96,12 +127,10 @@ th, td {
     }
 
     .table {
-        font-size: 0.75rem; /* Reduce aún más el tamaño del texto en la tabla */
-        overflow-x: auto;
+        font-size: 0.75rem; /* Reduce el tamaño del texto en la tabla */
     }
-
     th, td {
-        padding: 4px;
+        padding: 4px; /* Reduce el padding */
     }
 }
 
@@ -115,12 +144,10 @@ th, td {
     }
 
     .table {
-        font-size: 0.75rem; /* Reduce aún más el tamaño del texto en la tabla */
-        overflow-x: auto;
+        font-size: 0.7rem; /* Reduce el tamaño del texto en la tabla */
     }
-
     th, td {
-        padding: 4px;
+        padding: 4px; /* Reduce el padding */
     }
 }
 @media (max-width: 1240px) {
@@ -133,32 +160,48 @@ th, td {
     }
 
     .table {
-        font-size: 0.70rem; /* Reduce aún más el tamaño del texto en la tabla */
-        overflow-x: auto;
+        font-size: 0.65rem; /* Reduce el tamaño del texto en la tabla */
     }
-
     th, td {
-        padding: 4px;
+        padding: 4px; /* Reduce el padding */
     }
 }
 
-@media (max-width: 920px) {
+@media (max-width: 960px) {
     .containerIntegracion {
-        font-size: 0.5rem; /* Reduce el tamaño del texto */
         min-width: auto;
         width: 80%;
         margin-left: 18rem;
         margin-right: auto;
     }
+    .containerIntegracion table{
+        font-size: 0.6rem; /* Reduce el tamaño del texto */
+
+    }
+    .containerExpedientes {
+        font-size: 0.5rem; /* Reduce el tamaño del texto */
+        min-width: auto;
+        width: 80%;
+        margin-left: 13rem;
+        margin-right: auto;
+    }
 
     .table {
-        font-size: 0.40rem; /* Reduce aún más el tamaño del texto en la tabla */
-        overflow-x: auto;
+        font-size: 0.6rem; /* Reduce aún más el tamaño del texto en la tabla */
+    }
+    th, td {
+        padding: 3px; /* Reduce el padding */
+    }
+    .buscador {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 500px;
+        width: 100%;
     }
 
-    th, td {
-        padding: 2px;
-    }
 }
 
 @media (max-width: 1000px) {

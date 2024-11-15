@@ -4,7 +4,10 @@ import Requisitos from './requisitos';
 import Integracion from '../Integracion';
 import jsPDF from 'jspdf';
 import { useFormData } from './integracionDatos';
+import { Document, Packer, Paragraph, TextRun } from "docx";
 import ClipLoader from "react-spinners/ClipLoader";
+import { saveAs } from 'file-saver';
+
 
 
 // Define los estados de la cita
@@ -474,7 +477,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             const promedioTexto = !isNaN(primerRequisito) ? numeroATexto(primerRequisito) : 'NO ESPECIFICADO';
 
             // Texto de modalidad centrado con el primer requisito como "promedio" en ambos formatos
-            const modalidadText = `Modalidad: Alto Rendimiento Academico con promedio de ${primerRequisito} (${promedioTexto})`;
+            const modalidadText = `Modalidad: Alto Rendimiento Académico con promedio de ${primerRequisito} (${promedioTexto})`;
             const textWidth = doc.getTextWidth(modalidadText);
             const centerX = (pageWidth - textWidth) / 2;
             doc.text(modalidadText, centerX, 100); // Ajusta la coordenada Y según sea necesario
@@ -552,7 +555,11 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         doc.setFont("helvetica", "normal");
         doc.text(`Institución: ${bachilleratoInfo.nombre}`, leftMargin, currentY);
         currentY += lineHeight;
-        doc.text(`Periodo: de ${formData.fecha_inicio_bach} a ${formData.fecha_fin_bach}`, leftMargin, currentY);
+        // Extraer solo el año antes del primer '/'
+        const startYear = formData.fecha_inicio_bach.split('-')[0]; // Tomar el año
+        const endYear = formData.fecha_fin_bach.split('-')[0]; // Tomar el año
+
+        doc.text(`Periodo: de ${startYear} a ${endYear}`, leftMargin, currentY);
         currentY += lineHeight;
         doc.text(`Entidad federativa: ${bachilleratoInfo.entidad} (se registra entidad donde se expide el certificado)`, leftMargin, currentY);
         currentY += lineHeight * 2;
@@ -567,7 +574,16 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         currentY += lineHeight;
         doc.text(`Carrera: ${getProgramaEducativoNombre(formData.id_programa_educativo)}`, leftMargin, currentY);
         currentY += lineHeight;
-        doc.text(`Periodo: de ${formData.fecha_inicio_uni} a ${formData.fecha_fin_uni} (este dato lo arroja el sistema automáticamente)`, leftMargin, currentY);
+        // Suponiendo que las fechas están en formato 'YYYY/MM/DD' en formData
+
+// Extraer solo el año antes del primer '/'
+        const startYearU = formData.fecha_inicio_uni.split('-')[0]; // Tomar el año
+        const endYearU = formData.fecha_fin_uni.split('-')[0]; // Tomar el año
+
+// Generar el texto con solo los años
+        doc.text(`Periodo: de ${startYearU} a ${endYearU} (este dato lo arroja el sistema automáticamente)`, leftMargin, currentY);
+
+
         currentY += lineHeight;
         doc.text("Entidad federativa: Hidalgo", leftMargin, currentY);
         currentY += lineHeight;
@@ -579,8 +595,12 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const textWidth = doc.getTextWidth(accountText);
         doc.text(accountText, pageWidth - margin - textWidth, pageHeight - margin);
 
-        doc.save('titulo_universitario.pdf');
+        doc.save(`${formData.num_Cuenta}.pdf`);
     };
+
+
+
+
 
     const handleVerClickRequisitos = () => setMostrarDatosRequisitos(true);
     // Si mostrarIntegracion es true, renderiza el componente Integracion
@@ -641,7 +661,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
             </div>
 
             <div className="section">
-                <h3>DATOS ESCOLARES</h3>
+                <h3>DATOS DE BACHILLERATO</h3>
                 <div className="grid">
                     <div className="requirement-item">
                         <label>Bachillerato</label>
@@ -663,6 +683,11 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
                         <label>Fecha Fin Bachillerato</label>
                         <div className="requirement-value data">{formData.fecha_fin_bach || 'No especificado'}</div>
                     </div>
+                </div>
+            </div>
+            <div className="section">
+                <h3>DATOS DE LICENCIATURA</h3>
+                <div className="grid">
                     <div className="requirement-item">
                         <label>Programa Educativo</label>
                         <div
@@ -682,7 +707,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
                         <div className="requirement-value data">{formData.fecha_fin_uni || 'No especificado'}</div>
                     </div>
                     <div className="requirement-item">
-                        <label>Estado Pasantía</label>
+                        <label>Fecha Limite para titularse</label>
                         <div className="requirement-value data">{formData.periodo_pasantia || 'No especificado'}</div>
                     </div>
                     <div className="requirement-item">

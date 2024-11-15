@@ -18,6 +18,26 @@ const Expedientes = () => {
         fecha_fin: '',
         estado: ''
     });
+    const [totalCitas, setTotalCitas] = useState(0);
+    const formatDateS = (fecha) => {
+        if (!fecha) return 'N/A';
+        const fechaObj = new Date(fecha);
+        if (isNaN(fechaObj.getTime())) return 'N/A';
+
+        // Ajustar la fecha para compensar la diferencia de zona horaria
+        const offsetMs = fechaObj.getTimezoneOffset() * 60 * 1000;
+        const adjustedDate = new Date(fechaObj.getTime() + offsetMs);
+
+        const dia = adjustedDate.getDate().toString().padStart(2, '0');
+        const mes = (adjustedDate.getMonth() + 1).toString().padStart(2, '0');
+        const año = adjustedDate.getFullYear();
+        return `${dia}-${mes}-${año}`;
+    };
+
+// Actualiza el total de citas cuando las citas cambian
+    useEffect(() => {
+        setTotalCitas(citas.length); // Asume que `citas` es el array de citas filtradas
+    }, [citas]);
 
 
     const handleVerClick = (cita) => {
@@ -49,6 +69,7 @@ const Expedientes = () => {
                 const [year, month, day] = date.split('-');
                 return `${year}/${month}/${day}`;
             };
+
 
             const token = localStorage.getItem('token');
             const response = await fetch(`http://10.11.80.188:8000/api/buscar-citas?cuenta=${busqueda.cuenta}&nombre=${busqueda.nombre}&fecha_inicio=${formatDate(fechaInicio)}&fecha_fin=${formatDate(fechaFin)}&estado=${busqueda.estado}`, {
@@ -113,35 +134,57 @@ const Expedientes = () => {
             }
 
             const excelData = [];
+            let citaIndex = 1;
 
+            // Procesamos los datos
             Object.entries(data.datos_estudiantes).forEach(([numCuenta, estudiante]) => {
                 const citasEstudiante = data.citas.filter(cita => cita.num_Cuenta === parseInt(numCuenta));
 
                 citasEstudiante.forEach(cita => {
                     excelData.push({
-                        'Nombre': estudiante.personal_data.nombre_estudiante,
-                        'Apellido Paterno': estudiante.personal_data.ap_paterno,
-                        'Apellido Materno': estudiante.personal_data.ap_materno,
-                        'Titulo Otorgado': estudiante.university_data?.titulo_otorgado || 'N/A',
-                        'Modalidad Titulación': estudiante.university_data?.modalidad_titulacion || 'N/A',
-                        'CURP': estudiante.personal_data.curp,
-                        'Bachillerato': estudiante.bachillerato_data?.nombre_bach || 'N/A',
-                        'Fecha Inicio Bachillerato': estudiante.bachillerato_data?.fecha_inicio_bach || 'N/A',
-                        'Fecha Fin Bachillerato': estudiante.bachillerato_data?.fecha_fin_bach || 'N/A',
-                        'Entidad Bachillerato': estudiante.bachillerato_data?.bach_entidad || 'N/A',
-                        'Programa Educativo': estudiante.university_data?.programa_educativo || 'N/A',
-                        'Fecha Inicio Universidad': estudiante.university_data?.fecha_inicio_uni || 'N/A',
-                        'Fecha Fin Universidad': estudiante.university_data?.fecha_fin_uni || 'N/A',
-                        'Estado': estudiante.personal_data.estado,
+                        'Número de Cita': citaIndex,
                         'Número de Cuenta': numCuenta,
+                        'Número': null,
+                        'programaEducativoSEP': null,
+                        'programaEducativoVersionClave': null,
+                        'NOMBRE COMPLETO': `${estudiante.personal_data.nombre_estudiante || ''} ${estudiante.personal_data.ap_paterno || ''} ${estudiante.personal_data.ap_materno || ''}`,
+                        'tituloOtorga': estudiante.university_data?.titulo_otorgado || 'N/A',
+                        'firmaProfesionistaEtiqueta': null,
+                        'CURP': estudiante.personal_data.curp,
+                        'institucionProcedencia': estudiante.bachillerato_data?.nombre_bach || 'N/A',
+                        'institucionProcedenciaAnioInicio': formatDateS(estudiante.bachillerato_data?.fecha_inicio_bach),
+                        'institucionProcedenciaAnioTermino': formatDateS(estudiante.bachillerato_data?.fecha_fin_bach),
+                        'institucionProcedenciaEntidadFederativa': estudiante.bachillerato_data?.bach_entidad || 'N/A',
+                        'entfedjesus': (estudiante.bachillerato_data?.bach_entidad || 'N/A').toUpperCase(),
+                        'carrera': estudiante.university_data?.programa_educativo || 'N/A',
+                        'anioInicio': formatDateS(estudiante.university_data?.fecha_inicio_uni || 'N/A'),
+                        'anioTermino': formatDateS(estudiante.university_data?.fecha_fin_uni || 'N/A'),
+                        'promedio': null,
+                        'promedioletra': null,
+                        'nombrePreferencia': estudiante.personal_data.nombre_estudiante || '',
+                        'primerApellidoPreferencia': estudiante.personal_data.ap_paterno || '',
+                        'segundoApellidoPreferencia': estudiante.personal_data.ap_materno || '',
+                        'expedicionModalidadTitulacion': estudiante.university_data?.modalidad_titulacion || 'N/A',
+                        'fechaEvaluacionLetra': null,
+                        'fechaExpedicionLetra': null,
+                        'institucion': 'Universidad Autónoma del Estado de Hidalgo',
+                        'expedicionEntidadFederativa': 'Hidalgo',
+                        'nombremayus': estudiante.personal_data.nombre_estudiante ? estudiante.personal_data.nombre_estudiante.toLocaleUpperCase('es-ES') : '',
+                        'apmayus': estudiante.personal_data.ap_paterno ? estudiante.personal_data.ap_paterno.toLocaleUpperCase('es-ES') : '',
+                        'ammayus': estudiante.personal_data.ap_materno ? estudiante.personal_data.ap_materno.toLocaleUpperCase('es-ES') : '',
+                        'nombresin': estudiante.personal_data.nombre_estudiante ? estudiante.personal_data.nombre_estudiante.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() : '',
+                        'apsin': estudiante.personal_data.ap_paterno ? estudiante.personal_data.ap_paterno.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() : '',
+                        'amsin': estudiante.personal_data.ap_materno ? estudiante.personal_data.ap_materno.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() : '',
+                        'nombre propio': `${estudiante.personal_data.nombre_estudiante || ''} ${estudiante.personal_data.ap_paterno || ''} ${estudiante.personal_data.ap_materno || ''}`,
                         'Género': estudiante.personal_data.genero,
                         'País': estudiante.personal_data.pais,
-                        'Periodo Pasantía': estudiante.university_data?.periodo_pasantia || 'N/A',
-                        'Fecha Cita': cita.fecha,
+                        'Periodo Pasantía': formatDateS(estudiante.university_data?.periodo_pasantia || 'N/A'),
+                        'Fecha Cita': formatDateS(cita.fecha),
                         'Estado Cita': cita.estado_cita,
                         'Observaciones': cita.observaciones || 'N/A',
                         'Integrador': cita.nombre_usuario || 'N/A'
                     });
+                    citaIndex++;
                 });
             });
 
@@ -159,7 +202,6 @@ const Expedientes = () => {
             }));
             worksheet['!cols'] = colWidths;
 
-            // Generar y descargar el archivo
             const fecha = new Date().toISOString().split('T')[0];
             XLSX.writeFile(workbook, `Reporte_Estudiantes_${fecha}.xlsx`);
 
@@ -168,9 +210,6 @@ const Expedientes = () => {
             setError(error.message);
         }
     };
-
-
-
 
     const handleLimpiarBusqueda = () => {
         setBusqueda({
@@ -186,7 +225,7 @@ const Expedientes = () => {
     const fetchCitas = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://10.11.80.188:8000/api/citas', {
+            const response = await fetch('http://10.11.80.188:8000/api/citasExpedientes', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -200,8 +239,8 @@ const Expedientes = () => {
 
             const data = await response.json();
 
-            // Filtrar solo citas con estado "Integrado"
-            const citasIntegradas = data.filter(cita => cita.estado_cita === 'Integrado');
+            // Filtrar citas con estado "Integrado" o "Rechazado"
+            const citasIntegradas = data.filter(cita => cita.estado_cita === 'Integrado' || cita.estado_cita === 'Rechazado');
 
             setCitas(citasIntegradas);
         } catch (error) {
@@ -277,6 +316,7 @@ const Expedientes = () => {
                     <option value="pendiente">Pendiente</option>
                     <option value="Enviado, pendiente de validar">Enviado, pendiente de validar</option>
                     <option value="Integrado">Integrado</option>
+                    <option value="Dato Faltante">Dato Faltante</option>
                     <option value="Rechazado">Rechazado</option>
                     <option value="Corrección">Corrección</option>
                     <option value="Atendiendo Corrección">Atendiendo Corrección</option>
@@ -298,6 +338,10 @@ const Expedientes = () => {
                     Exportar a Excel
                 </button>
             </div>
+            {/* Display the total number of appointments */}
+            <div className="total-citas">
+                Total de citas mostradas: {citas.length}
+            </div>
 
             <div className="containerExpedientes">
                 <h3>EXPEDIENTES INTEGRADOS</h3>
@@ -310,8 +354,12 @@ const Expedientes = () => {
                         <th>Fecha</th>
                         <th>Estado</th>
                         <th>Observaciones</th>
-                        <th>Integrador</th>
+                        <th>Modalidad Titulación</th>
                         <th>Acciones</th>
+                        <th>Integrador</th>
+
+                        {/* Nueva columna */}
+
                     </tr>
                     </thead>
                     <tbody>
@@ -321,20 +369,22 @@ const Expedientes = () => {
                                 <td>{cita.num_Cuenta || 'N/A'}</td>
                                 <td>{cita.nombre || 'N/A'}</td>
                                 <td>{cita.programa_educativo || 'N/A'}</td>
-                                <td>{cita.fecha || 'N/A'}</td>
-                                <td>{cita.estado_cita || 'N/A'}</td>
+                                <td>{formatDateS(cita.fecha || 'N/A')}</td>
+                                <td>{cita.estado_cita || 'N/A' }</td>
                                 <td>{cita.observaciones || 'N/A'}</td>
-                                <td>{cita.usuario?.nombre_usuario || 'N/A'}</td> {/* Asegúrate que 'usuario' está presente */}
+                                <td>{cita.estudiante?.modalidad?.modalidad_titulacion || 'N/A'}</td>
                                 <td>
                                     <button className="button" onClick={() => handleVerClick(cita)}>
                                         VER
                                     </button>
                                 </td>
+                                <td>{cita.usuario?.nombre_usuario || 'N/A'}</td>
+                                {/* Nueva celda para modalidad titulacion */}
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="7" style={{
+                            <td colSpan="8" style={{
                                 textAlign: 'center',
                                 padding: '1rem',
                                 color: '#dc2626' // Color rojo para el error
@@ -346,6 +396,7 @@ const Expedientes = () => {
                     </tbody>
                 </table>
             </div>
+
         </div>
     );
 

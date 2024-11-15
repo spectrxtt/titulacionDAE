@@ -387,10 +387,11 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                 <button onClick={handleGenerarReporteClick}>
                     <i className="fa-solid fa-triangle-exclamation"></i>
                 </button>
-                <RequisitosButton requisitosContent="Requisitos para licenciatura en derecho: " />
+                <RequisitosButton requisitosContent="Requisitos para licenciatura en derecho: "/>
             </div>
 
-            <h2>Datos Escolares</h2>
+            <p>Num. Cuenta: {formData.num_Cuenta}</p>
+            <h2>Datos de Bachillerato</h2>
             <div className="form-container-personales">
                 <div className="form-group-personales" ref={inputRef}> {/* Ref al contenedor */}
                     <label htmlFor="bachillerato">Bachillerato procedencia</label>
@@ -441,7 +442,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                         />
                     </div>
                 </div>
-
+                <h2>Datos de Licenciatura</h2>
                 <div className="form-row">
                     <div className="form-group-personales" ref={inputRefProgramas}> {/* Ref al contenedor */}
                         <label htmlFor="programa">Programa Educativo</label>
@@ -545,25 +546,25 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                                 : 'fecha-pasantia-verde'
                         }
                     />
-            </div>
-            <div className="form-group">
-                <label htmlFor="modalidad">Modalidad de titulación</label>
-                <select
-                    id="modalidad"
-                    name="id_modalidad"
-                    value={formData.id_modalidad || ''}
-                    onChange={handleChange}
-                >
-                    <option value="">Seleccione la modalidad de titulacion</option>
-                    {modalidadesTitulacion.map(modalidad => (
-                        <option key={modalidad.id_modalidad} value={modalidad.id_modalidad}>
-                            {modalidad.modalidad_titulacion}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="modalidad">Modalidad de titulación</label>
+                    <select
+                        id="modalidad"
+                        name="id_modalidad"
+                        value={formData.id_modalidad || ''}
+                        onChange={handleChange}
+                    >
+                        <option value="">Seleccione la modalidad de titulacion</option>
+                        {modalidadesTitulacion.map(modalidad => (
+                            <option key={modalidad.id_modalidad} value={modalidad.id_modalidad}>
+                                {modalidad.modalidad_titulacion}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
-            <div className="boton_integracionS">
+                <div className="boton_integracionS">
                     <button onClick={handleVerClickPersonales}>
                         <i className="fa-solid fa-arrow-left"></i>
                     </button>

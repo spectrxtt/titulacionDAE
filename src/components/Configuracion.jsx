@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Palette, ExternalLink } from 'lucide-react';
 import '../styles/configuracion.css';
+import Bachilleratos from "./basesDatos/Bachilleratos";
 
 // Componente para el formulario de crear o modificar usuario
 const CrearUsuarioFormulario = ({ onClose, usuarioExistente }) => {
@@ -271,16 +272,29 @@ const ConfiguracionApariencia = () => (
     </div>
 );
 
-const ConfiguracionAplicaciones = () => (
-    <div>
-        <h3>Configuración de Aplicaciones Externas</h3>
-        <div className="form-group">
-            <label>API Key:</label>
-            <input type="text" className="input" placeholder="Ingrese API Key" />
+const ConfiguracionAplicaciones = () => {
+    const [showBachilleratoManagement, setShowBachilleratoManagement] = useState(false);
+
+    return (
+        <div>
+            <div className="flex justify-between">
+                <button className="btn" onClick={() => setShowBachilleratoManagement(true)}>
+                    Bachilleratos
+                </button>
+                <button className="btn">Programas educativos</button>
+                <button className="btn">Títulos Otorgados</button>
+                <button className="btn">Modalidades de Titulación</button>
+            </div>
+
+            {showBachilleratoManagement && (
+                <div className="mt-4">
+                    <Bachilleratos />
+                </div>
+            )}
         </div>
-        <button className="btn">Conectar aplicación externa</button>
-    </div>
-);
+    );
+};
+
 
 const Configuracion = ({ userRole }) => {
     const [seccionActiva, setSeccionActiva] = useState('usuarios');
@@ -312,16 +326,10 @@ const Configuracion = ({ userRole }) => {
                             <Users size={20} /> Gestión de Usuarios
                         </button>
                         <button
-                            className={`menu-item ${seccionActiva === 'apariencia' ? 'active' : ''}`}
-                            onClick={() => setSeccionActiva('apariencia')}
-                        >
-                            <Palette size={20} /> Configuración de Apariencia
-                        </button>
-                        <button
                             className={`menu-item ${seccionActiva === 'aplicaciones' ? 'active' : ''}`}
                             onClick={() => setSeccionActiva('aplicaciones')}
                         >
-                            <ExternalLink size={20} /> Configuración de Aplicaciones Externas
+                            <ExternalLink size={20} /> Bases de datos
                         </button>
                     </>
                 );
@@ -329,16 +337,10 @@ const Configuracion = ({ userRole }) => {
                 return (
                     <>
                         <button
-                            className={`menu-item ${seccionActiva === 'apariencia' ? 'active' : ''}`}
-                            onClick={() => setSeccionActiva('apariencia')}
-                        >
-                            <Palette size={20} /> Configuración de Apariencia
-                        </button>
-                        <button
                             className={`menu-item ${seccionActiva === 'aplicaciones' ? 'active' : ''}`}
                             onClick={() => setSeccionActiva('aplicaciones')}
                         >
-                            <ExternalLink size={20} /> Configuración de Aplicaciones Externas
+                            <ExternalLink size={20} /> Bases de datos
                         </button>
                     </>
                 );

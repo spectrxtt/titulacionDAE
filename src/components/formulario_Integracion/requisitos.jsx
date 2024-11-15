@@ -176,8 +176,9 @@ const Requisitos = ({ citaSeleccionada }) => {
                 <button onClick={handleGenerarReporteClick}>
                     <i className="fa-solid fa-triangle-exclamation"></i>
                 </button>
-                <RequisitosButton requisitosContent="Requisitos para Datos Escolares" />
+                <RequisitosButton requisitosContent="Requisitos para Datos Escolares"/>
             </div>
+            <p>Num. Cuenta: {formData.num_Cuenta}</p>
             <h2>Requisitos</h2>
             <div className="form-container-personales">
                 <div className="form-row">
@@ -224,104 +225,104 @@ const Requisitos = ({ citaSeleccionada }) => {
                     </div>
                 </div>
 
-                    {/* Requisitos de Programa */}
-                    {requisitosPrograma.length > 0 && (
-                        <div className="requisitos-section">
-                            <h3>Requisitos del Programa</h3>
-                            {requisitosPrograma.map((requisito) => {
-                                const fechaRequisito = formData[`fecha_requisito_${requisito.id_requisito_programa}`];
-                                const periodoPasantia = formData.periodo_pasantia;
+                {/* Requisitos de Programa */}
+                {requisitosPrograma.length > 0 && (
+                    <div className="requisitos-section">
+                        <h3>Requisitos del Programa</h3>
+                        {requisitosPrograma.map((requisito) => {
+                            const fechaRequisito = formData[`fecha_requisito_${requisito.id_requisito_programa}`];
+                            const periodoPasantia = formData.periodo_pasantia;
 
-                                // Determinar la clase de color según la comparación de fechas
-                                let colorClase = '';
-                                if (fechaRequisito && periodoPasantia) {
-                                    // Convertir `periodoPasantia` de "DD/MM/YYYY" a "YYYY-MM-DD" para compatibilidad
-                                    const [day, month, year] = periodoPasantia.split('/');
-                                    const pasantiaDate = new Date(`${year}-${month}-${day}`);
+                            // Determinar la clase de color según la comparación de fechas
+                            let colorClase = '';
+                            if (fechaRequisito && periodoPasantia) {
+                                // Convertir `periodoPasantia` de "DD/MM/YYYY" a "YYYY-MM-DD" para compatibilidad
+                                const [day, month, year] = periodoPasantia.split('/');
+                                const pasantiaDate = new Date(`${year}-${month}-${day}`);
 
-                                    // Convertir `fechaRequisito` directamente a Date, ya que está en "YYYY-MM-DD"
-                                    const requisitoDate = new Date(fechaRequisito);
+                                // Convertir `fechaRequisito` directamente a Date, ya que está en "YYYY-MM-DD"
+                                const requisitoDate = new Date(fechaRequisito);
 
-                                    // Comparar las fechas
-                                    colorClase = requisitoDate.getTime() <= pasantiaDate.getTime() ? 'fecha-pasantia-verde' : 'fecha-pasantia-rojo';
-                                }
+                                // Comparar las fechas
+                                colorClase = requisitoDate.getTime() <= pasantiaDate.getTime() ? 'fecha-pasantia-verde' : 'fecha-pasantia-rojo';
+                            }
 
-                                return (
-                                    <div className="form-group" key={requisito.id_requisito_programa}>
-                                        <label htmlFor={`requisito_${requisito.id_requisito_programa}`}>
-                                            {requisito.descripcion}
-                                        </label>
-                                        <select
-                                            id={`requisito_${requisito.id_requisito_programa}`}
-                                            name={`requisito_${requisito.id_requisito_programa}`}
-                                            value={formData[`requisito_${requisito.id_requisito_programa}`] || ''}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="">Seleccionar</option>
-                                            <option value="Incompleto">Incompleto</option>
-                                            <option value="Completo">Completo</option>
-                                        </select>
-                                        {formData[`requisito_${requisito.id_requisito_programa}`] === 'Completo' && (
-                                            <input
-                                                type="date"
-                                                id={`fecha_requisito_${requisito.id_requisito_programa}`}
-                                                name={`fecha_requisito_${requisito.id_requisito_programa}`}
-                                                value={formData[`fecha_requisito_${requisito.id_requisito_programa}`] || ''}
-                                                onChange={handleInputChange}
-                                                className={colorClase} // Agregar la clase de color
-                                            />
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
-
-                    {requisitosModalidad.length > 0 && (
-                        <>
-                            {requisitosModalidad.map((requisito, index) => (
-                                <div className="form-group" key={index}>
-                                    <label htmlFor={`requisito_${requisito.id_requisito_modalidad}`}>
+                            return (
+                                <div className="form-group" key={requisito.id_requisito_programa}>
+                                    <label htmlFor={`requisito_${requisito.id_requisito_programa}`}>
                                         {requisito.descripcion}
                                     </label>
-                                    {requisito.id_modalidad === 17 ? (
-                                        // Campo de texto para id 17
+                                    <select
+                                        id={`requisito_${requisito.id_requisito_programa}`}
+                                        name={`requisito_${requisito.id_requisito_programa}`}
+                                        value={formData[`requisito_${requisito.id_requisito_programa}`] || ''}
+                                        onChange={handleInputChange}
+                                    >
+                                        <option value="">Seleccionar</option>
+                                        <option value="Incompleto">Incompleto</option>
+                                        <option value="Completo">Completo</option>
+                                    </select>
+                                    {formData[`requisito_${requisito.id_requisito_programa}`] === 'Completo' && (
                                         <input
-                                            type="text"
-                                            id={`requisito_${requisito.id_requisito_modalidad}`}
-                                            name={`requisito_${requisito.id_requisito_modalidad}`}
-                                            value={formData[`requisito_${requisito.id_requisito_modalidad}`] || ''}
+                                            type="date"
+                                            id={`fecha_requisito_${requisito.id_requisito_programa}`}
+                                            name={`fecha_requisito_${requisito.id_requisito_programa}`}
+                                            value={formData[`fecha_requisito_${requisito.id_requisito_programa}`] || ''}
                                             onChange={handleInputChange}
+                                            className={colorClase} // Agregar la clase de color
                                         />
-                                    ) : (
-                                        // Selector para otros casos
-                                        <select
-                                            id={`requisito_${requisito.id_requisito_modalidad}`}
-                                            name={`requisito_${requisito.id_requisito_modalidad}`}
-                                            value={formData[`requisito_${requisito.id_requisito_modalidad}`] || ''}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="">Seleccionar</option>
-                                            <option value="Incompleto">Incompleto</option>
-                                            <option value="Completo">Completo</option>
-                                        </select>
                                     )}
                                 </div>
-                            ))}
-                        </>
-                    )}
-
-                    <div className="boton_integracionS">
-                        <button onClick={handleVerClickEscolares}>
-                            <i className="fa-solid fa-arrow-left"></i>
-                        </button>
-                        <button onClick={handleSubmit}>
-                            <i className="fa-solid fa-arrow-right"></i>
-                        </button>
+                            );
+                        })}
                     </div>
+                )}
+
+                {requisitosModalidad.length > 0 && (
+                    <>
+                        {requisitosModalidad.map((requisito, index) => (
+                            <div className="form-group" key={index}>
+                                <label htmlFor={`requisito_${requisito.id_requisito_modalidad}`}>
+                                    {requisito.descripcion}
+                                </label>
+                                {requisito.id_modalidad === 17 ? (
+                                    // Campo de texto para id 17
+                                    <input
+                                        type="text"
+                                        id={`requisito_${requisito.id_requisito_modalidad}`}
+                                        name={`requisito_${requisito.id_requisito_modalidad}`}
+                                        value={formData[`requisito_${requisito.id_requisito_modalidad}`] || ''}
+                                        onChange={handleInputChange}
+                                    />
+                                ) : (
+                                    // Selector para otros casos
+                                    <select
+                                        id={`requisito_${requisito.id_requisito_modalidad}`}
+                                        name={`requisito_${requisito.id_requisito_modalidad}`}
+                                        value={formData[`requisito_${requisito.id_requisito_modalidad}`] || ''}
+                                        onChange={handleInputChange}
+                                    >
+                                        <option value="">Seleccionar</option>
+                                        <option value="Incompleto">Incompleto</option>
+                                        <option value="Completo">Completo</option>
+                                    </select>
+                                )}
+                            </div>
+                        ))}
+                    </>
+                )}
+
+                <div className="boton_integracionS">
+                    <button onClick={handleVerClickEscolares}>
+                        <i className="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button onClick={handleSubmit}>
+                        <i className="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
-            );
-            };
+        </div>
+    );
+};
 
-            export default Requisitos;
+export default Requisitos;

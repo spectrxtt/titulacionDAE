@@ -9,7 +9,20 @@ const ResumenDeCitas = ({ onVerClick }) => {
     const [loading, setLoading] = useState(true); // Estado para cargar citas
     const [error, setError] = useState(null); // Estado para manejar errores
 
+    const formatDateS = (fecha) => {
+        if (!fecha) return 'N/A';
+        const fechaObj = new Date(fecha);
+        if (isNaN(fechaObj.getTime())) return 'N/A';
 
+        // Ajustar la fecha para compensar la diferencia de zona horaria
+        const offsetMs = fechaObj.getTimezoneOffset() * 60 * 1000;
+        const adjustedDate = new Date(fechaObj.getTime() + offsetMs);
+
+        const dia = adjustedDate.getDate().toString().padStart(2, '0');
+        const mes = (adjustedDate.getMonth() + 1).toString().padStart(2, '0');
+        const año = adjustedDate.getFullYear();
+        return `${dia}-${mes}-${año}`;
+    };
     // Función para obtener la fecha de hoy en formato "yyyy-mm-dd"
     const getTodayFormatted = () => {
         const today = new Date();
@@ -100,7 +113,7 @@ const ResumenDeCitas = ({ onVerClick }) => {
                     <tr key={index}>
                         <td>{cita.num_Cuenta}</td>
                         <td>{cita.nombre}</td>
-                        <td>{cita.fecha}</td>
+                        <td>{formatDateS(cita.fecha)}</td>
                         <td>{cita.estado_cita}</td>
                         <td>
                             <button className="button" onClick={() => handleVerClick(cita)}>VER</button>

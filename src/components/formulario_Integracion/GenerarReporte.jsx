@@ -1,14 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import Integracion from '../Integracion';
 
-// Define los estados de la cita
+// Define los estados de la cita con una propiedad `updateDate` para controlar la actualización de la fecha
 const ESTADOS_CITA = [
-    { value: 'Integrado', label: 'Integrado' },
-    { value: 'Rechazado', label: 'Rechazado' },
-    { value: 'Corrección', label: 'Corrección' },
-    { value: 'Atendiendo Corrección', label: 'Atendiendo Corrección' },
-    { value: 'Corrección Atendida', label: 'Corrección Atendida' },
-
+    { value: 'Integrado', label: 'Integrado', updateDate: true },
+    { value: 'pendiente', label: 'pendiente', updateDate: false },
+    { value: 'Enviado, pendiente de validar', label: 'Enviado, pendiente de validar', updateDate: false },
+    { value: 'Dato Faltante', label: 'Dato Faltante', updateDate: false },
+    { value: 'Rechazado', label: 'Rechazado', updateDate: false },
+    { value: 'Corrección', label: 'Corrección', updateDate: false },
+    { value: 'Atendiendo Corrección', label: 'Atendiendo Corrección', updateDate: false },
+    { value: 'Corrección Atendida', label: 'Corrección Atendida', updateDate: false },
+    { value: 'Correccion Aprobada', label: 'Correccion Aprobada', updateDate: false }, // No actualiza la fecha
 ];
 
 const GenerarReporte = ({ citaSeleccionada }) => {
@@ -16,7 +19,6 @@ const GenerarReporte = ({ citaSeleccionada }) => {
     const [observaciones, setObservaciones] = useState('');
     const [mostrarIntegracion, setMostrarIntegracion] = useState(false);
 
-    // Maneja el cambio en el estado de la cita
     const handleEstadoChange = (event) => {
         setEstadoCita(event.target.value);
     };
@@ -28,14 +30,25 @@ const GenerarReporte = ({ citaSeleccionada }) => {
         }
 
         const token = localStorage.getItem('token');
+        const currentDate = new Date().toISOString().split('T')[0]; // Fecha actual en formato YYYY-MM-DD
+
+        const estadoSeleccionado = ESTADOS_CITA.find(estado => estado.value === estadoCita && estado.label === document.getElementById("estadoCita").selectedOptions[0].text);
+
+        // Construye los datos a enviar, enviando "Integrado" si la opción seleccionada es "Correccion Aprobada"
+        const requestData = {
+            estado_cita: estadoSeleccionado?.value === 'Correccion Aprobada' ? 'Integrado' : estadoCita,
+            observaciones: observaciones || 'Ninguna',
+            ...(estadoSeleccionado?.updateDate && { fecha: currentDate }), // Agrega la fecha solo si updateDate es true
+        };
+
         try {
-            const response = await fetch(`http://10.11.80.188:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
+            const response = await fetch(`http://10.11.80.188:8000/api/actualizar-estado-cita-fecha/${citaSeleccionada.id_cita}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ estado_cita: estadoCita, observaciones: observaciones || 'Ninguna' }), // Envía 'Ninguna' si el campo está vacío
+                body: JSON.stringify(requestData),
             });
 
             if (!response.ok) {
@@ -45,7 +58,6 @@ const GenerarReporte = ({ citaSeleccionada }) => {
             const result = await response.json();
             console.log(result.message);
 
-            // Cambia el estado para mostrar el componente Integracion
             setMostrarIntegracion(true);
 
         } catch (error) {
@@ -74,7 +86,7 @@ const GenerarReporte = ({ citaSeleccionada }) => {
                     >
                         <option value="">Seleccione un estado</option>
                         {ESTADOS_CITA.map((estado) => (
-                            <option key={estado.value} value={estado.value}>
+                            <option key={estado.label} value={estado.value}>
                                 {estado.label}
                             </option>
                         ))}
