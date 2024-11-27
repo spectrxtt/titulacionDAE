@@ -43,7 +43,7 @@ class CitasController extends Controller
                     'estado_cita' => $citaData['estado_cita'] ?? null,
                     'id_usuario' => $citaData['id_usuario'] ?? null,
                     'num_Cuenta' => $citaData['num_Cuenta'] ?? null,
-                    'programa_educativo' => $citaData['programa_educativo'] ?? null, // Agregado aquí
+                    'programa_educativo' => $citaData['programa_educativo'] ?? null,
                 ]);
             }
 
