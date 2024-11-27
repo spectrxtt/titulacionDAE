@@ -1,38 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/bd-bachilleratos.css'; // Ajusta la ruta si es necesario
 
-const ProgramaEducativoManagement = () => {
+const TituloOtorgadoManagement = () => {
     const [activeView, setActiveView] = useState('none'); // 'none', 'add', 'search'
     const [nombre, setNombre] = useState('');
-    const [programasEducativos, setProgramasEducativos] = useState([]);
+    const [titulos, settitulos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedPrograma, setSelectedPrograma] = useState(null); // Programa seleccionado para modificar
+    const [selectedtitulo, setSelectedtitulo] = useState(null); // titulo seleccionado para modificar
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
-        const fetchProgramas = async () => {
+        const fetchtitulos = async () => {
             try {
-                const response = await fetch('http://10.11.80.111:8000/api/programas-educativos');
+                const response = await fetch('http://10.11.80.111:8000/api/titulo-otorgado');
                 const data = await response.json();
-                setProgramasEducativos(data);
+                settitulos(data);
             } catch (e) {
-                setError('Error al cargar los programas educativos.');
+                setError('Error al cargar los titulos otorgados.');
             }
         };
 
-        fetchProgramas();
+        fetchtitulos();
     }, []);
 
-    const handleAddPrograma = async () => {
+    const handleAddtitulo = async () => {
         const datosAEnviar = [
             {
-                programa_educativo: nombre // El nombre debe ser el valor del campo de entrada
+                titulo_otorgado: nombre // El nombre debe ser el valor del campo de entrada
             }
         ];
 
         try {
-            const response = await fetch('http://10.11.80.111:8000/api/programa-educativo', {
+            const response = await fetch('http://10.11.80.111:8000/api/titulo-otorgado', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -45,14 +45,14 @@ const ProgramaEducativoManagement = () => {
                 setError(errorData.error);
             } else {
                 setSuccess(true);
-                setNombre(''); // Limpiar el campo después de añadir el programa
+                setNombre(''); // Limpiar el campo después de añadir el titulo
                 setTimeout(() => {
                     setSuccess(false);
                     setActiveView('none');
                 }, 3000);
             }
         } catch (e) {
-            setError('Ha ocurrido un error al agregar el programa educativo.');
+            setError('Ha ocurrido un error al agregar el titulo otorgado.');
         }
     };
 
@@ -60,24 +60,24 @@ const ProgramaEducativoManagement = () => {
         setSearchTerm(e.target.value);
     };
 
-    const filteredProgramas = searchTerm
-        ? programasEducativos.filter((programa) =>
-            programa.programa_educativo.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredtitulos = searchTerm
+        ? titulos.filter((titulo) =>
+            titulo.titulo_otorgado.toLowerCase().includes(searchTerm.toLowerCase())
         )
-        : programasEducativos;
+        : titulos;
 
-    const handleSelectPrograma = (programa) => {
-        setSelectedPrograma(programa);
-        setNombre(programa.programa_educativo);
+    const handleSelecttitulo = (titulo) => {
+        setSelectedtitulo(titulo);
+        setNombre(titulo.titulo_otorgado);
     };
 
-    const handleUpdatePrograma = async () => {
-        if (!selectedPrograma) return;
+    const handleUpdatetitulo = async () => {
+        if (!selectedtitulo) return;
 
-        const datosAEnviar = { programa_educativo: nombre };
+        const datosAEnviar = { titulo_otorgado: nombre };
 
         try {
-            const response = await fetch(`http://10.11.80.111:8000/api/programa-educativo/${selectedPrograma.id_programa_educativo}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/titulo-otorgadoM/${selectedtitulo.id_titulo_otorgado}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,17 +92,17 @@ const ProgramaEducativoManagement = () => {
                 setSuccess(true);
                 setTimeout(() => {
                     setSuccess(false);
-                    setSelectedPrograma(null);
+                    setSelectedtitulo(null);
                     setNombre('');
                 }, 3000);
 
-                // Recargar los programas
-                const updatedResponse = await fetch('http://10.11.80.111:8000/api/programas-educativos');
+                // Recargar los titulos
+                const updatedResponse = await fetch('http://10.11.80.111:8000/api/titulo-otorgado');
                 const updatedData = await updatedResponse.json();
-                setProgramasEducativos(updatedData);
+                settitulos(updatedData);
             }
         } catch (e) {
-            setError('Ha ocurrido un error al actualizar el programa educativo.');
+            setError('Ha ocurrido un error al actualizar el titulo otorgado.');
         }
     };
 
@@ -116,22 +116,22 @@ const ProgramaEducativoManagement = () => {
                         setNombre(''); // Limpiar el campo al cambiar a la vista de añadir
                     }}
                 >
-                    Añadir Nuevo Programa Educativo
+                    Añadir Nuevo Titulo Otorgado
                 </button>
                 <button
                     className={`btn ${activeView === 'search' ? 'btn-active' : ''}`}
                     onClick={() => setActiveView(activeView === 'search' ? 'none' : 'search')}
                 >
-                    Buscar o Modificar Programas Educativos
+                    Buscar o Modificar Titulos Otorgados
                 </button>
             </div>
 
             {activeView === 'add' && (
                 <div className="form-container">
-                    <h3 className="form-title">Añadir Nuevo Programa Educativo</h3>
+                    <h3 className="form-title">Añadir Nuevo Titulo Otorgado</h3>
 
                     <div className="form-group">
-                        <label htmlFor="nombre">Nombre del Programa Educativo</label>
+                        <label htmlFor="nombre">Nombre del Titulo Otorgado</label>
                         <input
                             type="text"
                             id="nombre"
@@ -141,49 +141,49 @@ const ProgramaEducativoManagement = () => {
                         />
                     </div>
 
-                    <button className="btn" onClick={handleAddPrograma}>
-                        Crear Programa Educativo
+                    <button className="btn" onClick={handleAddtitulo}>
+                        Crear Titulo Otorgado
                     </button>
                 </div>
             )}
 
             {activeView === 'search' && (
                 <div className="search-section">
-                    <h3 className="search-title">Buscar Programa Educativo</h3>
+                    <h3 className="search-title">Buscar Titulo Otorgado</h3>
 
                     <input
                         type="text"
                         className="input"
-                        placeholder="Buscar programa educativo..."
+                        placeholder="Buscar Titulo Otorgado..."
                         value={searchTerm}
                         onChange={handleSearchChange}
                     />
 
-                    {filteredProgramas.length > 0 && (
+                    {filteredtitulos.length > 0 && (
                         <div className="search-results-container">
                             <div className="search-results-title">
-                                Resultados encontrados: {filteredProgramas.length}
+                                Resultados encontrados: {filteredtitulos.length}
                             </div>
                             <ul className="bachillerato-list">
-                                {filteredProgramas.map((programa) => (
+                                {filteredtitulos.map((titulo) => (
                                     <li
-                                        key={programa.id_programa_educativo}
-                                        onClick={() => handleSelectPrograma(programa)}
+                                        key={titulo.id_titulo_otorgado}
+                                        onClick={() => handleSelecttitulo(titulo)}
                                         className="bachillerato-item"
                                     >
-                                        {programa.programa_educativo}
+                                        {titulo.titulo_otorgado}
                                     </li>
                                 ))}
                             </ul>
                         </div>
                     )}
 
-                    {selectedPrograma && (
+                    {selectedtitulo && (
                         <div className="modify-form">
-                            <h4>Modificar Programa Educativo Seleccionado</h4>
+                            <h4>Modificar Titulo Otorgado Seleccionado</h4>
 
                             <div className="form-group">
-                                <label htmlFor="nombre">Nombre del Programa Educativo</label>
+                                <label htmlFor="nombre">Nombre del titulo Otorgado</label>
                                 <input
                                     type="text"
                                     id="nombre"
@@ -192,7 +192,7 @@ const ProgramaEducativoManagement = () => {
                                 />
                             </div>
 
-                            <button className="btn" onClick={handleUpdatePrograma}>
+                            <button className="btn" onClick={handleUpdatetitulo}>
                                 Confirmar Modificaciones
                             </button>
                         </div>
@@ -217,4 +217,4 @@ const ProgramaEducativoManagement = () => {
     );
 };
 
-export default ProgramaEducativoManagement;
+export default TituloOtorgadoManagement;

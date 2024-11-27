@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Users, Palette, ExternalLink } from 'lucide-react';
 import '../styles/configuracion.css';
 import Bachilleratos from "./basesDatos/Bachilleratos";
+import ProgramaEducativoManagement from "./basesDatos/programasEducativos";
+import TituloOtorgadoManagement from "./basesDatos/tituloOtorgado";
+import ModalidadesManagement from "./basesDatos/modalidades";
+import ProgramasEducativosRequisitos from "./basesDatos/requisitosPrograma";
+import ProgramasModalidadRequisitos from "./basesDatos/requisitosModalidad";
+
+
 
 // Componente para el formulario de crear o modificar usuario
 const CrearUsuarioFormulario = ({ onClose, usuarioExistente }) => {
@@ -59,14 +66,14 @@ const CrearUsuarioFormulario = ({ onClose, usuarioExistente }) => {
 
         try {
             const response = usuarioExistente
-                ? await fetch(`http://10.11.80.188:8000/api/usuarios/${usuarioExistente.id_usuario}`, {
+                ? await fetch(`http://10.11.80.111:8000/api/usuarios/${usuarioExistente.id_usuario}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(usuarioData),
                 })
-                : await fetch('http://10.11.80.188:8000/api/usuarios', {
+                : await fetch('http://10.11.80.111:8000/api/usuarios', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -158,7 +165,7 @@ const GestionUsuarios = () => {
 
     const obtenerUsuarios = async () => {
         try {
-            const response = await fetch('http://10.11.80.188:8000/api/usuarios');
+            const response = await fetch('http://10.11.80.111:8000/api/usuarios');
             if (!response.ok) {
                 throw new Error('Error al obtener usuarios');
             }
@@ -192,7 +199,7 @@ const GestionUsuarios = () => {
         if (!confirmDelete) return; // Si el usuario cancela, no continuar
 
         try {
-            const response = await fetch(`http://10.11.80.188:8000/api/usuarios/${id_usuario}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/usuarios/${id_usuario}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -274,16 +281,85 @@ const ConfiguracionApariencia = () => (
 
 const ConfiguracionAplicaciones = () => {
     const [showBachilleratoManagement, setShowBachilleratoManagement] = useState(false);
+    const [showProgramaEducativoManagement, setShowProgramaEducativoManagement] = useState(false);
+    const [showTituloOtorgadoManagement, setShowTituloOtorgadoManagement] = useState(false);
+    const [showmodalidadesManagement, setShowmodalidadesManagement] = useState(false);
+    const [showrequisitoProgramaManagement, setShowrequisitoProgramaManagement] = useState(false);
+    const [showrequisitoModalidadManagement, setShowrequisitoModalidadManagement] = useState(false);
+
+    const handleBachilleratoClick = () => {
+        setShowBachilleratoManagement(true);
+        setShowProgramaEducativoManagement(false);  // Cierra el menú de Programas Educativos
+        setShowTituloOtorgadoManagement(false); // Cierra Títulos Otorgados
+        setShowmodalidadesManagement(false); // Cierra Títulos Otorgados
+        setShowrequisitoProgramaManagement(false); // Cierra Títulos Otorgados
+        setShowrequisitoModalidadManagement(false); // Cierra Títulos Otorgados
+    };
+
+    const handleProgramaEducativoClick = () => {
+        setShowProgramaEducativoManagement(true);
+        setShowBachilleratoManagement(false);  // Cierra el menú de Bachilleratos
+        setShowTituloOtorgadoManagement(false); // Cierra Títulos Otorgados
+        setShowmodalidadesManagement(false); // Cierra Títulos Otorgados
+        setShowrequisitoProgramaManagement(false); // Cierra Títulos Otorgados
+        setShowrequisitoModalidadManagement(false);
+    };
+
+    const handleTituloOtorgadoClick = () => {
+        setShowTituloOtorgadoManagement(true); // Abre Títulos Otorgados
+        setShowBachilleratoManagement(false); // Cierra el menú de Bachilleratos
+        setShowProgramaEducativoManagement(false); // Cierra el menú de Programas Educativos
+        setShowmodalidadesManagement(false); // Cierra Títulos Otorgados
+        setShowrequisitoProgramaManagement(false); // Cierra Títulos Otorgados
+        setShowrequisitoModalidadManagement(false);
+    };
+
+    const handlemodalidadTitulacionClick = () => {
+        setShowmodalidadesManagement(true); // Abre Títulos Otorgados
+        setShowBachilleratoManagement(false); // Cierra el menú de Bachilleratos
+        setShowProgramaEducativoManagement(false); // Cierra el menú de Programas Educativos
+        setShowTituloOtorgadoManagement(false); // Abre Títulos Otorgados
+        setShowrequisitoProgramaManagement(false); // Cierra Títulos Otorgados
+        setShowrequisitoModalidadManagement(false);
+    };
+    const handlerequisitoProgramaClick = () => {
+        setShowrequisitoProgramaManagement(true); // Cierra Títulos Otorgados
+        setShowmodalidadesManagement(false); // Abre Títulos Otorgados
+        setShowBachilleratoManagement(false); // Cierra el menú de Bachilleratos
+        setShowProgramaEducativoManagement(false); // Cierra el menú de Programas Educativos
+        setShowTituloOtorgadoManagement(false); // Abre Títulos Otorgados
+        setShowrequisitoModalidadManagement(false);
+    };
+    const handlerequisitoModalidadClick = () => {
+        setShowrequisitoModalidadManagement(true);
+        setShowrequisitoProgramaManagement(false); // Cierra Títulos Otorgados
+        setShowmodalidadesManagement(false); // Abre Títulos Otorgados
+        setShowBachilleratoManagement(false); // Cierra el menú de Bachilleratos
+        setShowProgramaEducativoManagement(false); // Cierra el menú de Programas Educativos
+        setShowTituloOtorgadoManagement(false); // Abre Títulos Otorgados
+    };
 
     return (
         <div>
             <div className="flex justify-between">
-                <button className="btn" onClick={() => setShowBachilleratoManagement(true)}>
+                <button className="btn" onClick={handleBachilleratoClick}>
                     Bachilleratos
                 </button>
-                <button className="btn">Programas educativos</button>
-                <button className="btn">Títulos Otorgados</button>
-                <button className="btn">Modalidades de Titulación</button>
+                <button className="btn" onClick={handleProgramaEducativoClick}>
+                    Programas educativos
+                </button>
+                <button className="btn" onClick={handleTituloOtorgadoClick}>
+                    Títulos Otorgados
+                </button>
+                <button className="btn" onClick={handlemodalidadTitulacionClick}>
+                    Modalidad de Titulación
+                </button>
+                <button className="btn" onClick={handlerequisitoProgramaClick}>
+                    Requisitos de Programa Educativo
+                </button>
+                <button className="btn" onClick={handlerequisitoModalidadClick}>
+                    Requisitos de Modalidad de Titulación
+                </button>
             </div>
 
             {showBachilleratoManagement && (
@@ -291,9 +367,35 @@ const ConfiguracionAplicaciones = () => {
                     <Bachilleratos />
                 </div>
             )}
+            {showProgramaEducativoManagement && (
+                <div className="mt-4">
+                    <ProgramaEducativoManagement />
+                </div>
+            )}
+            {showTituloOtorgadoManagement && (
+                <div className="mt-4">
+                    <TituloOtorgadoManagement />
+                </div>
+            )}
+            {showmodalidadesManagement && (
+                <div className="mt-4">
+                    <ModalidadesManagement />
+                </div>
+            )}
+            {showrequisitoProgramaManagement && (
+                <div className="mt-4">
+                    <ProgramasEducativosRequisitos />
+                </div>
+            )}
+            {showrequisitoModalidadManagement && (
+                <div className="mt-4">
+                    <ProgramasModalidadRequisitos />
+                </div>
+            )}
         </div>
     );
 };
+
 
 
 const Configuracion = ({ userRole }) => {

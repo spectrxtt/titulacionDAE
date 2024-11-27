@@ -16,7 +16,8 @@ const Expedientes = () => {
         nombre: '',
         fecha_inicio: '',
         fecha_fin: '',
-        estado: ''
+        estado: '',
+        observaciones: '' // Nuevo campo
     });
     const [totalCitas, setTotalCitas] = useState(0);
     const formatDateS = (fecha) => {
@@ -70,9 +71,8 @@ const Expedientes = () => {
                 return `${year}/${month}/${day}`;
             };
 
-
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.188:8000/api/buscar-citas?cuenta=${busqueda.cuenta}&nombre=${busqueda.nombre}&fecha_inicio=${formatDate(fechaInicio)}&fecha_fin=${formatDate(fechaFin)}&estado=${busqueda.estado}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/buscar-citas?cuenta=${busqueda.cuenta}&nombre=${busqueda.nombre}&fecha_inicio=${formatDate(fechaInicio)}&fecha_fin=${formatDate(fechaFin)}&estado=${busqueda.estado}&observaciones=${busqueda.observaciones}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -100,11 +100,14 @@ const Expedientes = () => {
 
     const handleExportToExcel = async () => {
         try {
-            let { fecha_inicio, fecha_fin, cuenta, nombre, estado } = busqueda;
+            let fechaInicio = busqueda.fecha_inicio;
+            let fechaFin = busqueda.fecha_fin;
 
-            // Ajuste de fechas
-            if (fecha_inicio && !fecha_fin) fecha_fin = fecha_inicio;
-            else if (!fecha_inicio && fecha_fin) fecha_inicio = fecha_fin;
+            if (fechaInicio && !fechaFin) {
+                fechaFin = fechaInicio;
+            } else if (!fechaInicio && fechaFin) {
+                fechaInicio = fechaFin;
+            }
 
             const formatDate = (date) => {
                 if (!date) return '';
@@ -113,14 +116,13 @@ const Expedientes = () => {
             };
 
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.188:8000/api/estudiantesCompletos?cuenta=${cuenta}&nombre=${nombre}&fecha_inicio=${formatDate(fecha_inicio)}&fecha_fin=${formatDate(fecha_fin)}&estado=${estado}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/estudiantesCompletos?cuenta=${busqueda.cuenta}&nombre=${busqueda.nombre}&fecha_inicio=${formatDate(fechaInicio)}&fecha_fin=${formatDate(fechaFin)}&estado=${busqueda.estado}&observaciones=${busqueda.observaciones}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || 'Error al obtener los datos');
@@ -138,44 +140,26 @@ const Expedientes = () => {
 
             // Procesamos los datos
             Object.entries(data.datos_estudiantes).forEach(([numCuenta, estudiante]) => {
-                const citasEstudiante = data.citas.filter(cita => cita.num_Cuenta === parseInt(numCuenta));
+                // Comparar los num_Cuenta directamente como cadenas
+                const citasEstudiante = data.citas.filter(cita => cita.num_Cuenta === numCuenta);
 
                 citasEstudiante.forEach(cita => {
                     excelData.push({
                         'Número de Cita': citaIndex,
                         'Número de Cuenta': numCuenta,
-                        'Número': null,
-                        'programaEducativoSEP': null,
-                        'programaEducativoVersionClave': null,
-                        'NOMBRE COMPLETO': `${estudiante.personal_data.nombre_estudiante || ''} ${estudiante.personal_data.ap_paterno || ''} ${estudiante.personal_data.ap_materno || ''}`,
-                        'tituloOtorga': estudiante.university_data?.titulo_otorgado || 'N/A',
-                        'firmaProfesionistaEtiqueta': null,
+                        'nombre': `${estudiante.personal_data.nombre_estudiante || ''} ${estudiante.personal_data.ap_paterno || ''} ${estudiante.personal_data.ap_materno || ''}`,
+                        'tituloque se otorga': estudiante.university_data?.titulo_otorgado || 'N/A',
                         'CURP': estudiante.personal_data.curp,
-                        'institucionProcedencia': estudiante.bachillerato_data?.nombre_bach || 'N/A',
+                        'bachillerato': estudiante.bachillerato_data?.nombre_bach || 'N/A',
                         'institucionProcedenciaAnioInicio': formatDateS(estudiante.bachillerato_data?.fecha_inicio_bach),
                         'institucionProcedenciaAnioTermino': formatDateS(estudiante.bachillerato_data?.fecha_fin_bach),
                         'institucionProcedenciaEntidadFederativa': estudiante.bachillerato_data?.bach_entidad || 'N/A',
-                        'entfedjesus': (estudiante.bachillerato_data?.bach_entidad || 'N/A').toUpperCase(),
                         'carrera': estudiante.university_data?.programa_educativo || 'N/A',
                         'anioInicio': formatDateS(estudiante.university_data?.fecha_inicio_uni || 'N/A'),
                         'anioTermino': formatDateS(estudiante.university_data?.fecha_fin_uni || 'N/A'),
                         'promedio': null,
                         'promedioletra': null,
-                        'nombrePreferencia': estudiante.personal_data.nombre_estudiante || '',
-                        'primerApellidoPreferencia': estudiante.personal_data.ap_paterno || '',
-                        'segundoApellidoPreferencia': estudiante.personal_data.ap_materno || '',
                         'expedicionModalidadTitulacion': estudiante.university_data?.modalidad_titulacion || 'N/A',
-                        'fechaEvaluacionLetra': null,
-                        'fechaExpedicionLetra': null,
-                        'institucion': 'Universidad Autónoma del Estado de Hidalgo',
-                        'expedicionEntidadFederativa': 'Hidalgo',
-                        'nombremayus': estudiante.personal_data.nombre_estudiante ? estudiante.personal_data.nombre_estudiante.toLocaleUpperCase('es-ES') : '',
-                        'apmayus': estudiante.personal_data.ap_paterno ? estudiante.personal_data.ap_paterno.toLocaleUpperCase('es-ES') : '',
-                        'ammayus': estudiante.personal_data.ap_materno ? estudiante.personal_data.ap_materno.toLocaleUpperCase('es-ES') : '',
-                        'nombresin': estudiante.personal_data.nombre_estudiante ? estudiante.personal_data.nombre_estudiante.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() : '',
-                        'apsin': estudiante.personal_data.ap_paterno ? estudiante.personal_data.ap_paterno.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() : '',
-                        'amsin': estudiante.personal_data.ap_materno ? estudiante.personal_data.ap_materno.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase() : '',
-                        'nombre propio': `${estudiante.personal_data.nombre_estudiante || ''} ${estudiante.personal_data.ap_paterno || ''} ${estudiante.personal_data.ap_materno || ''}`,
                         'Género': estudiante.personal_data.genero,
                         'País': estudiante.personal_data.pais,
                         'Periodo Pasantía': formatDateS(estudiante.university_data?.periodo_pasantia || 'N/A'),
@@ -217,7 +201,8 @@ const Expedientes = () => {
             nombre: '',
             fecha_inicio: '',
             fecha_fin: '',
-            estado: ''
+            estado: '',
+            observaciones: '' // Nuevo campo
         });
         fetchCitas(); // Volver a cargar las citas por defecto (solo estado "Integrado")
     };
@@ -225,7 +210,7 @@ const Expedientes = () => {
     const fetchCitas = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://10.11.80.188:8000/api/citasExpedientes', {
+            const response = await fetch('http://10.11.80.111:8000/api/citasExpedientes', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -287,6 +272,13 @@ const Expedientes = () => {
                     onChange={handleBusquedaChange}
                     placeholder="Nombre Completo"
                 />
+                <input
+                    type="text"
+                    name="observaciones"
+                    value={busqueda.observaciones}
+                    onChange={handleBusquedaChange}
+                    placeholder="Observaciones"
+                />
 
                 {/* Start Date Filter */}
                 <input
@@ -305,6 +297,7 @@ const Expedientes = () => {
                     onChange={handleBusquedaChange}
                     placeholder="Fecha Final"
                 />
+
 
                 {/* Status Filter */}
                 <select

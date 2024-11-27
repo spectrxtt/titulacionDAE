@@ -39,7 +39,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
     const handleActualizarEstadoCita = useCallback(async () => {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://10.11.80.188:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/actualizar-estado-cita/${citaSeleccionada.id_cita}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchBachilleratos = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://10.11.80.188:8000/api/bachilleratos', {
+                const response = await fetch('http://10.11.80.111:8000/api/bachilleratos', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -102,7 +102,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchProgramasEducativos = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://10.11.80.188:8000/api/programas-educativos', {
+                const response = await fetch('http://10.11.80.111:8000/api/programas-educativos', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -131,7 +131,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchTitulosOtorgados = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://10.11.80.188:8000/api/titulo-otorgado', {
+                const response = await fetch('http://10.11.80.111:8000/api/titulo-otorgado', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -160,7 +160,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         const fetchModalidades = async () => {
             const token = localStorage.getItem('token');
             try {
-                const response = await fetch('http://10.11.80.188:8000/api/modalidades-titulacion', {
+                const response = await fetch('http://10.11.80.111:8000/api/modalidades-titulacion', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -202,7 +202,7 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.188:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -553,7 +553,19 @@ const StudentDataPreview = ({ citaSeleccionada }) => {
         currentY += lineHeight * 1.5;
 
         doc.setFont("helvetica", "normal");
-        doc.text(`Institución: ${bachilleratoInfo.nombre}`, leftMargin, currentY);
+        // Obtener el texto del bachillerato
+        const nombreBachillerato = bachilleratoInfo.nombre;
+
+// Ajustar tamaño de letra según longitud
+        if (nombreBachillerato.length > 50) {
+            doc.setFontSize(7); // Reducir tamaño de letra si excede 50 caracteres
+        } else {
+            doc.setFontSize(10); // Tamaño normal
+        }
+
+// Dibujar el texto
+        doc.text(`Institución: ${nombreBachillerato}`, leftMargin, currentY);
+
         currentY += lineHeight;
         // Extraer solo el año antes del primer '/'
         const startYear = formData.fecha_inicio_bach.split('-')[0]; // Tomar el año

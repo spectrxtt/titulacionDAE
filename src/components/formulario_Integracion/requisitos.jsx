@@ -27,7 +27,7 @@ const Requisitos = ({ citaSeleccionada }) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.188:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/estudiantes/requisitosdataespecifica/${citaSeleccionada.num_Cuenta}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
@@ -42,9 +42,9 @@ const Requisitos = ({ citaSeleccionada }) => {
             // Preparar los datos del formulario
             const newFormData = {
                 ...formData,
-                servicio_social: data.requisitos_obligatorios?.servicio_social || '',
-                practicas_profecionales: data.requisitos_obligatorios?.practicas_profecionales || '',
-                cedai: data.requisitos_obligatorios?.cedai || ''
+                servicio_social: data.requisitos_obligatorios?.servicio_social || 'Completo',
+                practicas_profecionales: data.requisitos_obligatorios?.practicas_profecionales || 'Completo',
+                cedai: data.requisitos_obligatorios?.cedai || 'Completo',
             };
 
             // Process program details
@@ -122,7 +122,7 @@ const Requisitos = ({ citaSeleccionada }) => {
             };
 
             const response = await fetch(
-                `http://10.11.80.188:8000/api/estudiantes/requisitosCompletos/${citaSeleccionada.num_Cuenta}`,
+                `http://10.11.80.111:8000/api/estudiantes/requisitosCompletos/${citaSeleccionada.num_Cuenta}`,
                 {
                     method: 'PUT',
                     headers: {
@@ -195,7 +195,8 @@ const Requisitos = ({ citaSeleccionada }) => {
                             <option value="Incompleto">Incompleto</option>
                         </select>
                     </div>
-
+                </div>
+                <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="practicas_profecionales">Prácticas Profesionales</label>
                         <select
@@ -209,7 +210,8 @@ const Requisitos = ({ citaSeleccionada }) => {
                             <option value="Incompleto">Incompleto</option>
                         </select>
                     </div>
-
+                </div>
+                <div className="form-row">
                     <div className="form-group">
                         <label htmlFor="cedai">CEDAI</label>
                         <select

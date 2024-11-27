@@ -42,7 +42,7 @@ const GenerarReporte = ({ citaSeleccionada }) => {
         };
 
         try {
-            const response = await fetch(`http://10.11.80.188:8000/api/actualizar-estado-cita-fecha/${citaSeleccionada.id_cita}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/actualizar-estado-cita-fecha/${citaSeleccionada.id_cita}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

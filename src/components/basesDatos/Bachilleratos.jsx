@@ -22,7 +22,7 @@ const BachilleratoManagement = () => {
     useEffect(() => {
         const fetchBachilleratos = async () => {
             try {
-                const response = await fetch('http://10.11.80.188:8000/api/bachilleratos');
+                const response = await fetch('http://10.11.80.111:8000/api/bachilleratos');
                 const data = await response.json();
                 setBachilleratos(data);
             } catch (e) {
@@ -37,12 +37,12 @@ const BachilleratoManagement = () => {
         const datosAEnviar = [
             {
                 nombre_bach: nombre,
-                bach_entidad: entidad
+                bach_entidad: entidad // Aquí debe tener el valor seleccionado o ingresado
             }
         ];
 
         try {
-            const response = await fetch('http://10.11.80.188:8000/api/bachillerato', {
+            const response = await fetch('http://10.11.80.111:8000/api/bachillerato', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -70,6 +70,7 @@ const BachilleratoManagement = () => {
     const handleEntidadInputChange = (e) => {
         const inputValue = e.target.value;
         setEntidadInputValue(inputValue);
+        setEntidad(inputValue); // Actualiza `entidad` con el valor ingresado
 
         if (inputValue.trim() === '') {
             setFilteredEntidades([]);
@@ -84,9 +85,9 @@ const BachilleratoManagement = () => {
         setFilteredEntidades(matchingEntidades);
         setShowEntidadSuggestions(matchingEntidades.length > 0);
     };
-
     const handleEntidadSelect = (entidad) => {
         setEntidadInputValue(entidad);
+        setEntidad(entidad); // Actualiza también el estado de entidad
         setShowEntidadSuggestions(false);
     };
 
@@ -109,7 +110,7 @@ const BachilleratoManagement = () => {
         };
 
         try {
-            const response = await fetch(`http://10.11.80.188:8000/api/bachillerato/${selectedBachillerato.id_bach}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/bachillerato/${selectedBachillerato.id_bach}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

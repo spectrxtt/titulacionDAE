@@ -100,6 +100,7 @@ const Integracion = ({ userRole }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [citaAEliminar, setCitaAEliminar] = useState(null);
+    const [totalCitas, setTotalCitas] = useState(0);
 
     const formatDateS = (fecha) => {
         if (!fecha) return 'N/A';
@@ -145,7 +146,7 @@ const Integracion = ({ userRole }) => {
     const handleConfirmDelete = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://10.11.80.188:8000/api/citas/${citaAEliminar}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/citas/${citaAEliminar}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -171,7 +172,7 @@ const Integracion = ({ userRole }) => {
         const fetchCitas = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://10.11.80.188:8000/api/citas', {
+                const response = await fetch('http://10.11.80.111:8000/api/citas', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -199,6 +200,10 @@ const Integracion = ({ userRole }) => {
 
         fetchCitas();
     }, []);
+    // Actualiza el total de citas cuando las citas cambian
+    useEffect(() => {
+        setTotalCitas(citas.length); // Asume que `citas` es el array de citas filtradas
+    }, [citas]);
 
     if (loading) {
         return <div>Cargando citas...</div>;
@@ -214,7 +219,7 @@ const Integracion = ({ userRole }) => {
 
     return (
         <div className="containerIntegracion">
-            <h3>CITAS DEL DÍA</h3>
+            <h3>CITAS DEL DÍA: {citas.length}</h3>
             <div className="table-wrapper">
                 <table className="table">
                     <thead>

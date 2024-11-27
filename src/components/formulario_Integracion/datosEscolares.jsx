@@ -48,27 +48,28 @@ const DatosEscolares = ({ citaSeleccionada }) => {
         try {
             const token = localStorage.getItem('token');
             const [bachResponse, uniResponse, bachilleratosResponse, programasResponse, titulosResponse, modalidadesResponse] = await Promise.all([
-                fetch(`http://10.11.80.188:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
+                fetch(`http://10.11.80.111:8000/api/estudiantes/bachillerato/${citaSeleccionada.num_Cuenta}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch(`http://10.11.80.188:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
+                fetch(`http://10.11.80.111:8000/api/estudiantes/uni/${citaSeleccionada.num_Cuenta}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://10.11.80.188:8000/api/bachilleratos', {
+                fetch('http://10.11.80.111:8000/api/bachilleratos', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://10.11.80.188:8000/api/programas-educativos', {
+                fetch('http://10.11.80.111:8000/api/programas-educativos', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://10.11.80.188:8000/api/titulo-otorgado', {
+                fetch('http://10.11.80.111:8000/api/titulo-otorgado', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 }),
-                fetch('http://10.11.80.188:8000/api/modalidades-titulacion', {
+                fetch('http://10.11.80.111:8000/api/modalidades-titulacion', {
                     headers: { 'Authorization': `Bearer ${token}` },
                 })
             ]);
 
-            if (!bachResponse.ok || !uniResponse.ok || !bachilleratosResponse.ok || !programasResponse.ok || !titulosResponse.ok|| !modalidadesResponse.ok) {
+            // Verificar respuestas
+            if (!bachResponse.ok || !uniResponse.ok || !bachilleratosResponse.ok || !programasResponse.ok || !titulosResponse.ok || !modalidadesResponse.ok) {
                 throw new Error('Error fetching data');
             }
 
@@ -82,8 +83,10 @@ const DatosEscolares = ({ citaSeleccionada }) => {
             ]);
 
             const newEstudianteData = { ...bachData, ...uniData };
-            updateFormData(newEstudianteData);
+            // Actualizar el estado en orden específico
             setBachilleratos(bachilleratosData);
+            updateFormData(newEstudianteData);
+            updateFormData(newEstudianteData);
             setProgramasEducativos(programasData);
             settitulosOtorgados(titulosData);
             setModalidadesTitulacion(modalidadesData);
@@ -104,7 +107,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
         if (formData.id_bach && bachilleratos.length > 0) {
             const selectedBach = bachilleratos.find(bach => bach.id_bach === formData.id_bach);
             if (selectedBach) {
-                setSearchTerm(selectedBach.nombre_bach);
+                setSearchTerm(`${selectedBach.nombre_bach} - ${selectedBach.bach_entidad}`);
             }
         }
     }, [formData.id_bach, bachilleratos]);
@@ -127,25 +130,45 @@ const DatosEscolares = ({ citaSeleccionada }) => {
     useEffect(() => {
         if (searchTerm) {
             const filtered = bachilleratos.filter(bach =>
-                bach.nombre_bach.toLowerCase().includes(searchTerm.toLowerCase())
+                `${bach.nombre_bach} - ${bach.bach_entidad}`
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
             );
             setFilteredBachilleratos(filtered);
-            setShowResults(filtered.length > 0); // Mostrar resultados solo si hay coincidencias
+            setShowResults(filtered.length > 0);
         } else {
-            setShowResults(false); // Ocultar sugerencias si no hay texto en el campo
+            setShowResults(false);
         }
     }, [searchTerm, bachilleratos]);
 
+
     const handleSearchChange = (e) => {
         const value = e.target.value;
-        setSearchTerm(value); // Mantenemos el valor local para el buscador
+        setSearchTerm(value);
+
+        const filtered = bachilleratos.filter(bach =>
+            `${bach.nombre_bach} - ${bach.bach_entidad}`
+                .toLowerCase()
+                .includes(value.toLowerCase())
+        );
+
+        setFilteredBachilleratos(filtered);
+        setShowResults(filtered.length > 0);
     };
 
+
     const handleSelectBachillerato = (bach) => {
-        updateFormData({ ...formData, id_bach: bach.id_bach });
-        setSearchTerm(bach.nombre_bach); // Mostrar nombre seleccionado en el input
-        setShowResults(false); // Ocultar la lista de sugerencias
+        updateFormData({
+            ...formData,
+            id_bach: bach.id_bach,
+            entidad_bach: bach.bach_entidad,
+        });
+
+        setSearchTerm(`${bach.nombre_bach} - ${bach.bach_entidad}`);
+        setShowResults(false);
     };
+
+
 
     const handleFocus = () => {
         setShowResults(true); // Mostrar sugerencias al enfocar
@@ -313,7 +336,7 @@ const DatosEscolares = ({ citaSeleccionada }) => {
             // Log los datos que se están enviando
             console.log('Datos a modificar:', JSON.stringify(dataToUpdate, null, 2)); // Formateo para mejor legibilidad
 
-            const response = await fetch(`http://10.11.80.188:8000/api/estudiantes/datos-escolares/${citaSeleccionada.num_Cuenta}`, {
+            const response = await fetch(`http://10.11.80.111:8000/api/estudiantes/datos-escolares/${citaSeleccionada.num_Cuenta}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -411,14 +434,17 @@ const DatosEscolares = ({ citaSeleccionada }) => {
                                         key={bach.id_bach}
                                         onClick={() => handleSelectBachillerato(bach)}
                                     >
-                                        {bach.nombre_bach}
+                                        {bach.nombre_bach} - {bach.bach_entidad}
                                     </li>
                                 ))
                             ) : (
                                 <li>No se encontraron resultados</li>
                             )}
                         </ul>
+
                     )}
+
+
                 </div>
                 <div className="form-row">
                     <div className="form-group">
