@@ -17,7 +17,5 @@ class programaRequisitos extends Model
         'id_programa_educativo',
         'descripcion',
     ];
-
-
     public $timestamps = false;
 }

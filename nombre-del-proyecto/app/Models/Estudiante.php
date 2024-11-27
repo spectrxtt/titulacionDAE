@@ -11,6 +11,9 @@ class Estudiante extends Model
 
     protected $table = 'datos_estudiantes_personales';
     protected $primaryKey = 'num_Cuenta';
+    public $incrementing = false; // Indica que la clave primaria no es autoincremental
+    protected $keyType = 'string'; // Indica que la clave primaria es de tipo string
+
     protected $guarded = ['num_Cuenta'];
 
     protected $fillable = [
@@ -23,7 +26,9 @@ class Estudiante extends Model
         'num_Cuenta',
         'pais'
     ];
-    public $timestamps = false; // Desactiva los timestamps
+
+    public $timestamps = false;
+
     public function citas()
     {
         return $this->hasMany(Cita::class, 'num_Cuenta', 'num_Cuenta');

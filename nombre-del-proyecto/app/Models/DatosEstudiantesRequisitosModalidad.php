@@ -14,6 +14,9 @@ class DatosEstudiantesRequisitosModalidad extends Model
 
     // Clave primaria de la tabla
     protected $primaryKey = 'num_Cuenta';
+    public $incrementing = false; // Indica que la clave primaria no es autoincremental
+    protected $keyType = 'string'; // Indica que la clave primaria es de tipo string
+
 
     // Relación con los atributos que pueden ser asignados de forma masiva
     protected $fillable = [

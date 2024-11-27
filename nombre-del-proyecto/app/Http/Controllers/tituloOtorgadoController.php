@@ -42,4 +42,29 @@ class tituloOtorgadoController extends Controller
             return response()->json(['error' => 'No se pudo crear el titulo que se otorga.'], 500);
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            // Validar los datos recibidos
+            $request->validate([
+                'titulo_otorgado' => 'required|string|max:255',
+            ]);
+
+            // Buscar el programa educativo por su id
+            $tituloOtorgado = tituloOtorgado::findOrFail($id);
+
+            // Actualizar el programa educativo
+            $tituloOtorgado->update([
+                'titulo_otorgado' => $request->input('titulo_otorgado'),
+            ]);
+
+            // Respuesta exitosa
+            return response()->json(['message' => 'Titulo Otorgado actualizado con éxito.'], 200);
+        } catch (\Exception $e) {
+            // Registrar el error y devolver un mensaje de error
+            \Log::error($e->getMessage());
+            return response()->json(['error' => 'No se pudo actualizar el titulo otorgado.'], 500);
+        }
+    }
 }

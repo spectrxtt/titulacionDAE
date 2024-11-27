@@ -9,6 +9,9 @@ class DatosEstudiantesRequisitosPrograma extends Model
     protected $table = 'datos_estudiantes_requisitos_programa';
     public $timestamps = false;
     protected $primaryKey = 'num_Cuenta';
+    public $incrementing = false; // Indica que la clave primaria no es autoincremental
+    protected $keyType = 'string'; // Indica que la clave primaria es de tipo string
+
     protected $fillable = [
         'num_Cuenta',
         'id_programa_educativo',

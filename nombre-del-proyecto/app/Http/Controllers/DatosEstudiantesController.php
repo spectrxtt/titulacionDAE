@@ -139,13 +139,14 @@ class DatosEstudiantesController extends Controller
         $fecha_inicio = $request->query('fecha_inicio');
         $fecha_fin = $request->query('fecha_fin');
         $estadoCita = $request->query('estado');
+        $observaciones = $request->query('observaciones');
 
         \Log::info('Parámetros recibidos - Cuenta: ' . $num_Cuenta .
             ', Nombre: ' . $nombre .
             ', Fecha inicio: ' . $fecha_inicio .
             ', Fecha fin: ' . $fecha_fin .
-            ', Estado: ' . $estadoCita);
-
+            ', Estado: ' . $estadoCita .
+            ', Observaciones: ' . $observaciones);
         try {
             $citas = Cita::with('usuario')
                 ->when($num_Cuenta, function ($query, $num_Cuenta) {
@@ -165,6 +166,9 @@ class DatosEstudiantesController extends Controller
                 })
                 ->when($estadoCita, function ($query, $estadoCita) {
                     return $query->where('estado_cita', '=', $estadoCita);
+                })
+                ->when($observaciones, function ($query, $observaciones) {
+                    return $query->where('observaciones', 'like', '%' . $observaciones . '%');
                 })
                 ->get();
 

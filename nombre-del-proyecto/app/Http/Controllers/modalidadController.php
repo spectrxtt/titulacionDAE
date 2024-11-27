@@ -44,4 +44,29 @@ class modalidadController extends Controller
         $modalidad = modalidad::all('id_modalidad', 'modalidad_titulacion');  // Obtener todos los programas educativos
         return response()->json($modalidad, 200);
     }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            // Validar los datos recibidos
+            $request->validate([
+                'modalidad_titulacion' => 'required|string|max:255',
+            ]);
+
+            // Buscar el programa educativo por su id
+            $modalidadTitulacion = modalidad::findOrFail($id);
+
+            // Actualizar el programa educativo
+            $modalidadTitulacion->update([
+                'modalidad_titulacion' => $request->input('modalidad_titulacion'),
+            ]);
+
+            // Respuesta exitosa
+            return response()->json(['message' => 'Modalidad de titulacion actualizado con éxito.'], 200);
+        } catch (\Exception $e) {
+            // Registrar el error y devolver un mensaje de error
+            \Log::error($e->getMessage());
+            return response()->json(['error' => 'No se pudo actualizar la modalidad de titulacion.'], 500);
+        }
+    }
 }

@@ -49,67 +49,63 @@ class CitasController extends Controller
 
             // Maneja los estudiantes
             foreach ($request->input('estudiantes') as $estudianteData) {
-                Estudiante::updateOrCreate(
-                    ['num_Cuenta' => $estudianteData['num_Cuenta']],
-                    [
+                // Verifica si ya existe antes de crear
+                if (!Estudiante::where('num_Cuenta', $estudianteData['num_Cuenta'])->exists()) {
+                    Estudiante::create([
+                        'num_Cuenta' => $estudianteData['num_Cuenta'],
                         'nombre_estudiante' => $estudianteData['nombre_estudiante'],
                         'ap_paterno' => $estudianteData['ap_paterno'],
                         'ap_materno' => $estudianteData['ap_materno'],
-                    ]
-                );
+                    ]);
+                }
             }
 
             // Maneja los estudiantesBach
             foreach ($request->input('estudiantesBach') as $estudianteBachData) {
-                // Asegúrate de que el modelo esté bien definido
-                estudianteBachillerato::updateOrCreate(
-                    [
-                        'num_Cuenta' => $estudianteBachData['num_Cuenta'], // Aquí se establece el num_Cuenta
-                        'id_bach' => $estudianteBachData['id_bach'] ?? null // Puedes establecer id_bach si es necesario, o pasarlo como null si no se proporciona
-                    ],
-                    [
-                        'fecha_inicio_bach' => $estudianteBachData['fecha_inicio_bach'] ?? null, // Puedes establecer esto si tienes información
-                        'fecha_fin_bach' => $estudianteBachData['fecha_fin_bach'] ?? null // También puedes establecer esto si es necesario
-                    ]
-                );
+                if (!estudianteBachillerato::where('num_Cuenta', $estudianteBachData['num_Cuenta'])->exists()) {
+                    estudianteBachillerato::create([
+                        'num_Cuenta' => $estudianteBachData['num_Cuenta'],
+                        'id_bach' => $estudianteBachData['id_bach'] ?? null,
+                        'fecha_inicio_bach' => $estudianteBachData['fecha_inicio_bach'] ?? null,
+                        'fecha_fin_bach' => $estudianteBachData['fecha_fin_bach'] ?? null
+                    ]);
+                }
             }
 
             // Maneja los estudiantesUni
             foreach ($request->input('estudiantesUni') as $estudianteUniData) {
-                // Asegúrate de que el modelo esté bien definido
-                estudianteUni::updateOrCreate(
-                    [
-                        'num_Cuenta' => $estudianteUniData['num_Cuenta'], // Aquí se establece el num_Cuenta
-                    ]
-                );
+                if (!estudianteUni::where('num_Cuenta', $estudianteUniData['num_Cuenta'])->exists()) {
+                    estudianteUni::create([
+                        'num_Cuenta' => $estudianteUniData['num_Cuenta'],
+                    ]);
+                }
             }
 
-
+            // Maneja los requisitosObligatorios
             foreach ($request->input('requisitosObligatorios') as $requisitosObligatoriosData) {
-                // Asegúrate de que el modelo esté bien definido
-                DatosEstudiantesRequisitosObligatorios::updateOrCreate(
-                    [
+                if (!DatosEstudiantesRequisitosObligatorios::where('num_Cuenta', $requisitosObligatoriosData['num_Cuenta'])->exists()) {
+                    DatosEstudiantesRequisitosObligatorios::create([
                         'num_Cuenta' => $requisitosObligatoriosData['num_Cuenta'],
-                    ]
-                );
+                    ]);
+                }
             }
 
+            // Maneja los requisitosPrograma
             foreach ($request->input('requisitosPrograma') as $requisitosProgramaData) {
-                // Asegúrate de que el modelo esté bien definido
-                DatosEstudiantesRequisitosPrograma::updateOrCreate(
-                    [
+                if (!DatosEstudiantesRequisitosPrograma::where('num_Cuenta', $requisitosProgramaData['num_Cuenta'])->exists()) {
+                    DatosEstudiantesRequisitosPrograma::create([
                         'num_Cuenta' => $requisitosProgramaData['num_Cuenta'],
-                    ]
-                );
+                    ]);
+                }
             }
 
+            // Maneja los requisitosModalidad
             foreach ($request->input('requisitosModalidad') as $requisitosModalidadData) {
-                // Asegúrate de que el modelo esté bien definido
-                DatosEstudiantesRequisitosModalidad::updateOrCreate(
-                    [
+                if (!DatosEstudiantesRequisitosModalidad::where('num_Cuenta', $requisitosModalidadData['num_Cuenta'])->exists()) {
+                    DatosEstudiantesRequisitosModalidad::create([
                         'num_Cuenta' => $requisitosModalidadData['num_Cuenta'],
-                    ]
-                );
+                    ]);
+                }
             }
 
             return response()->json(['message' => 'Datos cargados correctamente']);
@@ -205,18 +201,20 @@ class CitasController extends Controller
         $fecha_inicio = $request->query('fecha_inicio');
         $fecha_fin = $request->query('fecha_fin');
         $estadoCita = $request->query('estado');
+        $observaciones = $request->query('observaciones');
 
         \Log::info('Parámetros recibidos - Cuenta: ' . $num_Cuenta .
             ', Nombre: ' . $nombre .
             ', Fecha inicio: ' . $fecha_inicio .
             ', Fecha fin: ' . $fecha_fin .
-            ', Estado: ' . $estadoCita);
+            ', Estado: ' . $estadoCita .
+            ', Observaciones: ' . $observaciones);
 
         try {
-            $citas = Cita::with(['usuario', 'estudiante.modalidad']) // Cargar las relaciones usuario y modalidad
-            ->when($num_Cuenta, function ($query, $num_Cuenta) {
-                return $query->where('num_Cuenta', $num_Cuenta);
-            })
+            $citas = Cita::with(['usuario', 'estudiante.modalidad'])
+                ->when($num_Cuenta, function ($query, $num_Cuenta) {
+                    return $query->where('num_Cuenta', $num_Cuenta);
+                })
                 ->when($nombre, function ($query, $nombre) {
                     return $query->where('nombre', 'like', '%' . $nombre . '%');
                 })
@@ -232,14 +230,21 @@ class CitasController extends Controller
                 ->when($estadoCita, function ($query, $estadoCita) {
                     return $query->where('estado_cita', '=', $estadoCita);
                 })
+                ->when($observaciones, function ($query, $observaciones) {
+                    return $query->where('observaciones', 'like', '%' . $observaciones . '%');
+                })
                 ->get();
 
-            // Transformar las citas manteniendo la relación usuario y añadiendo la modalidad titulacion
             $citasTransformadas = $citas->map(function ($cita) {
                 // Si no hay usuario, se asigna un objeto usuario vacío o con 'N/A'
                 $cita->usuario = $cita->usuario ?: (object)['nombre_usuario' => 'N/A'];
-                // Si no hay modalidad, se asigna 'N/A'
-                $cita->estudiante->modalidad = $cita->estudiante->modalidad ?: (object)['modalidad_titulacion' => 'N/A'];
+
+                // Comprobamos si el estudiante y la modalidad existen
+                if ($cita->estudiante) {
+                    // No modificamos la modalidad, simplemente permitimos que sea null si es así
+                    $cita->estudiante->modalidad = $cita->estudiante->modalidad;
+                }
+
                 return $cita;
             });
 
@@ -252,7 +257,6 @@ class CitasController extends Controller
             return response()->json(['error' => 'Error al buscar citas: ' . $e->getMessage()], 500);
         }
     }
-
 
     public function destroy($id_cita)
     {

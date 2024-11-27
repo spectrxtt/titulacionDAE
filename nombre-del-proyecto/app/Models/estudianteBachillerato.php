@@ -11,6 +11,9 @@ class estudianteBachillerato extends Model
 
     protected $table = 'datos_estudiantes_bach';
     protected $primaryKey = 'num_Cuenta';
+    public $incrementing = false; // Indica que la clave primaria no es autoincremental
+    protected $keyType = 'string'; // Indica que la clave primaria es de tipo string
+
 
     protected $fillable = [
         'fecha_inicio_bach',

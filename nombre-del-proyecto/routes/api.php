@@ -38,22 +38,36 @@ Route::middleware(['api'])->group(function () {
     // Rutas para programas educativos
     Route::post('/programa-educativo', [programaEduController::class, 'store'])->name('programa_educativo.store');
     Route::get('/programas-educativos', [programaEduController::class, 'index']);
+    Route::put('/programa-educativo/{id}', [programaEduController::class, 'update'])->name('programa_educativo.update');
+
 
     // Rutas para titulos otorgados
     Route::post('/titulo-otorgado', [tituloOtorgadoController::class, 'store'])->name('titulo_otorgado.store');
     Route::get('/titulo-otorgado', [tituloOtorgadoController::class, 'index'])->name('titulo_otorgado.index');
+    Route::put('/titulo-otorgadoM/{id}', [tituloOtorgadoController::class, 'update'])->name('titulo_otorgado.update');
 
     // Rutas para modalidades
     Route::post('/modalidad-titulacion', [modalidadController::class, 'store'])->name('modalidad_titulacion.store');
     Route::get('/modalidades-titulacion', [modalidadController::class, 'index']);
+    Route::put('/modalidades-titulacionM/{id}', [modalidadController::class, 'update'])->name('modalidad_titulacion.update');
+
 
     // Rutas para requisitos de modalidad
     Route::post('/requisitos-modalidad', [requisitosModalidadController::class, 'store'])->name('requisitos_modalidad.store');
     Route::get('/requisitos-modalidad', [RequisitosModalidadController::class, 'index']);
+    Route::get('requisitos-modalidad/{idPrograma}/{idModalidad}', [RequisitosModalidadController::class, 'getRequisitosPorModalidadYPrograma']);
+    Route::put('requisitos/modalidad/{id_requisito_modalidad}', [RequisitosModalidadController::class, 'update']);
+    Route::post('requisitos/modalidad/delete', [RequisitosModalidadController::class, 'deleteRequisito']);
+
+
 
     // Rutas para requisitos de programa
     Route::post('/requisitos-programa', [requisitosProgramaController::class, 'store'])->name('requisitos_programa.store');
     Route::get('/requisitos-programa', [requisitosProgramaController::class, 'index']);
+    Route::put('/requisitos-programa/{id_requisito_programa}', [requisitosProgramaController::class, 'update']);
+    Route::get('/programas-educativos/{id}/requisitos', [requisitosProgramaController::class, 'getRequisitos']); // Requisitos de un programa
+    Route::post('/requisitos-programa/delete', [requisitosProgramaController::class, 'deleteRequisito']);
+
 
     Route::get('/estudiantes/{num_Cuenta}', [DatosEstudiantesController::class, 'obtenerPorNumeroCuenta']);
     Route::put('/estudiantes/{num_Cuenta}', [DatosEstudiantesController::class, 'update']);
